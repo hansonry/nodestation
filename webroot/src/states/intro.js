@@ -1,6 +1,6 @@
-var TemplateGame = TemplateGame || {};
+var NodeStation = NodeStation || {};
 
-TemplateGame.Intro = new Kiwi.State( "Intro" );
+NodeStation.Intro = new Kiwi.State( "Intro" );
 
 /**
 * IntroState manages main-menu functionality for your game.
@@ -11,7 +11,7 @@ TemplateGame.Intro = new Kiwi.State( "Intro" );
 */
 
 
-TemplateGame.Intro.create = function () {
+NodeStation.Intro.create = function () {
 
 	Kiwi.State.prototype.create.call( this );
 

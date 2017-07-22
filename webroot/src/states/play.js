@@ -1,6 +1,6 @@
-var TemplateGame = TemplateGame || {};
+var NodeStation = NodeStation || {};
 
-TemplateGame.Play = new Kiwi.State( "Play" );
+NodeStation.Play = new Kiwi.State( "Play" );
 
 /**
 * The PlayState in the core state that is used in the game. 
@@ -13,9 +13,14 @@ TemplateGame.Play = new Kiwi.State( "Play" );
 * This create method is executed when a Kiwi state has finished loading
 * any resources that were required to load.
 */
-TemplateGame.Play.create = function () {
+
+var socket = undefined;
+NodeStation.Play.create = function () {
 
 	Kiwi.State.prototype.create.call( this );
+   var self = this;
+
+   this.list = [];
 
 	/*
 	* Replace with your own game creation code here...
@@ -29,11 +34,6 @@ TemplateGame.Play.create = function () {
 	this.heart.y = this.game.stage.height - this.heart.height - 10;
 
 
-	this.shield = new Kiwi.GameObjects.Sprite(
-		this, this.textures.icons, 200, 200 );
-	this.shield.cellIndex = 9;
-	this.shield.y = this.game.stage.height * 0.5 - this.shield.height * 0.5;
-	this.shield.x = this.game.stage.width * 0.5 - this.shield.width * 0.5;
 
 
 	this.crown = new Kiwi.GameObjects.Sprite(
@@ -51,15 +51,85 @@ TemplateGame.Play.create = function () {
 	// Add the GameObjects to the stage
 	this.addChild( this.heart );
 	this.addChild( this.crown );
-	this.addChild( this.shield );
+	//this.addChild( this.shield );
 	this.addChild( this.bomb );
 	this.addChild( this.name );
+
+   
+   // Connect to socket.io
+   socket = io();
+   socket.on('update', function(msg) {
+      while( self.list.length > msg.length) {
+         self.removeChild(self.list[0]);
+         self.list.splice(0, 1);
+      }
+      while( self.list.length < msg.length) {
+         shield = new Kiwi.GameObjects.Sprite(
+            self, self.textures.icons, 200, 200 );
+         shield.cellIndex = 9;
+         self.addChild(shield);
+         self.list.push(shield);
+
+      }
+      for(var i = 0; i < msg.length; i ++)
+      {
+         self.list[i].x = msg[i].x;
+         self.list[i].y = msg[i].y;
+      }
+   });
+
+   // Input
+   this.game.input.keyboard.onKeyDownOnce.add(this.keyDownOnce, this);
+   this.game.input.keyboard.onKeyUp.add(this.keyUp, this);
+};
+
+NodeStation.Play.keyDownOnce = function(keyCode, key) {
+   var key = undefined;
+   if(keyCode == Kiwi.Input.Keycodes.UP) {
+      key = 'up';
+   }
+   else if(keyCode == Kiwi.Input.Keycodes.DOWN) {
+      key = 'down';
+   }
+   else if(keyCode == Kiwi.Input.Keycodes.LEFT) {
+      key = 'left';
+   }
+   else if(keyCode == Kiwi.Input.Keycodes.RIGHT) {
+      key = 'right';
+   }
+
+   if(key) {
+      socket.emit('key', { event: 'down', key: key });
+   }
+};
+
+NodeStation.Play.keyUp = function(keyCode, key) {
+   var key = undefined;
+   if(keyCode == Kiwi.Input.Keycodes.UP) {
+      key = 'up';
+   }
+   else if(keyCode == Kiwi.Input.Keycodes.DOWN) {
+      key = 'down';
+   }
+   else if(keyCode == Kiwi.Input.Keycodes.LEFT) {
+      key = 'left';
+   }
+   else if(keyCode == Kiwi.Input.Keycodes.RIGHT) {
+      key = 'right';
+   }
+
+   if(key) {
+      socket.emit('key', { event: 'up', key: key });
+   }
 };
 
 
-TemplateGame.Play.update = function() {
+NodeStation.Play.update = function() {
 
 	Kiwi.State.prototype.update.call( this );
-
-	this.shield.rotation += this.game.time.clock.rate * 0.01;
+   
+   for(var i = 0; i < this.list.length; i++) {
+	   this.list[i].rotation += this.game.time.clock.rate * 0.01;
+   }
 };
+

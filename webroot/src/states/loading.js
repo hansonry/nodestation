@@ -27,13 +27,13 @@
 * 4 - subfolder {string} Folder that the loading graphics are located in
 */
 
-var TemplateGame = TemplateGame || {};
+var NodeStation = NodeStation || {};
 
-TemplateGame.Loading = new KiwiLoadingScreen(
+NodeStation.Loading = new KiwiLoadingScreen(
 	"Loading", "Intro", "assets/img/loading/" );
 
 
-TemplateGame.Loading.preload = function () {
+NodeStation.Loading.preload = function () {
 
 	// Make sure to call the super at the top.
 	// Otherwise the loading graphics will load last,
@@ -45,4 +45,6 @@ TemplateGame.Loading.preload = function () {
 	**/
 	this.addImage( "kiwiName", "assets/img/kiwijs-name.png" );
 	this.addSpriteSheet( "icons", "assets/img/kiwijs-icons.png", 100, 90 );
+
 };
+

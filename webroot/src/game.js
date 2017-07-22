@@ -1,5 +1,5 @@
 /**
-* The core TemplateGame game file.
+* The core NodeStation game file.
 * 
 * This file is only used to initalise (start-up) the main Kiwi Game 
 * and add all of the relevant states to that Game.
@@ -13,11 +13,14 @@ var gameOptions = {
 	height: 600
 };
 
-var game = new Kiwi.Game( "content", "TemplateGame", null, gameOptions );
+var game = new Kiwi.Game( "content", "NodeStation", null, gameOptions );
 
 // Add all the States we are going to use.
-game.states.addState( TemplateGame.Loading );
-game.states.addState( TemplateGame.Intro );
-game.states.addState( TemplateGame.Play );
+game.states.addState( NodeStation.Loading );
+game.states.addState( NodeStation.Intro );
+game.states.addState( NodeStation.Play );
 
 game.states.switchState( "Loading" );
+
+
+
