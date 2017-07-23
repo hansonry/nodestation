@@ -2,9 +2,12 @@ var express = require('express');
 var app     = express();
 var http    = require('http').Server(app);
 var io      = require('socket.io')(http);
+var shortid = require('shortid');
 
 
 var clientList = require('./src/clientList').create();
+var pawnList   = require('./src/pawnList').create();
+var tx         = require('./src/transmit');
 
 
 app.use(express.static('webroot'));
@@ -16,6 +19,15 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
    console.log('a user connected');
    var client = clientList.add(socket);
+   client.controlledPawn = pawnList.add(shortid.generate());
+
+   for(var i = 0; i < clientList.list.length; i++) {
+      tx.pawn.add(clientList.list[i].socket, client.controlledPawn);
+      if(clientList.list[i] != client) {
+         tx.pawn.add(client.socket, clientList.list[i].controlledPawn);
+      }
+   }
+
 
    socket.on('key', function(msg) {
       //console.log(msg);
@@ -27,8 +39,12 @@ io.on('connection', function(socket) {
       }
    });
    socket.on('disconnect', function() {
-      console.log('a user disconnected');
+      for(var i = 0; i < clientList.list.length; i++) {
+         tx.pawn.remove(clientList.list[i].socket, client.controlledPawn);
+      }
+      pawnList.remove(client.controlledPawn);
       clientList.remove(socket);
+      console.log('a user disconnected');
    });
 });
 
@@ -62,20 +78,18 @@ setInterval(function() {
       }
       //console.log("dx: " + dx + ", dy: " + dy);
 
-      client.x = client.x + (dx * updateTimeSeconds * speed);
-      client.y = client.y + (dy * updateTimeSeconds * speed);
+      client.controlledPawn.x += (dx * updateTimeSeconds * speed);
+      client.controlledPawn.y += (dy * updateTimeSeconds * speed);
    }
 
    // Send Events to all clients
-   for(var i = 0; i < clientList.list.length; i++) {
-      var client = clientList.list[i];
+   for(var i = 0; i < pawnList.list.length; i++) {
+      var pawn = pawnList.list[i];
 
-      var shipList = [];
       for(var k = 0; k < clientList.list.length; k++) {
          var targetClient = clientList.list[k];
-         shipList.push({ x: targetClient.x, y: targetClient.y }); 
+         tx.pawn.update(targetClient.socket, pawn);
       }
-      client.socket.emit('update', shipList);
       //console.log('emit update');
    }
 }, updateTimeSeconds * 1000); // milliseconds

@@ -58,23 +58,33 @@ NodeStation.Play.create = function () {
    
    // Connect to socket.io
    socket = io();
-   socket.on('update', function(msg) {
-      while( self.list.length > msg.length) {
-         self.removeChild(self.list[0]);
-         self.list.splice(0, 1);
+   socket.on('addPawn', function(msg) {
+      shield = new Kiwi.GameObjects.Sprite(
+         self, self.textures.icons, 200, 200 );
+	   shield.cellIndex = 9;
+      self.list.push(shield);
+      self.addChild(shield);
+      shield.id = msg.id;
+      shield.x  = msg.x;
+      shield.y  = msg.y;
+   });
+   socket.on('removePawn', function(msg) {
+      for(var i = 0; i < self.list.length; i++) {
+         if(self.list[i].id == msg.id) {
+            self.removeChild(self.list[i]);
+            self.list.splice(i, 1);
+            break;
+         }
       }
-      while( self.list.length < msg.length) {
-         shield = new Kiwi.GameObjects.Sprite(
-            self, self.textures.icons, 200, 200 );
-         shield.cellIndex = 9;
-         self.addChild(shield);
-         self.list.push(shield);
-
-      }
-      for(var i = 0; i < msg.length; i ++)
-      {
-         self.list[i].x = msg[i].x;
-         self.list[i].y = msg[i].y;
+   });
+   socket.on('updatePawn', function(msg) {
+      for(var i = 0; i < self.list.length; i++) {
+         var shield = self.list[i];
+         if(shield.id == msg.id) {
+            shield.x = msg.x;
+            shield.y = msg.y;
+            break;
+         }
       }
    });
 

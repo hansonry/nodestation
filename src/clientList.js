@@ -10,15 +10,14 @@ module.exports = {
       this.add = function(socket) {
          var obj = { 
             socket: socket, 
-            x: 0, 
-            y: 0, 
             keys: {
                up: false,
                down: false,
                left: false,
                right: false
-               }
-            };
+            },
+            controlledPawn: undefined
+         };
          self.list.push(obj);
          return obj;
       }
