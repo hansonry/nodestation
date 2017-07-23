@@ -45,6 +45,8 @@ NodeStation.Loading.preload = function () {
 	**/
 	this.addImage( "kiwiName", "assets/img/kiwijs-name.png" );
 	this.addSpriteSheet( "icons", "assets/img/kiwijs-icons.png", 100, 90 );
+   this.addImage("pawn",  "assets/img/pawn.png");
+	this.addSpriteSheet( "mapTiles", "assets/img/mapTiles.png", 32, 32 );
 
 };
 

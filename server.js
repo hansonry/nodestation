@@ -8,6 +8,25 @@ var shortid = require('shortid');
 var clientList = require('./src/clientList').create();
 var pawnList   = require('./src/pawnList').create();
 var tx         = require('./src/transmit');
+var tileList   = require('./src/tileList').create();
+
+{
+   var w = 'wall';
+   var f = 'floor';
+   var tempMap = [
+      w, w, w, w, w, w, w, w, w, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, f, f, f, f, f, f, f, f, w,
+      w, w, w, w, w, w, w, w, w, w,
+   ];
+   tileList.setup(10, 10, tempMap);
+}
 
 
 app.use(express.static('webroot'));
@@ -27,6 +46,8 @@ io.on('connection', function(socket) {
          tx.pawn.add(client.socket, clientList.list[i].controlledPawn);
       }
    }
+
+   tx.tile.newMap(client.socket, tileList.width, tileList.height);
 
 
    socket.on('key', function(msg) {
@@ -83,12 +104,16 @@ setInterval(function() {
    }
 
    // Send Events to all clients
-   for(var i = 0; i < pawnList.list.length; i++) {
-      var pawn = pawnList.list[i];
-
-      for(var k = 0; k < clientList.list.length; k++) {
-         var targetClient = clientList.list[k];
+   for(var k = 0; k < clientList.list.length; k++) {
+      var targetClient = clientList.list[k];
+      for(var i = 0; i < pawnList.list.length; i++) {
+         var pawn = pawnList.list[i];
          tx.pawn.update(targetClient.socket, pawn);
+      }
+
+      for(var i = 0; i < tileList.list.length; i++) {
+         var tile = tileList.list[i];
+         tx.tile.update(targetClient.socket, tile);
       }
       //console.log('emit update');
    }

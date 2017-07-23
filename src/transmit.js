@@ -20,6 +20,21 @@ module.exports = {
             y:  pawn.y
          });
       }
+   },
+   tile: {
+      newMap: function(socket, width, height) {
+         socket.emit('newMap', {
+            width: width,
+            height: height
+         });
+      },
+      update: function(socket, tile) {
+         socket.emit('updateTile', {
+            type: tile.type,
+            x: tile.x,
+            y: tile.y
+         });
+      }
    }
 };
 
