@@ -14,6 +14,11 @@ NodeStation.Play = new Kiwi.State( "Play" );
 * any resources that were required to load.
 */
 
+var itemImageMap = {
+   questionMark: 0,
+   idCard:       1  
+};
+
 var socket = undefined;
 NodeStation.Play.create = function () {
 
@@ -124,7 +129,11 @@ NodeStation.Play.create = function () {
    socket.on('addItem', function(msg) {
       sprite = new Kiwi.GameObjects.Sprite(
          self, self.textures.items);
-      if(msg.type == 'idCard') {
+      var cellIndex = itemImageMap[msg.type];
+      if(cellIndex != undefined) {
+         sprite.cellIndex = cellIndex;
+      }
+      else {
          sprite.cellIndex = 0;
       }
       self.addChildAt(sprite, 1);
