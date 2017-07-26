@@ -35,6 +35,31 @@ module.exports = {
             y: tile.y
          });
       }
+   },
+   item: {
+      add: function(socket, item) {
+         socket.emit('addItem', {
+            id: item.id,
+            type: item.type,
+            x: item.x,
+            y: item.y,
+            inventoryId: item.inventoryId
+         });
+      },
+      remove: function(socket, item) {
+         socket.emit('removeItem', {
+            id: item.id
+         });
+      },
+      update: function(socket, item) {
+         socket.emit('updateItem', {
+            id: item.id,
+            type: item.type,
+            x: item.x,
+            y: item.y,
+            inventoryId: item.inventoryId
+         });
+      }
    }
 };
 

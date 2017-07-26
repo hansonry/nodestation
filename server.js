@@ -3,12 +3,13 @@ var app     = express();
 var http    = require('http').Server(app);
 var io      = require('socket.io')(http);
 var shortid = require('shortid');
+var lists   = require('./src/lists');
+var tx      = require('./src/transmit');
 
-
-var clientList = require('./src/clientList').create();
-var pawnList   = require('./src/pawnList').create();
-var tx         = require('./src/transmit');
-var tileList   = require('./src/tileList').create();
+var clientList = lists.createClientList();
+var pawnList   = lists.createPawnList();
+var tileList   = lists.createTileList();
+var itemList   = lists.createItemList();
 
 {
    var w = 'wall';
@@ -28,6 +29,8 @@ var tileList   = require('./src/tileList').create();
    tileList.setup(10, 10, tempMap);
 }
 
+itemList.add(shortid.generate(), 'idCard');
+
 
 app.use(express.static('webroot'));
 app.get('/', function(req, res) {
@@ -45,6 +48,10 @@ io.on('connection', function(socket) {
       if(clientList.list[i] != client) {
          tx.pawn.add(client.socket, clientList.list[i].controlledPawn);
       }
+   }
+
+   for(var i = 0; i , itemList.list.length; i++) {
+      tx.item.add(client.socket, itemList.list[i]);
    }
 
    tx.tile.newMap(client.socket, tileList.width, tileList.height);
@@ -114,6 +121,9 @@ setInterval(function() {
       for(var i = 0; i < tileList.list.length; i++) {
          var tile = tileList.list[i];
          tx.tile.update(targetClient.socket, tile);
+      }
+      for(var i = 0; i , itemList.list.length; i++) {
+         tx.item.update(targetClient.socket, itemList.list[i]);
       }
       //console.log('emit update');
    }
