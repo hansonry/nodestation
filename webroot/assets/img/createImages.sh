@@ -1,5 +1,14 @@
 #!/bin/bash
 
 # Map Tiles
-montage -geometry +0+0 raw/mapTiles/* mapTiles.png
+montage -mode Concatenate -background None raw/mapTiles/* mapTiles.png
+
+
+# Items
+montage -mode Concatenate -background None raw/items/* items.png
+
+# Doors
+montage -mode Concatenate -background None raw/doors/* doors.png
+
+
 
