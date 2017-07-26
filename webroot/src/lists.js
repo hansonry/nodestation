@@ -41,3 +41,45 @@ function PawnList() {
    
    return this;
 }
+
+function ItemList() {
+   var self = this;
+   this.list = [];
+   this.findById = function(id) {
+      var itemIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         if(self.list[i].id == id) {
+            itemIndex = i;
+            break;
+         }
+      }
+      return itemIndex;
+   };
+   
+   this.add = function(id, sprite, type, x, y) {
+      var itemIndex = self.findById(id);
+      var item;
+      if(itemIndex < 0) {
+         item = { id: id, type: type, sprite: sprite };
+         item.sprite.x = x;
+         item.sprite.y = y;
+         
+         self.list.push(item);
+      }
+      else {
+         item = self.list[itemIndex];
+         item.sprite.x = x;
+         item.sprite.y = y;
+      }
+      return item;
+   };
+   
+   this.removeByIndex = function(itemIndex) {
+      if(itemIndex) {
+         self.list.splice(itemIndex, 1);
+      }
+   };
+   
+   
+   return this;
+}

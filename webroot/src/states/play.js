@@ -21,6 +21,7 @@ NodeStation.Play.create = function () {
    var self = this;
 
    this.pawnList = new PawnList();
+   this.itemList = new ItemList();
 
 	/*
 	* Replace with your own game creation code here...
@@ -99,7 +100,7 @@ NodeStation.Play.create = function () {
    socket.on('addPawn', function(msg) {
       sprite = new Kiwi.GameObjects.Sprite(
          self, self.textures.pawn);         
-      self.addChildAt(sprite, 1);
+      self.addChildAt(sprite, 2);
       self.pawnList.add(msg.id, sprite, msg.x, msg.y);
    });
    socket.on('removePawn', function(msg) {
@@ -110,7 +111,6 @@ NodeStation.Play.create = function () {
          state.removeChild(sprite);
          self.pawnList.remove(pawnIndex);
       }
-      
    });
    socket.on('updatePawn', function(msg) {
       var pawnIndex = self.pawnList.findById(msg.id);
@@ -121,6 +121,34 @@ NodeStation.Play.create = function () {
          pawn.sprite.y = msg.y;
       }
    });
+   socket.on('addItem', function(msg) {
+      sprite = new Kiwi.GameObjects.Sprite(
+         self, self.textures.items);
+      if(msg.type == 'idCard') {
+         sprite.cellIndex = 0;
+      }
+      self.addChildAt(sprite, 1);
+      self.itemList.add(msg.id, sprite, msg.type, msg.x, msg.y);
+   });
+   socket.on('removeItem', function(msg) {
+      var itemIndex = self.itemList.findById(id);
+      if(itemIndex >= 0)
+      {
+         var sprite = pawnList.list[itemIndex].sprite;
+         state.removeChild(sprite);
+         self.pawnList.remove(itemIndex);
+      }
+   });
+   socket.on('updateItem', function(msg) {
+      var itemIndex = self.itemList.findById(msg.id);
+      if(itemIndex >= 0)
+      {
+         var item = self.itemList.list[itemIndex];
+         item.sprite.x = msg.x;
+         item.sprite.y = msg.y;
+      }
+   });
+
 
    // Input
    this.game.input.keyboard.onKeyDownOnce.add(this.keyDownOnce, this);
