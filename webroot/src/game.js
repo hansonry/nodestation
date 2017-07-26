@@ -9,11 +9,12 @@
 
 var gameOptions = {
 	renderer: Kiwi.RENDERER_CANVAS,
-	width: 800,
-	height: 600
+	width: 640,
+	height: 480,
+   scaleType: Kiwi.Stage.SCALE_FIT
 };
 
-var game = new Kiwi.Game( "content", "NodeStation", null, gameOptions );
+var game = new Kiwi.Game( "engineContent", "NodeStation", null, gameOptions );
 
 // Add all the States we are going to use.
 game.states.addState( NodeStation.Loading );
