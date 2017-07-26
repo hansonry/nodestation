@@ -15,7 +15,7 @@ function clientList() {
       };
       self.list.push(obj);
       return obj;
-   }
+   };
    this.remove = function(socket) {
       for(var i = 0; i < self.list.length; i ++)
       {
@@ -24,7 +24,7 @@ function clientList() {
             break;
          }
       }
-   }
+   };
    return this;
 }
 
@@ -40,7 +40,7 @@ function pawnList() {
       };
       self.list.push(obj);
       return obj;
-   }
+   };
    this.remove = function(pawn) {
       for(var i = 0; i < self.list.length; i ++)
       {
@@ -49,7 +49,7 @@ function pawnList() {
             break;
          }
       }
-   }
+   };
    return this;
 }
 
@@ -66,7 +66,7 @@ function itemList() {
       };
       self.list.push(obj);
       return obj;
-   }
+   };
    this.remove = function(item) {
       for(var i = 0; i < self.list.length; i ++)
       {
@@ -75,7 +75,7 @@ function itemList() {
             break;
          }
       }
-   }
+   };
    return this;
 }
 
@@ -96,7 +96,7 @@ function tileList() {
             i++;
          }
       }
-   }
+   };
 
 
    this.add = function(type, x, y) {
@@ -107,7 +107,7 @@ function tileList() {
       };
       self.list.push(obj);
       return obj;
-   }
+   };
    this.remove = function(tile) {
       for(var i = 0; i < self.list.length; i ++)
       {
@@ -116,7 +116,7 @@ function tileList() {
             break;
          }
       }
-   }
+   };
    return this;
 }
 

@@ -50,7 +50,7 @@ io.on('connection', function(socket) {
       }
    }
 
-   for(var i = 0; i , itemList.list.length; i++) {
+   for(var i = 0; i < itemList.list.length; i++) {      
       tx.item.add(client.socket, itemList.list[i]);
    }
 
@@ -122,7 +122,7 @@ setInterval(function() {
          var tile = tileList.list[i];
          tx.tile.update(targetClient.socket, tile);
       }
-      for(var i = 0; i , itemList.list.length; i++) {
+      for(var i = 0; i < itemList.list.length; i++) {
          tx.item.update(targetClient.socket, itemList.list[i]);
       }
       //console.log('emit update');

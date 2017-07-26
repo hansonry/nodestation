@@ -20,7 +20,7 @@ NodeStation.Play.create = function () {
 	Kiwi.State.prototype.create.call( this );
    var self = this;
 
-   this.list = [];
+   this.pawnList = new PawnList();
 
 	/*
 	* Replace with your own game creation code here...
@@ -97,31 +97,28 @@ NodeStation.Play.create = function () {
       self.mapLayer.setTile(msg.x, msg.y, tileIndex);
    });
    socket.on('addPawn', function(msg) {
-      pawn = new Kiwi.GameObjects.Sprite(
-         self, self.textures.pawn);
-      self.list.push(pawn);
-      self.addChildAt(pawn, 1);
-      pawn.gameId = msg.id;
-      pawn.x  = msg.x;
-      pawn.y  = msg.y;
+      sprite = new Kiwi.GameObjects.Sprite(
+         self, self.textures.pawn);         
+      self.addChildAt(sprite, 1);
+      self.pawnList.add(msg.id, sprite, msg.x, msg.y);
    });
    socket.on('removePawn', function(msg) {
-      for(var i = 0; i < self.list.length; i++) {
-         if(self.list[i].gameId == msg.id) {
-            self.removeChild(self.list[i]);
-            self.list.splice(i, 1);
-            break;
-         }
+      var pawnIndex = self.pawnList.findById(id);
+      if(pawnIndex >= 0)
+      {
+         var sprite = pawnList.list[pawnIndex].sprite;
+         state.removeChild(sprite);
+         self.pawnList.remove(pawnIndex);
       }
+      
    });
    socket.on('updatePawn', function(msg) {
-      for(var i = 0; i < self.list.length; i++) {
-         var pawn = self.list[i];
-         if(pawn.gameId == msg.id) {
-            pawn.x = msg.x;
-            pawn.y = msg.y;
-            break;
-         }
+      var pawnIndex = self.pawnList.findById(msg.id);
+      if(pawnIndex >= 0)
+      {
+         var pawn = self.pawnList.list[pawnIndex];
+         pawn.sprite.x = msg.x;
+         pawn.sprite.y = msg.y;
       }
    });
 
