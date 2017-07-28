@@ -55,6 +55,11 @@ io.on('connection', function(socket) {
    }
 
    tx.tile.newMap(client.socket, tileList.width, tileList.height);
+   for(var i = 0; i < tileList.list.length; i++) {
+      var tile = tileList.list[i];
+      tx.tile.update(client.socket, tile);
+   }
+
 
 
    socket.on('key', function(msg) {
@@ -84,7 +89,7 @@ http.listen(3000, function() {
 
 
 var updateTimeSeconds = 0.05;
-var speed = 100;
+
 setInterval(function() {
    //console.log('Tick!');
    // Game update
@@ -106,8 +111,9 @@ setInterval(function() {
       }
       //console.log("dx: " + dx + ", dy: " + dy);
 
-      client.controlledPawn.x += (dx * updateTimeSeconds * speed);
-      client.controlledPawn.y += (dy * updateTimeSeconds * speed);
+      client.controlledPawn.x += dx;
+      client.controlledPawn.y += dy;
+      //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
    }
 
    // Send Events to all clients
@@ -116,11 +122,6 @@ setInterval(function() {
       for(var i = 0; i < pawnList.list.length; i++) {
          var pawn = pawnList.list[i];
          tx.pawn.update(targetClient.socket, pawn);
-      }
-
-      for(var i = 0; i < tileList.list.length; i++) {
-         var tile = tileList.list[i];
-         tx.tile.update(targetClient.socket, tile);
       }
       for(var i = 0; i < itemList.list.length; i++) {
          tx.item.update(targetClient.socket, itemList.list[i]);

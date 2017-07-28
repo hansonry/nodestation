@@ -19,6 +19,13 @@ var itemImageMap = {
    idCard:       1  
 };
 
+var consts = {
+   tile: {
+     width:  32,
+     height: 32
+   } 
+};
+
 var socket = undefined;
 NodeStation.Play.create = function () {
 
@@ -56,7 +63,7 @@ NodeStation.Play.create = function () {
 
    this.map = new Kiwi.GameObjects.Tilemap.TileMap(this);
 
-   this.map.setTo(32, 32, 10, 10);
+   this.map.setTo(consts.tile.width, consts.tile.height, 10, 10);
    
    this.map.createTileType(0);
    this.map.createTileType(1);
@@ -84,7 +91,7 @@ NodeStation.Play.create = function () {
    socket.on('newMap', function(msg) {
       self.removeChild(self.mapLayer);
       self.mapLayer.destroy();
-      self.map.setTo(32, 32, msg.width, msg.height);
+      self.map.setTo(consts.tile.width, consts.tile.height, msg.width, msg.height);
       self.mapLayer = self.map.createNewLayer('map', self.textures.mapTiles);
       self.addChildAt(self.mapLayer, 0);
    });
@@ -106,7 +113,9 @@ NodeStation.Play.create = function () {
       sprite = new Kiwi.GameObjects.Sprite(
          self, self.textures.pawn);         
       self.addChildAt(sprite, 2);
-      self.pawnList.add(msg.id, sprite, msg.x, msg.y);
+      self.pawnList.add(msg.id, sprite);
+      sprite.x = consts.tile.width  * msg.x;
+      sprite.y = consts.tile.height * msg.y;
    });
    socket.on('removePawn', function(msg) {
       var pawnIndex = self.pawnList.findById(id);
@@ -122,8 +131,8 @@ NodeStation.Play.create = function () {
       if(pawnIndex >= 0)
       {
          var pawn = self.pawnList.list[pawnIndex];
-         pawn.sprite.x = msg.x;
-         pawn.sprite.y = msg.y;
+         pawn.sprite.x = consts.tile.width  * msg.x;
+         pawn.sprite.y = consts.tile.height * msg.y;
       }
    });
    socket.on('addItem', function(msg) {
