@@ -3,6 +3,9 @@
 function PawnList() {
    var self = this;
    this.list = [];
+   this.reconnect = function() {
+      this.list = [];
+   }
    this.findById = function(id) {
       var pawnIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
@@ -14,20 +17,15 @@ function PawnList() {
       return pawnIndex;
    };
    
-   this.add = function(id, sprite, x, y) {
+   this.add = function(id, sprite) {
       var pawnIndex = self.findById(id);
       var pawn;
       if(pawnIndex < 0) {
          pawn = { id: id, sprite: sprite };
-         pawn.sprite.x = x;
-         pawn.sprite.y = y;
-         
          self.list.push(pawn);
       }
       else {
          pawn = self.list[pawnIndex];
-         pawn.sprite.x = x;
-         pawn.sprite.y = y;
       }
       return pawn;
    };

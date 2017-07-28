@@ -8,7 +8,7 @@
 // Initialise the Kiwi Game. 
 
 var gameOptions = {
-	renderer: Kiwi.RENDERER_CANVAS,
+	renderer: Kiwi.RENDERER_WEBGL, // Canvase rendering does some strange flickering thing
 	width: 640,
 	height: 480,
    scaleType: Kiwi.Stage.SCALE_FIT

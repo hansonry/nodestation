@@ -1,5 +1,5 @@
 
-function clientList() {
+function ClientList() {
    var self = this;
    this.list = [];
    this.add = function(socket) {
@@ -29,14 +29,15 @@ function clientList() {
 }
 
 
-function pawnList() {
+function PawnList() {
    var self = this;
    this.list = [];
+   this.init = {x: 1, y: 1}
    this.add = function(id) {
       var obj = {
          id: id,
-         x: 0, 
-         y: 0, 
+         x: self.init.x, 
+         y: self.init.y, 
       };
       self.list.push(obj);
       return obj;
@@ -53,7 +54,7 @@ function pawnList() {
    return this;
 }
 
-function itemList() {
+function ItemList() {
    var self = this;
    this.list = [];
    this.add = function(id, type) {
@@ -79,7 +80,7 @@ function itemList() {
    return this;
 }
 
-function tileList() {
+function TileList() {
    var self = this;
    this.list = [];
    this.version = 0;
@@ -122,16 +123,16 @@ function tileList() {
 
 module.exports = {
    createClientList: function() {
-      return new clientList();
+      return new ClientList();
    },
    createPawnList: function() {
-      return new pawnList();
+      return new PawnList();
    },
    createTileList: function() {
-      return new tileList();
+      return new TileList();
    },
    createItemList: function() {
-      return new itemList();
+      return new ItemList();
    }
 };
 
