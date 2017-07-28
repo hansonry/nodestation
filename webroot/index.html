@@ -16,37 +16,12 @@
    <div style="width: 99%; height: 99%;">
       <div style="float:left; width: 50%;"><div id="engineContent"></div></div>      
       <div style="float:right; width: 50%; height: 100%; position:relative;">
-         <div style="overflow:auto; height: 90%;">
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>
-         Chat<br>Chat<br>
-         Chat<br>
+         <div style="overflow:auto; height: 90%;" id="chatHistory">
+         <p> Welcome to Node Station</p>
          </div>
          <div style="height: 10%">
-         <form>
-         <input type="text" style="width: 100%; "></input>
+         <form onsubmit="return chatOnSubmit();">
+         <input type="text" style="width: 100%;" id="chatInputTextbox" autocomplete="off"></input>
          </form>
          </div>
       </div>

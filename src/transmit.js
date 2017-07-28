@@ -60,6 +60,13 @@ module.exports = {
             inventoryId: item.inventoryId
          });
       }
+   },
+   chat: {
+      send: function(socket, message) {
+         socket.emit('chat', {
+            message: message
+         });
+      }
    }
 };
 

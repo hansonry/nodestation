@@ -88,6 +88,16 @@ NodeStation.Play.create = function () {
    
    // Connect to socket.io
    socket = io();
+   
+   socket.on('reconnect', function() {      
+      for(var i = 0; i < self.pawnList.list.length; i++) {
+         var pawn = self.pawnList.list[i];
+         self.removeChild(pawn.sprite);
+      }
+      self.pawnList.reconnect();
+   });
+   
+   
    socket.on('newMap', function(msg) {
       self.removeChild(self.mapLayer);
       self.mapLayer.destroy();
@@ -110,12 +120,21 @@ NodeStation.Play.create = function () {
       self.mapLayer.setTile(msg.x, msg.y, tileIndex);
    });
    socket.on('addPawn', function(msg) {
-      sprite = new Kiwi.GameObjects.Sprite(
-         self, self.textures.pawn);         
-      self.addChildAt(sprite, 2);
-      self.pawnList.add(msg.id, sprite);
-      sprite.x = consts.tile.width  * msg.x;
-      sprite.y = consts.tile.height * msg.y;
+      var pawnIndex = self.pawnList.findById(msg.id);
+      if(pawnIndex < 0) {
+         sprite = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawn);         
+         self.addChildAt(sprite, 2);
+         self.pawnList.add(msg.id, sprite);
+         sprite.x = consts.tile.width  * msg.x;
+         sprite.y = consts.tile.height * msg.y;
+      }
+      else
+      {
+         var pawn = self.pawnList.list[pawnIndex];
+         pawn.sprite.x = consts.tile.width  * msg.x;
+         pawn.sprite.y = consts.tile.height * msg.y;
+      }
    });
    socket.on('removePawn', function(msg) {
       var pawnIndex = self.pawnList.findById(id);
@@ -166,6 +185,17 @@ NodeStation.Play.create = function () {
          item.sprite.y = msg.y;
       }
    });
+   socket.on('chat', function(msg) {
+      var rootNode = document.createElement("DIV");
+      var chatMessageNode = document.createTextNode(msg.message);
+      rootNode.appendChild(chatMessageNode);
+      var chatHistoryNode = document.getElementById("chatHistory");
+      chatHistoryNode.appendChild(rootNode);
+      
+      
+      // Scroll to the bottom
+      chatHistoryNode.scrollTop = chatHistoryNode.scrollHeight;
+   });
 
 
    // Input
@@ -212,6 +242,15 @@ NodeStation.Play.keyUp = function(keyCode, key) {
       socket.emit('key', { event: 'up', key: key });
    }
 };
+
+function chatOnSubmit() {
+   var textbox = document.getElementById("chatInputTextbox");
+   if(socket) {
+      socket.emit('chat', {message: textbox.value});
+   }
+   textbox.value = "";
+   return false;
+}
 
 
 NodeStation.Play.update = function() {

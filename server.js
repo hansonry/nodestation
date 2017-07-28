@@ -79,6 +79,13 @@ io.on('connection', function(socket) {
       clientList.remove(socket);
       console.log('a user disconnected');
    });
+   socket.on('chat', function(msg) {
+      //console.log("message: " + msg.message);
+      for(var i = 0; i < clientList.list.length; i++) {
+         tx.chat.send(client.socket, msg.message);
+      }
+   });
+   
 });
 
 
