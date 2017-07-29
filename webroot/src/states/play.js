@@ -37,6 +37,12 @@ var itemImageMap = {
    idCard:       1  
 };
 
+var mapTileImageMap = {
+   questionMark: 0,
+   wall:         1,
+   floor:        2
+};
+
 var consts = {
    tile: {
      width:  32,
@@ -85,6 +91,7 @@ NodeStation.Play.create = function () {
    
    this.map.createTileType(0);
    this.map.createTileType(1);
+   this.map.createTileType(2);
    
    this.mapLayer = this.map.createNewLayer('map', this.textures.mapTiles);
    
@@ -125,14 +132,15 @@ NodeStation.Play.create = function () {
    });
    socket.on('updateTile', function(msg) {
       var tileIndex;
-      if(msg.type == 'wall') {
-         tileIndex = 1;
+      var mapTileImageLookup = mapTileImageMap[msg.type];
+      if(msg.type == '') {
+         tileIndex = 0;
       }
-      else if(msg.type == 'floor') {
-         tileIndex = 2;
+      else if(mapTileImageLookup) {
+         tileIndex = mapTileImageLookup + 1;
       }
       else {
-         tileIndex = 0;
+         tileIndex = 1; // questionMark
       }
 
       self.mapLayer.setTile(msg.x, msg.y, tileIndex);
