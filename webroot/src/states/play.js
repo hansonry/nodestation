@@ -123,6 +123,9 @@ NodeStation.Play.create = function () {
       for(var i = 0; i < self.pawnList.list.length; i++) {
          var pawn = self.pawnList.list[i];
          self.removeChild(pawn.sprite);
+         self.removeChild(pawn.spriteTop);
+         self.removeChild(pawn.spriteBottom);
+         self.removeChild(pawn.spriteFoot);
       }
       self.pawnList.reconnect();
    });
@@ -256,22 +259,27 @@ NodeStation.Play.create = function () {
 };
 
 NodeStation.Play.keyDownOnce = function(keyCode, key) {
-   var key = undefined;
-   if(keyCode == Kiwi.Input.Keycodes.UP) {
-      key = 'up';
-   }
-   else if(keyCode == Kiwi.Input.Keycodes.DOWN) {
-      key = 'down';
-   }
-   else if(keyCode == Kiwi.Input.Keycodes.LEFT) {
-      key = 'left';
-   }
-   else if(keyCode == Kiwi.Input.Keycodes.RIGHT) {
-      key = 'right';
-   }
 
-   if(key) {
-      socket.emit('key', { event: 'down', key: key });
+   var textbox = document.getElementById("chatInputTextbox");
+   if(textbox.value == "") {
+
+      var key = undefined;
+      if(keyCode == Kiwi.Input.Keycodes.UP) {
+         key = 'up';
+      }
+      else if(keyCode == Kiwi.Input.Keycodes.DOWN) {
+         key = 'down';
+      }
+      else if(keyCode == Kiwi.Input.Keycodes.LEFT) {
+         key = 'left';
+      }
+      else if(keyCode == Kiwi.Input.Keycodes.RIGHT) {
+         key = 'right';
+      }
+
+      if(key) {
+         socket.emit('key', { event: 'down', key: key });
+      }
    }
 };
 
