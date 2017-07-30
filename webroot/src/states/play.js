@@ -135,6 +135,13 @@ NodeStation.Play.create = function () {
          self.removeChild(pawn.spriteFoot);
       }
       self.pawnList.reconnect();
+
+      for(var i = 0; i < self.itemList.list.length; i++) {
+         var item = self.itemList.list[i];
+         self.removeChild(item.sprite);
+      }
+
+      self.itemList.reconnect();
    });
    
    

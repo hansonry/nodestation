@@ -51,7 +51,10 @@ var hostPort = 3000;
    tileList.setup(10, 10, tempMap);
 }
 
-itemList.add(shortid.generate(), 'idCard');
+var itemCard = itemList.add(shortid.generate(), 'idCard');
+
+itemCard.x = 5;
+itemCard.y = 5;
 
 
 app.use(express.static('webroot'));

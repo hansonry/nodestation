@@ -5,7 +5,7 @@ function PawnList() {
    this.list = [];
    this.reconnect = function() {
       this.list = [];
-   }
+   };
    this.findById = function(id) {
       var pawnIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
@@ -58,6 +58,9 @@ function PawnList() {
 function ItemList() {
    var self = this;
    this.list = [];
+   this.reconnect = function() {
+      this.list = [];
+   };
    this.findById = function(id) {
       var itemIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
