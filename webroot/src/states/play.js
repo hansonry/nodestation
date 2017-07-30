@@ -50,6 +50,11 @@ var consts = {
    } 
 };
 
+function applyCoordToSprite(sprite, coord) {
+   sprite.x = coord.x * consts.tile.width;
+   sprite.y = coord.y * consts.tile.height;
+}
+
 var socket = undefined;
 NodeStation.Play.create = function () {
 
@@ -154,12 +159,12 @@ NodeStation.Play.create = function () {
          self.pawnList.add(msg.id, sprite);
          sprite.x = consts.tile.width  * msg.x;
          sprite.y = consts.tile.height * msg.y;
+         applyCoordToSprite(sprite, msg);
       }
       else
       {
          var pawn = self.pawnList.list[pawnIndex];
-         pawn.sprite.x = consts.tile.width  * msg.x;
-         pawn.sprite.y = consts.tile.height * msg.y;
+         applyCoordToSprite(pawn.sprite, msg);
       }
    });
    socket.on('removePawn', function(msg) {
@@ -176,8 +181,7 @@ NodeStation.Play.create = function () {
       if(pawnIndex >= 0)
       {
          var pawn = self.pawnList.list[pawnIndex];
-         pawn.sprite.x = consts.tile.width  * msg.x;
-         pawn.sprite.y = consts.tile.height * msg.y;
+         applyCoordToSprite(pawn.sprite, msg);
       }
    });
    socket.on('addItem', function(msg) {
@@ -192,6 +196,7 @@ NodeStation.Play.create = function () {
       }
       self.addChildAt(sprite, 1);
       self.itemList.add(msg.id, sprite, msg.type, msg.x, msg.y);
+      applyCoordToSprite(sprite, msg);
    });
    socket.on('removeItem', function(msg) {
       var itemIndex = self.itemList.findById(id);
@@ -207,8 +212,7 @@ NodeStation.Play.create = function () {
       if(itemIndex >= 0)
       {
          var item = self.itemList.list[itemIndex];
-         item.sprite.x = msg.x;
-         item.sprite.y = msg.y;
+         applyCoordToSprite(item.sprite, msg);
       }
    });
    socket.on('chat', function(msg) {
