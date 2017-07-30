@@ -184,12 +184,15 @@ NodeStation.Play.create = function () {
       }
    });
    socket.on('removePawn', function(msg) {
-      var pawnIndex = self.pawnList.findById(id);
+      var pawnIndex = self.pawnList.findById(msg.id);
       if(pawnIndex >= 0)
       {
-         var sprite = pawnList.list[pawnIndex].sprite;
-         state.removeChild(sprite);
-         self.pawnList.remove(pawnIndex);
+         var pawn = self.pawnList.list[pawnIndex];
+         self.removeChild(pawn.sprite);
+         self.removeChild(pawn.spriteTop);
+         self.removeChild(pawn.spriteBottom);
+         self.removeChild(pawn.spriteFoot);
+         self.pawnList.removeByIndex(pawnIndex);
       }
    });
    socket.on('updatePawn', function(msg) {
