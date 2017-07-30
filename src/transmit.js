@@ -17,7 +17,16 @@ module.exports = {
          socket.emit('updatePawn', {
             id: pawn.id,
             x:  pawn.x,
-            y:  pawn.y
+            y:  pawn.y,
+            motion: {
+               state: pawn.motion.state,
+               target: {
+                  x: pawn.motion.target.x,
+                  y: pawn.motion.target.y
+               },
+               walkSpeedTicks: pawn.motion.walkSpeedTicks,
+               ticksLeft: pawn.motion.ticksLeft
+            }
          });
       }
    },

@@ -30,6 +30,9 @@ var pawnList   = lists.createPawnList();
 var tileList   = lists.createTileList();
 var itemList   = lists.createItemList();
 
+var updateTimeSeconds = 0.05;
+var hostPort = 3000;
+
 {
    var w = 'wall';
    var f = 'floor';
@@ -57,11 +60,19 @@ app.get('/', function(req, res) {
 });
 
 
+
 io.on('connection', function(socket) {
    console.log('a user connected');
    var client = clientList.add(socket);
    client.controlledPawn = pawnList.add(shortid.generate());
 
+   // Send Server Information
+
+
+   socket.emit('serverInfo', {
+      updateTimeSeconds: updateTimeSeconds
+   });
+   // Send current state of the game
    for(var i = 0; i < clientList.list.length; i++) {
       tx.pawn.add(clientList.list[i].socket, client.controlledPawn);
       if(clientList.list[i] != client) {
@@ -109,16 +120,34 @@ io.on('connection', function(socket) {
 
 
 
-http.listen(3000, function() {
-   console.log('listening on *:3000');
+http.listen(hostPort, function() {
+   console.log('listening on *:' + hostPort);
 });
 
 
-var updateTimeSeconds = 0.05;
 
 setInterval(function() {
    //console.log('Tick!');
-   // Game update
+   // Iterate though the pawns
+   for(var i = 0; i < pawnList.list.length; i++) {
+      var pawn = pawnList.list[i];
+
+
+      if(pawn.motion.state == 'walking') {
+         pawn.motion.ticksLeft --;
+         if(pawn.motion.ticksLeft <= 0) {
+            pawn.x = pawn.motion.target.x;
+            pawn.y = pawn.motion.target.y;
+            pawn.motion.state = 'standing';
+         }
+         
+         pawn.dirty = true;
+      }
+
+
+   }
+
+   // Update pawn motion
    for(var i = 0; i < clientList.list.length; i++) {
       var client = clientList.list[i];
       var dx = 0;
@@ -137,21 +166,39 @@ setInterval(function() {
       }
       //console.log("dx: " + dx + ", dy: " + dy);
 
-      var new_x = client.controlledPawn.x + dx;
-      var new_y = client.controlledPawn.y + dy;
+      var pawn = client.controlledPawn;
 
-      if(!tileList.isBlocking(new_x, new_y)) {
-         client.controlledPawn.x = new_x;
-         client.controlledPawn.y = new_y;
-         for(var k = 0; k < clientList.list.length; k++) {
-            var targetClient = clientList.list[k];
-            tx.pawn.update(targetClient.socket, client.controlledPawn);
-         }
+
+      var new_x = pawn.x + dx;
+      var new_y = pawn.y + dy;
+
+      if((dx != 0 || dy != 0) && 
+         pawn.motion.state == 'standing' &&
+         !tileList.isBlocking(new_x, new_y)) {
+
+         pawn.motion.target.x = new_x;
+         pawn.motion.target.y = new_y;
+         pawn.motion.state = 'walking';
+         pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+         pawn.dirty = true;
+         
       }
 
       //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
    }
 
+
+   for(var i = 0; i < pawnList.list.length; i++) {
+      var pawn = pawnList.list[i];
+      if(pawn.dirty) {
+         for(var k = 0; k < clientList.list.length; k++) {
+            var targetClient = clientList.list[k];
+
+            tx.pawn.update(targetClient.socket, pawn);
+         }
+         pawn.dirty = false;
+      }
+   }
    // Send Events to all clients
    for(var k = 0; k < clientList.list.length; k++) {
       var targetClient = clientList.list[k];

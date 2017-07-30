@@ -39,9 +39,12 @@ function PawnList() {
          x: self.init.x, 
          y: self.init.y,
          motion: {
+            state: 'standing',
+            target: { x: self.init.x, y: self.init.y },
             walkSpeedTicks: 5,
-            walkTicksLeft: 0
-         }
+            ticksLeft: 0
+         },
+         dirty: true
       };
       self.list.push(obj);
       return obj;

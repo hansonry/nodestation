@@ -26,7 +26,16 @@ function PawnList() {
             sprite: sprite,
             spriteTop: spriteTop,
             spriteBottom: spriteBottom,
-            spriteFoot: spriteFoot
+            spriteFoot: spriteFoot,
+            x: 0,
+            y: 0,
+            motion: {
+               state: 'standing',
+               ticksLeft: 0,
+               walkSpeedTicks: 5,
+               target: { x: 0, y: 0 }
+            },
+            lastUpdateWatch: 0
          };
          self.list.push(pawn);
       }

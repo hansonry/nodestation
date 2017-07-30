@@ -50,9 +50,12 @@ var consts = {
    } 
 };
 
-function applyCoordToSprite(sprite, coord) {
-   sprite.x = coord.x * consts.tile.width;
-   sprite.y = coord.y * consts.tile.height;
+function applyCoordToSprite(sprite, coord, offsetX, offsetY) {
+   
+   offsetX = offsetX || 0;
+   offsetY = offsetY || 0;
+   sprite.x = coord.x * consts.tile.width + offsetX;
+   sprite.y = coord.y * consts.tile.height + offsetY;
 }
 
 var socket = undefined;
@@ -64,6 +67,8 @@ NodeStation.Play.create = function () {
    this.pawnList = new PawnList();
    this.itemList = new ItemList();
 
+   this.updateTimeSeconds = 0.05;
+   this.networkClock = this.game.time.addClock("network");
 	/*
 	* Replace with your own game creation code here...
 	*/
@@ -118,7 +123,9 @@ NodeStation.Play.create = function () {
    
    // Connect to socket.io
    socket = io();
-   
+   socket.on('serverInfo', function(msg) {
+      self.updateTimeSeconds = msg.updateTimeSeconds;
+   });
    socket.on('reconnect', function() {      
       for(var i = 0; i < self.pawnList.list.length; i++) {
          var pawn = self.pawnList.list[i];
@@ -174,11 +181,13 @@ NodeStation.Play.create = function () {
          self.addChildAt(spriteBottom, 3);
          self.addChildAt(spriteFoot, 3);
 
-         self.pawnList.add(msg.id, sprite, spriteTop, spriteBottom, spriteFoot);
-         applyCoordToSprite(sprite, msg);
-         applyCoordToSprite(spriteTop, msg);
-         applyCoordToSprite(spriteBottom, msg);
-         applyCoordToSprite(spriteFoot, msg);
+         var pawn = self.pawnList.add(msg.id, sprite, spriteTop, spriteBottom, spriteFoot);
+         pawn.x = msg.x;
+         pawn.y = msg.y;
+         applyCoordToSprite(sprite, pawn);
+         applyCoordToSprite(spriteTop, pawn);
+         applyCoordToSprite(spriteBottom, pawn);
+         applyCoordToSprite(spriteFoot, pawn);
       }
       else
       {
@@ -203,10 +212,22 @@ NodeStation.Play.create = function () {
       if(pawnIndex >= 0)
       {
          var pawn = self.pawnList.list[pawnIndex];
-         applyCoordToSprite(pawn.sprite, msg);
-         applyCoordToSprite(pawn.spriteTop, msg);
-         applyCoordToSprite(pawn.spriteBottom, msg);
-         applyCoordToSprite(pawn.spriteFoot, msg);
+
+         pawn.motion.state          = msg.motion.state;
+         pawn.motion.ticksLeft      = msg.motion.ticksLeft;
+         pawn.motion.walkSpeedTicks = msg.motion.walkSpeedTicks;
+         pawn.motion.target.x       = msg.motion.target.x;
+         pawn.motion.target.y       = msg.motion.target.y;
+         pawn.lastUpdateWatch       = 0;
+         pawn.x = msg.x;
+         pawn.y = msg.y;
+
+         applyCoordToSprite(pawn.sprite, pawn);
+         applyCoordToSprite(pawn.spriteTop, pawn);
+         applyCoordToSprite(pawn.spriteBottom, pawn);
+         applyCoordToSprite(pawn.spriteFoot, pawn);
+
+         
       }
    });
    socket.on('addItem', function(msg) {
@@ -317,10 +338,44 @@ NodeStation.Play.update = function() {
 
 	Kiwi.State.prototype.update.call( this );
    
-   /*
-   for(var i = 0; i < this.list.length; i++) {
-	   this.list[i].rotation += this.game.time.clock.rate * 0.01;
+   
+   for(var i = 0; i < this.pawnList.list.length; i++) {
+      var pawn = this.pawnList.list[i];
+
+      pawn.lastUpdateWatch += this.networkClock.delta;
+      if(pawn.motion.state == 'walking') {
+         var totalTime = pawn.motion.walkSpeedTicks * this.updateTimeSeconds;
+         var timeLeft  = (pawn.motion.ticksLeft * this.updateTimeSeconds) - pawn.lastUpdateWatch;
+
+         //console.log("tl: " + timeLeft + ", tt: " + totalTime + ", ticksLeft: " + pawn.motion.ticksLeft + ", lastUpdateWatch: " + pawn.lastUpdateWatch);
+         
+      
+
+         if(timeLeft < 0) {
+            timeLeft = 0
+         }
+         else if(timeLeft > totalTime) { 
+            timeLeft = totalTime;
+         }
+
+
+         var percent   = 1 - (timeLeft / totalTime);
+
+
+         var dx = pawn.motion.target.x - pawn.x;
+         var dy = pawn.motion.target.y - pawn.y;
+
+         var offsetX = consts.tile.width  * percent * dx;
+         var offsetY = consts.tile.height * percent * dy;
+
+         applyCoordToSprite(pawn.sprite, pawn, offsetX, offsetY);
+         applyCoordToSprite(pawn.spriteTop, pawn, offsetX, offsetY);
+         applyCoordToSprite(pawn.spriteBottom, pawn, offsetX, offsetY);
+         applyCoordToSprite(pawn.spriteFoot, pawn, offsetX, offsetY);
+
+
+      }
+
    }
-   */
 };
 
