@@ -156,10 +156,26 @@ NodeStation.Play.create = function () {
          sprite = new Kiwi.GameObjects.Sprite(
             self, self.textures.pawn);         
          self.addChildAt(sprite, 2);
-         self.pawnList.add(msg.id, sprite);
-         sprite.x = consts.tile.width  * msg.x;
-         sprite.y = consts.tile.height * msg.y;
+         spriteTop = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnClothes);
+         spriteTop.cellIndex = 1;
+         spriteBottom = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnClothes);
+         spriteBottom.cellIndex = 2;
+         spriteFoot = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnClothes);
+         spriteFoot.cellIndex = 3;
+
+         self.addChildAt(sprite, 2);
+         self.addChildAt(spriteTop, 3);
+         self.addChildAt(spriteBottom, 3);
+         self.addChildAt(spriteFoot, 3);
+
+         self.pawnList.add(msg.id, sprite, spriteTop, spriteBottom, spriteFoot);
          applyCoordToSprite(sprite, msg);
+         applyCoordToSprite(spriteTop, msg);
+         applyCoordToSprite(spriteBottom, msg);
+         applyCoordToSprite(spriteFoot, msg);
       }
       else
       {
@@ -182,6 +198,9 @@ NodeStation.Play.create = function () {
       {
          var pawn = self.pawnList.list[pawnIndex];
          applyCoordToSprite(pawn.sprite, msg);
+         applyCoordToSprite(pawn.spriteTop, msg);
+         applyCoordToSprite(pawn.spriteBottom, msg);
+         applyCoordToSprite(pawn.spriteFoot, msg);
       }
    });
    socket.on('addItem', function(msg) {

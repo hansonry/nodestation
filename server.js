@@ -101,7 +101,7 @@ io.on('connection', function(socket) {
    socket.on('chat', function(msg) {
       //console.log("message: " + msg.message);
       for(var i = 0; i < clientList.list.length; i++) {
-         tx.chat.send(client.socket, msg.message);
+         tx.chat.send(clientList.list[i].socket, msg.message);
       }
    });
    
@@ -140,15 +140,15 @@ setInterval(function() {
       client.controlledPawn.x += dx;
       client.controlledPawn.y += dy;
       //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
+      for(var k = 0; k < clientList.list.length; k++) {
+         var targetClient = clientList.list[k];
+         tx.pawn.update(targetClient.socket, client.controlledPawn);
+      }
    }
 
    // Send Events to all clients
    for(var k = 0; k < clientList.list.length; k++) {
       var targetClient = clientList.list[k];
-      for(var i = 0; i < pawnList.list.length; i++) {
-         var pawn = pawnList.list[i];
-         tx.pawn.update(targetClient.socket, pawn);
-      }
       for(var i = 0; i < itemList.list.length; i++) {
          tx.item.update(targetClient.socket, itemList.list[i]);
       }

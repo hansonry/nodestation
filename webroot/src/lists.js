@@ -17,11 +17,17 @@ function PawnList() {
       return pawnIndex;
    };
    
-   this.add = function(id, sprite) {
+   this.add = function(id, sprite, spriteTop, spriteBottom, spriteFoot) {
       var pawnIndex = self.findById(id);
       var pawn;
       if(pawnIndex < 0) {
-         pawn = { id: id, sprite: sprite };
+         pawn = { 
+            id: id, 
+            sprite: sprite,
+            spriteTop: spriteTop,
+            spriteBottom: spriteBottom,
+            spriteFoot: spriteFoot
+         };
          self.list.push(pawn);
       }
       else {
