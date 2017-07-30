@@ -137,13 +137,19 @@ setInterval(function() {
       }
       //console.log("dx: " + dx + ", dy: " + dy);
 
-      client.controlledPawn.x += dx;
-      client.controlledPawn.y += dy;
-      //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
-      for(var k = 0; k < clientList.list.length; k++) {
-         var targetClient = clientList.list[k];
-         tx.pawn.update(targetClient.socket, client.controlledPawn);
+      var new_x = client.controlledPawn.x + dx;
+      var new_y = client.controlledPawn.y + dy;
+
+      if(!tileList.isBlocking(new_x, new_y)) {
+         client.controlledPawn.x = new_x;
+         client.controlledPawn.y = new_y;
+         for(var k = 0; k < clientList.list.length; k++) {
+            var targetClient = clientList.list[k];
+            tx.pawn.update(targetClient.socket, client.controlledPawn);
+         }
       }
+
+      //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
    }
 
    // Send Events to all clients

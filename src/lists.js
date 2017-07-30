@@ -37,7 +37,11 @@ function PawnList() {
       var obj = {
          id: id,
          x: self.init.x, 
-         y: self.init.y, 
+         y: self.init.y,
+         motion: {
+            walkSpeedTicks: 5,
+            walkTicksLeft: 0
+         }
       };
       self.list.push(obj);
       return obj;
@@ -118,6 +122,17 @@ function TileList() {
          }
       }
    };
+   this.isBlocking = function(x, y) {
+      var blocking = false;
+      for(var i = 0; i < self.list.length; i ++) {
+         var tile = self.list[i];
+         if(tile.x == x && tile.y == y && tile.type == 'wall') {
+            blocking = true;
+            break;
+         }
+      }
+      return blocking;
+   }
    return this;
 }
 
