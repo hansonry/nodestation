@@ -28,6 +28,11 @@ module.exports = {
                ticksLeft: pawn.motion.ticksLeft
             }
          });
+      },
+      owned: function(socket, pawn) {
+         socket.emit('ownedPawn', {
+            id: pawn.id
+         });
       }
    },
    tile: {

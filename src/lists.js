@@ -70,7 +70,8 @@ function ItemList() {
          type: type,
          x: 0, 
          y: 0,
-         inventoryId: '' 
+         inventoryId: '',
+         dirty: true
       };
       self.list.push(obj);
       return obj;
@@ -83,6 +84,16 @@ function ItemList() {
             break;
          }
       }
+   };
+   this.findById = function(id) {
+      var itemIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         if(self.list[i].id == id) {
+            itemIndex = i;
+            break;
+         }
+      }
+      return itemIndex;
    };
    return this;
 }

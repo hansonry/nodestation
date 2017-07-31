@@ -71,21 +71,30 @@ function ItemList() {
       }
       return itemIndex;
    };
+   this.findByCoord = function(x, y) {
+      var itemIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         var tempItem = self.list[i];
+         if(tempItem.x == x && tempItem.y == y) {
+            itemIndex = i;
+            break;
+         }
+      }
+      return itemIndex;
+   }
    
    this.add = function(id, sprite, type, x, y) {
       var itemIndex = self.findById(id);
       var item;
       if(itemIndex < 0) {
-         item = { id: id, type: type, sprite: sprite };
-         item.sprite.x = x;
-         item.sprite.y = y;
+         item = { id: id, type: type, sprite: sprite, x: x, y: y, inventoryId: '' };
          
          self.list.push(item);
       }
       else {
          item = self.list[itemIndex];
-         item.sprite.x = x;
-         item.sprite.y = y;
+         item.x = x;
+         item.y = y;
       }
       return item;
    };

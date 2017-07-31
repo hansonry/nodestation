@@ -67,8 +67,12 @@ NodeStation.Play.create = function () {
    this.pawnList = new PawnList();
    this.itemList = new ItemList();
 
+
    this.updateTimeSeconds = 0.05;
    this.networkClock = this.game.time.addClock("network");
+
+   this.ownedPawnId = '';
+
 	/*
 	* Replace with your own game creation code here...
 	*/
@@ -195,6 +199,8 @@ NodeStation.Play.create = function () {
          applyCoordToSprite(spriteTop, pawn);
          applyCoordToSprite(spriteBottom, pawn);
          applyCoordToSprite(spriteFoot, pawn);
+
+         console.log(pawn);
       }
       else
       {
@@ -213,6 +219,10 @@ NodeStation.Play.create = function () {
          self.removeChild(pawn.spriteFoot);
          self.pawnList.removeByIndex(pawnIndex);
       }
+   });
+   socket.on('ownedPawn', function(msg) {
+      console.log(msg);
+      self.ownedPawnId = msg.id;
    });
    socket.on('updatePawn', function(msg) {
       var pawnIndex = self.pawnList.findById(msg.id);
@@ -248,8 +258,16 @@ NodeStation.Play.create = function () {
          sprite.cellIndex = 0;
       }
       self.addChildAt(sprite, 1);
-      self.itemList.add(msg.id, sprite, msg.type, msg.x, msg.y);
-      applyCoordToSprite(sprite, msg);
+      var item = self.itemList.add(msg.id, sprite, msg.type, msg.x, msg.y);
+      applyCoordToSprite(sprite, item);
+
+      item.inventoryId = msg.inventoryId;
+      if(item.inventoryId == '') {
+         item.sprite.visible = true;
+      }
+      else {
+         item.sprite.visible = false;
+      }
    });
    socket.on('removeItem', function(msg) {
       var itemIndex = self.itemList.findById(id);
@@ -265,7 +283,17 @@ NodeStation.Play.create = function () {
       if(itemIndex >= 0)
       {
          var item = self.itemList.list[itemIndex];
-         applyCoordToSprite(item.sprite, msg);
+         item.inventoryId = msg.inventoryId;
+         item.x = msg.x;
+         item.y = msg.y;
+                  
+         applyCoordToSprite(item.sprite, item);
+         if(item.inventoryId == '') {
+            item.sprite.visible = true;
+         }
+         else {
+            item.sprite.visible = false;
+         }
       }
    });
    socket.on('chat', function(msg) {
@@ -286,6 +314,26 @@ NodeStation.Play.create = function () {
    this.game.input.keyboard.onKeyUp.add(this.keyUp, this);
 };
 
+
+NodeStation.Play.grab = function() {
+   console.log(this.ownedPawnId);
+   var ownedPawnIndex = this.pawnList.findById(this.ownedPawnId);
+   if(ownedPawnIndex >= 0) {
+      var ownedPawn = this.pawnList.list[ownedPawnIndex];
+      // find the item we are over
+      var itemIndex = this.itemList.findByCoord(ownedPawn.x, ownedPawn.y);
+      if(itemIndex >= 0) {
+         var item = this.itemList.list[itemIndex];
+         if(item.inventoryId == '') {
+            socket.emit('grab', {
+               itemId: item.id
+            });
+         }
+      }
+   }
+      console.log("here OUT");
+}
+
 NodeStation.Play.keyDownOnce = function(keyCode, key) {
 
    var textbox = document.getElementById("chatInputTextbox");
@@ -303,6 +351,10 @@ NodeStation.Play.keyDownOnce = function(keyCode, key) {
       }
       else if(keyCode == Kiwi.Input.Keycodes.RIGHT) {
          key = 'right';
+      }
+      else if(keyCode == Kiwi.Input.Keycodes.G) {
+         NodeStation.Play.grab();
+
       }
 
       if(key) {

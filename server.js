@@ -62,7 +62,11 @@ app.get('/', function(req, res) {
    res.sendFile(__dirname + '/webroot/index.html');
 });
 
-
+function nextTo(x1, y1, x2, y2) {
+   var dx = x2 - x1;
+   var dy = y2 - y1;
+   return dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1;
+}
 
 io.on('connection', function(socket) {
    console.log('a user connected');
@@ -94,6 +98,7 @@ io.on('connection', function(socket) {
    }
 
 
+   tx.pawn.owned(socket, client.controlledPawn);
 
    socket.on('key', function(msg) {
       //console.log(msg);
@@ -102,6 +107,18 @@ io.on('connection', function(socket) {
       }
       else if(msg.event == 'up') {
          client.keys[msg.key] = false;
+      }
+   });
+   socket.on('grab', function (msg) {
+      var pawn = client.controlledPawn;
+      var itemIndex = itemList.findById(msg.itemId);
+      //console.log(msg);
+      if(itemIndex >= 0) {
+         var item = itemList.list[itemIndex];
+         if(nextTo(pawn.x, pawn.y, item.x, item.y) && item.inventoryId == '') {
+            item.inventoryId = pawn.id;
+            item.dirty = true;
+         }
       }
    });
    socket.on('disconnect', function() {
@@ -191,22 +208,27 @@ setInterval(function() {
    }
 
 
+   // Send Pawn Updates if nessary
    for(var i = 0; i < pawnList.list.length; i++) {
       var pawn = pawnList.list[i];
       if(pawn.dirty) {
          for(var k = 0; k < clientList.list.length; k++) {
             var targetClient = clientList.list[k];
-
             tx.pawn.update(targetClient.socket, pawn);
          }
          pawn.dirty = false;
       }
    }
-   // Send Events to all clients
-   for(var k = 0; k < clientList.list.length; k++) {
-      var targetClient = clientList.list[k];
-      for(var i = 0; i < itemList.list.length; i++) {
-         tx.item.update(targetClient.socket, itemList.list[i]);
+
+   // Send Item update if nessary
+   for(var i = 0; i < itemList.list.length; i++) {
+      var item = itemList.list[i];
+      if(item.dirty) {
+         for(var k = 0; k < clientList.list.length; k++) {
+            var targetClient = clientList.list[k];
+            tx.item.update(targetClient.socket, itemList.list[i]);
+         }
+         item.dirty = false;
       }
       //console.log('emit update');
    }
