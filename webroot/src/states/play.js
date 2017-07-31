@@ -316,7 +316,6 @@ NodeStation.Play.create = function () {
 
 
 NodeStation.Play.grab = function() {
-   console.log(this.ownedPawnId);
    var ownedPawnIndex = this.pawnList.findById(this.ownedPawnId);
    if(ownedPawnIndex >= 0) {
       var ownedPawn = this.pawnList.list[ownedPawnIndex];
@@ -331,7 +330,23 @@ NodeStation.Play.grab = function() {
          }
       }
    }
-      console.log("here OUT");
+}
+
+NodeStation.Play.drop = function() {
+   var ownedPawnIndex = this.pawnList.findById(this.ownedPawnId);
+   if(ownedPawnIndex >= 0) {
+      var ownedPawn = this.pawnList.list[ownedPawnIndex];
+      // find the item we are over
+      var itemIndex = this.itemList.findByInventoryId(ownedPawn.id);
+      if(itemIndex >= 0) {
+         var item = this.itemList.list[itemIndex];
+         if(item.inventoryId == ownedPawn.id) {
+            socket.emit('drop', {
+               itemId: item.id
+            });
+         }
+      }
+   }
 }
 
 NodeStation.Play.keyDownOnce = function(keyCode, key) {
@@ -354,7 +369,9 @@ NodeStation.Play.keyDownOnce = function(keyCode, key) {
       }
       else if(keyCode == Kiwi.Input.Keycodes.G) {
          NodeStation.Play.grab();
-
+      }
+      else if(keyCode == Kiwi.Input.Keycodes.D) {
+         NodeStation.Play.drop();
       }
 
       if(key) {

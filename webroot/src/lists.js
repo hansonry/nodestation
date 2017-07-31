@@ -81,7 +81,17 @@ function ItemList() {
          }
       }
       return itemIndex;
-   }
+   };
+   this.findByInventoryId = function(id) {
+      var itemIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         if(self.list[i].inventoryId == id) {
+            itemIndex = i;
+            break;
+         }
+      }
+      return itemIndex;
+   };
    
    this.add = function(id, sprite, type, x, y) {
       var itemIndex = self.findById(id);

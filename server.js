@@ -121,6 +121,21 @@ io.on('connection', function(socket) {
          }
       }
    });
+   socket.on('drop', function (msg) {
+      var pawn = client.controlledPawn;
+      var itemIndex = itemList.findById(msg.itemId);
+      if(itemIndex >= 0) {
+         var item = itemList.list[itemIndex];
+         if(item.inventoryId == pawn.id) {
+            item.inventoryId = '';
+            item.x = pawn.x;
+            item.y = pawn.y;
+            item.dirty = true;
+
+         }
+      }
+
+   });
    socket.on('disconnect', function() {
       for(var i = 0; i < clientList.list.length; i++) {
          tx.pawn.remove(clientList.list[i].socket, client.controlledPawn);
