@@ -76,6 +76,8 @@ NodeStation.Play.create = function () {
 	/*
 	* Replace with your own game creation code here...
 	*/
+
+   /*
 	this.name = new Kiwi.GameObjects.StaticImage(
 		this, this.textures.kiwiName, 10, 10) ;
 
@@ -99,6 +101,14 @@ NodeStation.Play.create = function () {
 	this.bomb.x = this.game.stage.width - this.bomb.width  -10;
 
 
+	// Add the GameObjects to the stage
+	this.addChild( this.heart );
+	this.addChild( this.crown );
+	//this.addChild( this.pawn );
+	this.addChild( this.bomb );
+	this.addChild( this.name );
+   */
+
    this.map = new Kiwi.GameObjects.Tilemap.TileMap(this);
 
    this.map.setTo(consts.tile.width, consts.tile.height, 10, 10);
@@ -118,12 +128,6 @@ NodeStation.Play.create = function () {
    this.mapLayer.visible = true;
 
 
-	// Add the GameObjects to the stage
-	this.addChild( this.heart );
-	this.addChild( this.crown );
-	//this.addChild( this.pawn );
-	this.addChild( this.bomb );
-	this.addChild( this.name );
    
    // Connect to socket.io
    socket = io();
@@ -414,7 +418,7 @@ NodeStation.Play.update = function() {
 
 	Kiwi.State.prototype.update.call( this );
    
-   
+   // Moving the sprites between updates
    for(var i = 0; i < this.pawnList.list.length; i++) {
       var pawn = this.pawnList.list[i];
 
@@ -450,6 +454,14 @@ NodeStation.Play.update = function() {
          applyCoordToSprite(pawn.spriteFoot, pawn, offsetX, offsetY);
 
 
+
+      }
+      if(pawn.id == this.ownedPawnId) {
+         // Setup the Camera
+
+         var camera = this.game.cameras.defaultCamera;
+         camera.transform.x = -pawn.sprite.x + (camera.width  - consts.tile.width)  / 2;
+         camera.transform.y = -pawn.sprite.y + (camera.height - consts.tile.height) / 2;
       }
 
    }
