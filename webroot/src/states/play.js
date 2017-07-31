@@ -361,15 +361,19 @@ NodeStation.Play.keyDownOnce = function(keyCode, key) {
       var key = undefined;
       if(keyCode == Kiwi.Input.Keycodes.UP) {
          key = 'up';
+         textbox.blur();
       }
       else if(keyCode == Kiwi.Input.Keycodes.DOWN) {
          key = 'down';
+         textbox.blur();
       }
       else if(keyCode == Kiwi.Input.Keycodes.LEFT) {
          key = 'left';
+         textbox.blur();
       }
       else if(keyCode == Kiwi.Input.Keycodes.RIGHT) {
          key = 'right';
+         textbox.blur();
       }
       else if(keyCode == Kiwi.Input.Keycodes.G) {
          NodeStation.Play.grab();
