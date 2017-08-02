@@ -46,7 +46,8 @@ module.exports = {
          socket.emit('updateTile', {
             type: tile.type,
             x: tile.x,
-            y: tile.y
+            y: tile.y,
+            layer: tile.layer
          });
       }
    },

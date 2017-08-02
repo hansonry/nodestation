@@ -204,7 +204,6 @@ NodeStation.Play.create = function () {
          applyCoordToSprite(spriteBottom, pawn);
          applyCoordToSprite(spriteFoot, pawn);
 
-         console.log(pawn);
       }
       else
       {

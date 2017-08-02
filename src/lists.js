@@ -105,22 +105,29 @@ function TileList() {
    this.width = -1;
    this.height = -1;
 
-   this.setup = function(width, height, data) {
+
+   this.resize = function(width, height) {
       self.width = width;
       self.height = height;
+      
+   };
+
+   this.setup = function(width, height, data) {
+      self.resize(width, height);
       var i = 0;
       for(var y = 0; y < height; y++ ) {
          for(var x = 0; x < width; x++) {
-            self.add(data[i], x, y);
+            self.add(data[i], x, y, 'floor');
             i++;
          }
       }
    };
 
 
-   this.add = function(type, x, y) {
+   this.add = function(type, x, y, layer) {
       var obj = {
          type: type,
+         layer: layer,
          x: x, 
          y: y, 
       };
