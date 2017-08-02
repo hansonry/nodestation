@@ -215,6 +215,7 @@ NodeStation.Play.create = function () {
          applyCoordToSprite(spriteTop, pawn);
          applyCoordToSprite(spriteBottom, pawn);
          applyCoordToSprite(spriteFoot, pawn);
+         pawn.dirty = true;
 
       }
       else
@@ -253,11 +254,8 @@ NodeStation.Play.create = function () {
          pawn.lastUpdateWatch       = 0;
          pawn.x = msg.x;
          pawn.y = msg.y;
+         pawn.dirty = true;
 
-         applyCoordToSprite(pawn.sprite, pawn);
-         applyCoordToSprite(pawn.spriteTop, pawn);
-         applyCoordToSprite(pawn.spriteBottom, pawn);
-         applyCoordToSprite(pawn.spriteFoot, pawn);
 
          
       }
@@ -469,6 +467,16 @@ NodeStation.Play.update = function() {
          applyCoordToSprite(pawn.spriteFoot, pawn, offsetX, offsetY);
 
 
+
+      }
+      else if(pawn.motion.state == 'standing') {
+         if(pawn.dirty) {
+            applyCoordToSprite(pawn.sprite, pawn);
+            applyCoordToSprite(pawn.spriteTop, pawn);
+            applyCoordToSprite(pawn.spriteBottom, pawn);
+            applyCoordToSprite(pawn.spriteFoot, pawn);
+            pawn.dirty = false;
+         }
 
       }
       if(pawn.id == this.ownedPawnId) {

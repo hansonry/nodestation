@@ -35,7 +35,9 @@ function PawnList() {
                walkSpeedTicks: 5,
                target: { x: 0, y: 0 }
             },
-            lastUpdateWatch: 0
+            lastUpdateWatch: 0,
+            dirty: true
+
          };
          self.list.push(pawn);
       }
