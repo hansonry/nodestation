@@ -66,6 +66,7 @@ NodeStation.Play.create = function () {
 
    this.pawnList = new PawnList();
    this.itemList = new ItemList();
+   this.tileList = new TileList();
 
 
    this.updateTimeSeconds = 0.05;
@@ -159,21 +160,32 @@ NodeStation.Play.create = function () {
       self.map.setTo(consts.tile.width, consts.tile.height, msg.width, msg.height);
       self.mapLayer = self.map.createNewLayer('map', self.textures.mapTiles);
       self.addChildAt(self.mapLayer, 0);
+      self.tileList.resize(msg.width, msg.height);
    });
    socket.on('updateTile', function(msg) {
-      var tileIndex;
-      var mapTileImageLookup = mapTileImageMap[msg.type];
-      if(msg.type == '') {
-         tileIndex = 0;
-      }
-      else if(mapTileImageLookup) {
-         tileIndex = mapTileImageLookup + 1;
+      var tileImageIndex;
+
+      self.tileList.set(msg.x, msg.y, msg.type, msg.layer);
+      var tileIndex = self.tileList.findHighestLayerAtCoord(msg.x, msg.y);
+
+      if(tileIndex < 0) {
+         tileImageIndex = 0;
       }
       else {
-         tileIndex = 1; // questionMark
+         var tile = self.tileList.list[tileIndex];
+         var mapTileImageLookup = mapTileImageMap[tile.type];
+         if(tile.type == '') {
+            tileImageIndex = 0;
+         }
+         else if(mapTileImageLookup) {
+            tileImageIndex = mapTileImageLookup + 1;
+         }
+         else {
+            tileImageIndex = 1; // questionMark
+         }
       }
 
-      self.mapLayer.setTile(msg.x, msg.y, tileIndex);
+      self.mapLayer.setTile(msg.x, msg.y, tileImageIndex);
    });
    socket.on('addPawn', function(msg) {
       var pawnIndex = self.pawnList.findById(msg.id);
