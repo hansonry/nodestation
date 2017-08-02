@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="32" tileheight="32" nextobjectid="14">
+<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="32" tileheight="32" nextobjectid="15">
  <tileset firstgid="1" name="Floors And Walls" tilewidth="32" tileheight="32" tilecount="3" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0" type="wall">
@@ -86,5 +86,6 @@
  <objectgroup name="Item">
   <object id="12" gid="4" x="133.333" y="132" width="32" height="32"/>
   <object id="13" gid="5" x="201.333" y="188" width="32" height="32"/>
+  <object id="14" gid="4" x="40" y="212" width="32" height="32"/>
  </objectgroup>
 </map>

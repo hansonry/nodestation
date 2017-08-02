@@ -34,7 +34,7 @@ var itemList   = lists.createItemList();
 var updateTimeSeconds = 0.05;
 var hostPort = 3000;
 
-{
+{ // Map Conversion
    if(rawMap.type != 'map') {
       throw 'rawMap is not a map';
    }
@@ -136,8 +136,9 @@ var hostPort = 3000;
          for(var k = 0; k < layer.objects.length; k++) {
             var object = layer.objects[k];
             var type = tileset.tiles[object.gid - tileset.firstgid].type;
-            var x = Math.floor(object.x / 32);
-            var y = Math.floor(object.y / 32);
+            // Items in tiled have origin in the lower left corner
+            var x = Math.floor((object.x + 15) / 32);
+            var y = Math.floor((object.y - 15) / 32);
             if(type == 'idCard') {               
                var item = itemList.add(shortid.generate(), 'idCard');
                item.x = x;
