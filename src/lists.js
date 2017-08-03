@@ -77,6 +77,17 @@ function PawnList() {
 function ItemList() {
    var self = this;
    this.list = [];
+   this.findByInventoryIdAndType = function(inventoryId, type) {
+      var itemIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         var item = self.list[i];
+         if(item.inventoryId == inventoryId && item.type == type) {
+            itemIndex = i;
+            break;
+         }
+      }
+      return itemIndex;
+   }
    this.add = function(id, type) {
       var obj = {
          id: id,

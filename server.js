@@ -203,8 +203,12 @@ setInterval(function() {
          if(doorIndex >= 0) {
             var door = doorList.list[doorIndex];
             if(door.state == 'close') {
-               door.state = 'open';
-               door.dirty = true;
+               // Open the door only if they have an ID card
+               var itemIndex = itemList.findByInventoryIdAndType(pawn.id, 'idCard');
+               if(itemIndex >= 0) {
+                  door.state = 'open';
+                  door.dirty = true;
+               }
             }
          }
       }
