@@ -98,6 +98,56 @@ function ItemList() {
    return this;
 }
 
+function DoorList() {
+   var self = this;
+   this.list = [];
+   
+   this.findByCoord = function(x, y) {
+      var doorIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         var door = self.list[i];
+         if(door.x == x && door.y == y) {
+            doorIndex = i;
+            break;
+         }
+      }
+      return doorIndex;
+   };
+   this.add = function(x, y) {
+      var obj = {
+         state: 'close',
+         x: x, 
+         y: y,
+         dirty: true
+      };
+      self.list.push(obj);
+      return obj;
+   };
+   this.remove = function(x, y) {
+      var doorIndex = self.findByCoord(x, y);
+      if(doorIndex >= 0) {
+         self.list.splice(doorIndex, 1);
+      }      
+   };
+   this.isBlocking = function(x, y) {
+      var doorIndex = self.findByCoord(x, y);
+      if(doorIndex < 0) {
+         return false;
+      }
+      else {
+         var door = self.list[doorIndex];
+         if(door.state == 'open') {
+            return false;
+         }
+         else {
+            return true;
+         }
+      }
+   }
+   return this;
+}
+
+
 function TileList() {
    var self = this;
    this.list = [];
@@ -169,7 +219,11 @@ module.exports = {
    },
    createItemList: function() {
       return new ItemList();
+   },
+   createDoorList: function() {
+      return new DoorList();
    }
+   
 };
 
 

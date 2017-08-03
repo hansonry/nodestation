@@ -76,6 +76,29 @@ module.exports = {
          });
       }
    },
+   door: {
+      add: function(socket, door) {
+         socket.emit('addDoor', {
+            x: door.x,
+            y: door.y,
+            state: door.state
+         });
+      },
+      remove: function(socket, door) {
+         socket.emit('removeDoor', {
+            x: door.x,
+            y: door.y
+         });
+      },
+      update: function(socket, door) {
+         socket.emit('updateDoor', {
+            x: door.x,
+            y: door.y,
+            state: door.state
+         });
+      }
+   },
+
    chat: {
       send: function(socket, message) {
          socket.emit('chat', {

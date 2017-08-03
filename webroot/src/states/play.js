@@ -67,6 +67,7 @@ NodeStation.Play.create = function () {
    this.pawnList = new PawnList();
    this.itemList = new ItemList();
    this.tileList = new TileList();
+   this.doorList = new DoorList();
 
 
    this.updateTimeSeconds = 0.05;
@@ -151,6 +152,7 @@ NodeStation.Play.create = function () {
       }
 
       self.itemList.reconnect();
+      self.tileList.clear();
    });
    
    
@@ -309,6 +311,42 @@ NodeStation.Play.create = function () {
          }
       }
    });
+   socket.on('addDoor', function(msg) {
+      var door = self.doorList.add(msg.x, msg.y, msg.state);
+      door.sprite = new Kiwi.GameObjects.Sprite(
+         self, self.textures.doors);
+         
+      applyCoordToSprite(door.sprite, door);
+      if(door.state == 'open') {
+         door.sprite.cellIndex = 1;
+      }
+      else {
+         door.sprite.cellIndex = 0;
+      }
+      self.addChildAt(door.sprite, 4); // Over Pawn
+
+   });
+   socket.on('removeDoor', function(msg) {
+      var doorIndex = self.doorList.findByCoord(msg.x, msg.y);
+      if(doorIndex >= 0)
+      {
+         var door = doorList.list[doorIndex];
+         state.removeChild(door.sprite);
+         self.doorList.removeByIndex(doorIndex);
+      }
+   });
+   socket.on('updateDoor', function(msg) {
+      var doorIndex = self.doorList.findByCoord(msg.x, msg.y);
+      if(doorIndex >= 0)
+      {
+         var door = self.doorList.list[doorIndex];         
+         door.x = msg.x;
+         door.y = msg.y;
+         door.state = msg.state;
+         door.dirty = true;
+      }
+   });
+
    socket.on('chat', function(msg) {
       var rootNode = document.createElement("DIV");
       var chatMessageNode = document.createTextNode(msg.message);
@@ -487,6 +525,20 @@ NodeStation.Play.update = function() {
          camera.transform.y = -pawn.sprite.y + (camera.height - consts.tile.height) / 2;
       }
 
+   }
+   
+   // Updating Doors
+   for(var i = 0; i < this.doorList.list.length; i++) {
+      var door = this.doorList.list[i];
+      if(door.dirty) {
+         applyCoordToSprite(door.sprite, door);
+         if(door.state == 'open') {
+            door.sprite.cellIndex = 1;
+         }
+         else {
+            door.sprite.cellIndex = 0;
+         }
+      }
    }
 };
 

@@ -121,6 +121,42 @@ function ItemList() {
    return this;
 }
 
+function DoorList() {
+   var self = this;
+   this.list = [];
+   
+   this.findByCoord = function(x, y) {
+      var doorIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         var door = self.list[i];
+         if(door.x == x && door.y == y) {
+            doorIndex = i;
+            break;
+         }
+      }
+      return doorIndex;
+   }
+   
+   this.add = function(x, y, state) {
+      var door = {
+         x: x,
+         y: y,
+         state: state,
+         sprite: undefined,
+         dirty: true
+      };
+      self.list.push(door);
+      return door;
+   }
+   
+   this.removeByIndex = function(doorIndex) {
+      if(doorIndex >= 0) {
+         self.list.splice(doorIndex, 1);
+      }
+   }
+
+}
+
 function TileList() {
    var self = this;
    this.list   = [];
@@ -162,6 +198,9 @@ function TileList() {
    this.resize = function(width, height) {
       self.width = width;
       self.height = height;
+   };
+   this.clear = function() {
+      self.list = [];
    };
 
    this.set = function(x, y, type, layer) {

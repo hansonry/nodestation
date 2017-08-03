@@ -17,143 +17,26 @@
 */
 
 
-var express = require('express');
-var app     = express();
-var http    = require('http').Server(app);
-var io      = require('socket.io')(http);
-var shortid = require('shortid');
-var lists   = require('./src/lists');
-var tx      = require('./src/transmit');
-var rawMap  = require('./map/stationMap');
+var express        = require('express');
+var app            = express();
+var http           = require('http').Server(app);
+var io             = require('socket.io')(http);
+var shortid        = require('shortid');
+var lists          = require('./src/lists');
+var tx             = require('./src/transmit');
+var rawMap         = require('./map/stationMap');
+var tiledMapLoader = require('./src/tiledMapLoader');
 
 var clientList = lists.createClientList();
 var pawnList   = lists.createPawnList();
 var tileList   = lists.createTileList();
 var itemList   = lists.createItemList();
+var doorList   = lists.createDoorList();
 
 var updateTimeSeconds = 0.05;
 var hostPort = 3000;
 
-{ // Map Conversion
-   if(rawMap.type != 'map') {
-      throw 'rawMap is not a map';
-   }
-
-   tileList.resize(rawMap.width, rawMap.height);
-   
-   // Find Tilesets
-   var tilesetFloorsAndWalls = undefined;
-   var tilesetItems = undefined;
-
-   for(var i = 0; i < rawMap.tilesets.length; i++) {
-      var tileset = rawMap.tilesets[i];
-      if(tileset.name == "Floors And Walls") {
-         tilesetFloorsAndWalls = tileset;
-      }
-      else if(tileset.name == "Items") {
-         tilesetItems = tileset;
-      }
-      else {
-         throw "Unexpected Tileset: " + tileset.name;
-      }
-   }
-   
-   if(tilesetFloorsAndWalls == undefined) {
-      throw 'Failed to find Tileset "Floors And Walls"'
-   }
-   if(tilesetItems == undefined) {
-      throw 'Failed to find Tileset "Items"';
-   }
-
-   for(var i = 0; i < rawMap.layers.length; i++) {
-      var layer = rawMap.layers[i];
-      if(layer.type == 'group') {
-         if(layer.name == 'Floor') {            
-            var tileset = tilesetFloorsAndWalls;
-            var groupOffset = { x: layer.x, y: layer.y };
-            for(var k = 0; k < layer.layers.length; k++) {
-               var tileLayer = layer.layers[k];
-               if(tileLayer.type != 'tilelayer') {
-                  throw 'Expected TileLayer';
-               }
-               var offset = {
-                  x: groupOffset.x + tileLayer.x, 
-                  y: groupOffset.y + tileLayer.y
-               };
-               var x = 0;
-               var y = 0;
-               for(var m = 0; m < tileLayer.data.length; m ++) {
-                  var gid = tileLayer.data[m];
-                  if(gid > 0) {
-                     tileList.add(tileset.tiles[gid - tileset.firstgid].type, 
-                                  x + offset.x, y + offset.y, 'floor');
-                  }
-                  
-                  x ++;
-                  if(x >= tileLayer.width) {
-                     x = 0;
-                     y ++;
-                  }
-               }
-            }
-         }
-         else if(layer.name == 'Wall') {
-            var tileset = tilesetFloorsAndWalls;
-            var groupOffset = { x: layer.x, y: layer.y };
-            for(var k = 0; k < layer.layers.length; k++) {
-               var tileLayer = layer.layers[k];
-               if(tileLayer.type != 'tilelayer') {
-                  throw 'Expected TileLayer';
-               }
-               var offset = {
-                  x: groupOffset.x + tileLayer.x, 
-                  y: groupOffset.y + tileLayer.y
-               };
-               var x = 0;
-               var y = 0;
-               for(var m = 0; m < tileLayer.data.length; m ++) {
-                  var gid = tileLayer.data[m];
-                  if(gid > 0) {
-                     tileList.add(tileset.tiles[gid - tileset.firstgid].type, 
-                                  x + offset.x, y + offset.y, 'wall');
-                  }
-                  
-                  x ++;
-                  if(x >= tileLayer.width) {
-                     x = 0;
-                     y ++;
-                  }
-               }
-            }
-         }
-         else {
-            throw "Unknown Group Name: " + layer.name;
-         }
-
-      }
-      else if(layer.type == 'objectgroup' && layer.name == 'Item') { // Items
-         var tileset = tilesetItems;
-         for(var k = 0; k < layer.objects.length; k++) {
-            var object = layer.objects[k];
-            var type = tileset.tiles[object.gid - tileset.firstgid].type;
-            // Items in tiled have origin in the lower left corner
-            var x = Math.floor((object.x + 15) / 32);
-            var y = Math.floor((object.y - 15) / 32);
-            if(type == 'idCard') {               
-               var item = itemList.add(shortid.generate(), 'idCard');
-               item.x = x;
-               item.y = y;
-
-            }
-         }
-      }
-      else {
-         throw "Unexpected Layer Type: " + layer.type + " With name: " + layer.name;
-      }
-   }
-
-}
-
+tiledMapLoader.load(rawMap, tileList, itemList, doorList, shortid);
 
 
 app.use(express.static('webroot'));
@@ -186,14 +69,22 @@ io.on('connection', function(socket) {
       }
    }
 
+   // Add all items for this client
    for(var i = 0; i < itemList.list.length; i++) {      
       tx.item.add(client.socket, itemList.list[i]);
    }
 
+   // Push the current state of the map to the client
    tx.tile.newMap(client.socket, tileList.width, tileList.height);
    for(var i = 0; i < tileList.list.length; i++) {
       var tile = tileList.list[i];
       tx.tile.update(client.socket, tile);
+   }
+   
+   // Add all the doors to the client
+   for(var i = 0; i < doorList.list.length; i++) {
+      var door = doorList.list[i];
+      tx.door.add(client.socket, door);
    }
 
 
@@ -308,7 +199,8 @@ setInterval(function() {
 
       if((dx != 0 || dy != 0) && 
          pawn.motion.state == 'standing' &&
-         !tileList.isBlocking(new_x, new_y)) {
+         !tileList.isBlocking(new_x, new_y) &&
+         !doorList.isBlocking(new_x, new_y)) {
 
          pawn.motion.target.x = new_x;
          pawn.motion.target.y = new_y;
@@ -340,12 +232,24 @@ setInterval(function() {
       if(item.dirty) {
          for(var k = 0; k < clientList.list.length; k++) {
             var targetClient = clientList.list[k];
-            tx.item.update(targetClient.socket, itemList.list[i]);
+            tx.item.update(targetClient.socket, item);
          }
          item.dirty = false;
       }
-      //console.log('emit update');
    }
+   
+   // Send Door updates if nessary
+   for(var i = 0; i < doorList.list.length; i++) {
+      var door = doorList.list[i];
+      if(door.dirty) {
+         for(var k = 0; k < clientList.list.length; k++) {
+            var targetClient = clientList.list[k];
+            tx.door.update(targetClient.socket, door);
+         }
+         door.dirty = false;
+      }
+   }
+   
 }, updateTimeSeconds * 1000); // milliseconds
 
 
