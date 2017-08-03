@@ -196,6 +196,19 @@ setInterval(function() {
 
       var new_x = pawn.x + dx;
       var new_y = pawn.y + dy;
+      
+      
+      if(dx != 0 || dy != 0) {
+         var doorIndex = doorList.findByCoord(new_x, new_y);
+         if(doorIndex >= 0) {
+            var door = doorList.list[doorIndex];
+            if(door.state == 'close') {
+               door.state = 'open';
+               door.dirty = true;
+            }
+         }
+      }
+      
 
       if((dx != 0 || dy != 0) && 
          pawn.motion.state == 'standing' &&
@@ -211,6 +224,18 @@ setInterval(function() {
       }
 
       //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
+   }
+   
+   // Update Doors
+   for(var i = 0; i < doorList.list.length; i++) {
+      var door = doorList.list[i];
+      if(door.state == 'open') {
+         var pawnIndex = pawnList.findInArea(door.x - 1, door.y - 1, 3, 3);
+         if(pawnIndex < 0) {
+            door.state = 'close';
+            door.dirty = true;
+         }
+      }
    }
 
 

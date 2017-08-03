@@ -74,12 +74,27 @@ NodeStation.Play.create = function () {
    this.networkClock = this.game.time.addClock("network");
 
    this.ownedPawnId = '';
+   
+   // Creating groups
+   this.pawnGroup = new Kiwi.Group(this);
+   this.doorGroup = new Kiwi.Group(this);
+   this.itemGroup = new Kiwi.Group(this);
+   this.uiGroup = new Kiwi.Group(this);
+   this.worldGroup = new Kiwi.Group(this);
+   
+   
+   this.addChildAt(this.worldGroup, 0);
+   this.addChildAt(this.uiGroup, 1);
+   
+   this.worldGroup.addChildAt(this.itemGroup, 1); 
+   this.worldGroup.addChildAt(this.pawnGroup, 2); 
+   this.worldGroup.addChildAt(this.doorGroup, 3); // Over Pawn
 
 	/*
 	* Replace with your own game creation code here...
 	*/
 
-   /*
+   
 	this.name = new Kiwi.GameObjects.StaticImage(
 		this, this.textures.kiwiName, 10, 10) ;
 
@@ -104,12 +119,11 @@ NodeStation.Play.create = function () {
 
 
 	// Add the GameObjects to the stage
-	this.addChild( this.heart );
-	this.addChild( this.crown );
-	//this.addChild( this.pawn );
-	this.addChild( this.bomb );
-	this.addChild( this.name );
-   */
+	this.uiGroup.addChild( this.heart );
+	this.uiGroup.addChild( this.crown );
+	this.uiGroup.addChild( this.bomb );
+	this.uiGroup.addChild( this.name );
+   
 
    this.map = new Kiwi.GameObjects.Tilemap.TileMap(this);
 
@@ -124,7 +138,7 @@ NodeStation.Play.create = function () {
 
    this.mapLayer.setTile(0, 0, 1);
    this.mapLayer.setTile(0, 1, 2);
-   this.addChildAt( this.mapLayer, 0);
+   this.worldGroup.addChildAt( this.mapLayer, 0);
    this.mapLayer.x = 20;
    this.mapLayer.y = 20;
    this.mapLayer.visible = true;
@@ -139,17 +153,20 @@ NodeStation.Play.create = function () {
    socket.on('reconnect', function() {      
       for(var i = 0; i < self.pawnList.list.length; i++) {
          var pawn = self.pawnList.list[i];
-         self.removeChild(pawn.sprite);
-         self.removeChild(pawn.spriteTop);
-         self.removeChild(pawn.spriteBottom);
-         self.removeChild(pawn.spriteFoot);
+         self.pawnGroup.removeChild(pawn.group);
       }
       self.pawnList.reconnect();
 
       for(var i = 0; i < self.itemList.list.length; i++) {
          var item = self.itemList.list[i];
-         self.removeChild(item.sprite);
+         self.itemGroup.removeChild(item.sprite);
       }
+      
+      for(var i = 0; i < self.doorList.list.length; i++) {
+         var door = self.doorList.list[i];
+         self.doorGroup.removeChild(door.sprite);
+      }
+      self.doorList.list = [];
 
       self.itemList.reconnect();
       self.tileList.clear();
@@ -157,11 +174,11 @@ NodeStation.Play.create = function () {
    
    
    socket.on('newMap', function(msg) {
-      self.removeChild(self.mapLayer);
+      self.worldGroup.removeChild(self.mapLayer);
       self.mapLayer.destroy();
       self.map.setTo(consts.tile.width, consts.tile.height, msg.width, msg.height);
       self.mapLayer = self.map.createNewLayer('map', self.textures.mapTiles);
-      self.addChildAt(self.mapLayer, 0);
+      self.worldGroup.addChildAt(self.mapLayer, 0);
       self.tileList.resize(msg.width, msg.height);
    });
    socket.on('updateTile', function(msg) {
@@ -192,38 +209,41 @@ NodeStation.Play.create = function () {
    socket.on('addPawn', function(msg) {
       var pawnIndex = self.pawnList.findById(msg.id);
       if(pawnIndex < 0) {
-         sprite = new Kiwi.GameObjects.Sprite(
-            self, self.textures.pawn);         
-         self.addChildAt(sprite, 2);
-         spriteTop = new Kiwi.GameObjects.Sprite(
+         var pawn = self.pawnList.add(msg.id);
+         
+         
+         pawn.sprite = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawn);                  
+         pawn.spriteTop = new Kiwi.GameObjects.Sprite(
             self, self.textures.pawnClothes);
-         spriteTop.cellIndex = 1;
-         spriteBottom = new Kiwi.GameObjects.Sprite(
+         pawn.spriteTop.cellIndex = 1;
+         pawn.spriteBottom = new Kiwi.GameObjects.Sprite(
             self, self.textures.pawnClothes);
-         spriteBottom.cellIndex = 2;
-         spriteFoot = new Kiwi.GameObjects.Sprite(
+         pawn.spriteBottom.cellIndex = 2;
+         pawn.spriteFoot = new Kiwi.GameObjects.Sprite(
             self, self.textures.pawnClothes);
-         spriteFoot.cellIndex = 3;
+         pawn.spriteFoot.cellIndex = 3;
+         
+         pawn.group = new Kiwi.Group(self);
+         pawn.group.addChildAt(pawn.sprite, 0);
+         pawn.group.addChildAt(pawn.spriteTop, 1);
+         pawn.group.addChildAt(pawn.spriteBottom, 1);
+         pawn.group.addChildAt(pawn.spriteFoot, 1);
 
-         self.addChildAt(sprite, 2);
-         self.addChildAt(spriteTop, 3);
-         self.addChildAt(spriteBottom, 3);
-         self.addChildAt(spriteFoot, 3);
+         self.pawnGroup.addChild(pawn.group);
 
-         var pawn = self.pawnList.add(msg.id, sprite, spriteTop, spriteBottom, spriteFoot);
+         
          pawn.x = msg.x;
          pawn.y = msg.y;
-         applyCoordToSprite(sprite, pawn);
-         applyCoordToSprite(spriteTop, pawn);
-         applyCoordToSprite(spriteBottom, pawn);
-         applyCoordToSprite(spriteFoot, pawn);
+         applyCoordToSprite(pawn.group, pawn);
          pawn.dirty = true;
 
       }
       else
       {
          var pawn = self.pawnList.list[pawnIndex];
-         applyCoordToSprite(pawn.sprite, msg);
+         applyCoordToSprite(pawn.group, pawn);
+         pawn.dirty = true;
       }
    });
    socket.on('removePawn', function(msg) {
@@ -231,10 +251,7 @@ NodeStation.Play.create = function () {
       if(pawnIndex >= 0)
       {
          var pawn = self.pawnList.list[pawnIndex];
-         self.removeChild(pawn.sprite);
-         self.removeChild(pawn.spriteTop);
-         self.removeChild(pawn.spriteBottom);
-         self.removeChild(pawn.spriteFoot);
+         self.pawnGroup(pawn.group);
          self.pawnList.removeByIndex(pawnIndex);
       }
    });
@@ -272,7 +289,7 @@ NodeStation.Play.create = function () {
       else {
          sprite.cellIndex = 0;
       }
-      self.addChildAt(sprite, 1);
+      self.itemGroup.addChild(sprite);
       var item = self.itemList.add(msg.id, sprite, msg.type, msg.x, msg.y);
       applyCoordToSprite(sprite, item);
 
@@ -289,7 +306,7 @@ NodeStation.Play.create = function () {
       if(itemIndex >= 0)
       {
          var sprite = pawnList.list[itemIndex].sprite;
-         state.removeChild(sprite);
+         self.itemGroup.removeChild(sprite);
          self.pawnList.remove(itemIndex);
       }
    });
@@ -323,7 +340,7 @@ NodeStation.Play.create = function () {
       else {
          door.sprite.cellIndex = 0;
       }
-      self.addChildAt(door.sprite, 4); // Over Pawn
+      self.doorGroup.addChild(door.sprite); 
 
    });
    socket.on('removeDoor', function(msg) {
@@ -499,20 +516,13 @@ NodeStation.Play.update = function() {
          var offsetX = consts.tile.width  * percent * dx;
          var offsetY = consts.tile.height * percent * dy;
 
-         applyCoordToSprite(pawn.sprite, pawn, offsetX, offsetY);
-         applyCoordToSprite(pawn.spriteTop, pawn, offsetX, offsetY);
-         applyCoordToSprite(pawn.spriteBottom, pawn, offsetX, offsetY);
-         applyCoordToSprite(pawn.spriteFoot, pawn, offsetX, offsetY);
-
-
+         applyCoordToSprite(pawn.group, pawn, offsetX, offsetY);
+         pawn.dirty = false;
 
       }
       else if(pawn.motion.state == 'standing') {
          if(pawn.dirty) {
-            applyCoordToSprite(pawn.sprite, pawn);
-            applyCoordToSprite(pawn.spriteTop, pawn);
-            applyCoordToSprite(pawn.spriteBottom, pawn);
-            applyCoordToSprite(pawn.spriteFoot, pawn);
+            applyCoordToSprite(pawn.group, pawn, offsetX, offsetY);
             pawn.dirty = false;
          }
 
@@ -521,8 +531,8 @@ NodeStation.Play.update = function() {
          // Setup the Camera
 
          var camera = this.game.cameras.defaultCamera;
-         camera.transform.x = -pawn.sprite.x + (camera.width  - consts.tile.width)  / 2;
-         camera.transform.y = -pawn.sprite.y + (camera.height - consts.tile.height) / 2;
+         this.worldGroup.x = -pawn.group.x + (camera.width  - consts.tile.width)  / 2;
+         this.worldGroup.y = -pawn.group.y + (camera.height - consts.tile.height) / 2;
       }
 
    }

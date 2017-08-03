@@ -33,6 +33,19 @@ function PawnList() {
    var self = this;
    this.list = [];
    this.init = {x: 1, y: 1}
+   this.findInArea = function(x, y, width, height) {
+      var pawnIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         var pawn = self.list[i];
+         if(pawn.x >= x && pawn.y >= y &&
+            pawn.x < x + width && pawn.y < y + height) {
+               pawnIndex = i;
+               break;
+            }
+      }
+      return pawnIndex;
+      
+   };
    this.add = function(id) {
       var obj = {
          id: id,

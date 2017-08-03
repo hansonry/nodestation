@@ -17,16 +17,17 @@ function PawnList() {
       return pawnIndex;
    };
    
-   this.add = function(id, sprite, spriteTop, spriteBottom, spriteFoot) {
+   this.add = function(id) {
       var pawnIndex = self.findById(id);
       var pawn;
       if(pawnIndex < 0) {
          pawn = { 
             id: id, 
-            sprite: sprite,
-            spriteTop: spriteTop,
-            spriteBottom: spriteBottom,
-            spriteFoot: spriteFoot,
+            sprite: undefined,
+            spriteTop: undefined,
+            spriteBottom: undefined,
+            spriteFoot: undefined,
+            group: undefined,
             x: 0,
             y: 0,
             motion: {
