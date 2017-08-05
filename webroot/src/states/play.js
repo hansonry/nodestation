@@ -42,6 +42,173 @@ var mapTileImageMap = {
    wall:         1,
 };
 
+var doorTypeTable = {
+   atmos: {
+      spriteSheet: "doorAtmos",
+      windowed: false,
+   },
+   atmosWindowed: {
+      spriteSheet: "doorAtmos",
+      windowed: true,
+   },
+   bananium: {
+      spriteSheet: "doorBananium",
+      windowed: false,
+   },
+   bananiumWindowed: {
+      spriteSheet: "doorBananium",
+      windowed: true,
+   },
+   command: {
+      spriteSheet: "doorCommand",
+      windowed: false,
+   },
+   commandWindowed: {
+      spriteSheet: "doorCommand",
+      windowed: true,
+   },
+   diamond: {
+      spriteSheet: "doorDiamond",
+      windowed: false,
+   },
+   diamondWindowed: {
+      spriteSheet: "doorDiamond",
+      windowed: true,
+   },
+   engineering: {
+      spriteSheet: "doorEngineering",
+      windowed: false,
+   },
+   engineeringWindowed: {
+      spriteSheet: "doorEngineering",
+      windowed: true,
+   },
+   freezer: {
+      spriteSheet: "doorFreezer",
+      windowed: false,
+   },
+   gold: {
+      spriteSheet: "doorGold",
+      windowed: false,
+   },
+   goldWindowed: {
+      spriteSheet: "doorGold",
+      windowed: true,
+   },
+   maintenance: {
+      spriteSheet: "doorMaintenance",
+      windowed: false,
+   },
+   maintenanceWindowed: {
+      spriteSheet: "doorMaintenance",
+      windowed: true,
+   },
+   maintenanceExternal: {
+      spriteSheet: "doorMaintenanceExternal",
+      windowed: false,
+   },
+   maintenanceExternalWindowed: {
+      spriteSheet: "doorMaintenanceExternal",
+      windowed: true,
+   },
+   medical: {
+      spriteSheet: "doorMedical",
+      windowed: false,
+   },
+   medicalWindowed: {
+      spriteSheet: "doorMedical",
+      windowed: true,
+   },
+   mining: {
+      spriteSheet: "doorMining",
+      windowed: false,
+   },
+   miningWindowed: {
+      spriteSheet: "doorMining",
+      windowed: true,
+   },
+   plasma: {
+      spriteSheet: "doorPlasma",
+      windowed: false,
+   },
+   plasmaWindowed: {
+      spriteSheet: "doorPlasma",
+      windowed: true,
+   },
+   public: {
+      spriteSheet: "doorPublic",
+      windowed: false,
+   },
+   publicWindowed: {
+      spriteSheet: "doorPublic",
+      windowed: true,
+   },
+   research: {
+      spriteSheet: "doorResearch",
+      windowed: false,
+   },
+   researchWindowed: {
+      spriteSheet: "doorResearch",
+      windowed: true,
+   },
+   sandstone: {
+      spriteSheet: "doorStandstone",
+      windowed: false,
+   },
+   sandstoneWindowed: {
+      spriteSheet: "doorStandstone",
+      windowed: true,
+   },
+   science: {
+      spriteSheet: "doorScience",
+      windowed: false,
+   },
+   scienceWindowed: {
+      spriteSheet: "doorScience",
+      windowed: true,
+   },
+   security: {
+      spriteSheet: "doorSecurity",
+      windowed: false,
+   },
+   securityWindowed: {
+      spriteSheet: "doorSecurity",
+      windowed: true,
+   },
+   silver: {
+      spriteSheet: "doorSilver",
+      windowed: false,
+   },
+   silverWindowed: {
+      spriteSheet: "doorSilver",
+      windowed: true,
+   },
+   uranium: {
+      spriteSheet: "doorUranium",
+      windowed: false,
+   },
+   uraniumWindowed: {
+      spriteSheet: "doorUranium",
+      windowed: true,
+   },
+   virology: {
+      spriteSheet: "doorVirology",
+      windowed: false,
+   },
+   virologyWindowed: {
+      spriteSheet: "doorVirology",
+      windowed: true,
+   },
+   wood: {
+      spriteSheet: "doorWood",
+      windowed: false,
+   },
+   woodWindowed: {
+      spriteSheet: "doorWood",
+      windowed: true,
+   },
+};
+
 var consts = {
    tile: {
      width:  32,
@@ -144,7 +311,7 @@ NodeStation.Play.create = function () {
 
    this.tileIndices = {
       floor: createTileTypes(this.map, this.textures.mapFloor.cells.length),
-      wall:  createTileTypes(this.map, 3)
+      wall:  createTileTypes(this.map, this.textures.mapTiles.cells.length)
    };
    
    this.tileMapLayers = {
@@ -177,7 +344,7 @@ NodeStation.Play.create = function () {
       
       for(var i = 0; i < self.doorList.list.length; i++) {
          var door = self.doorList.list[i];
-         self.doorGroup.removeChild(door.sprite);
+         self.doorGroup.removeChild(door.group);
       }
       self.doorList.list = [];
 
@@ -204,32 +371,15 @@ NodeStation.Play.create = function () {
       self.tileList.resize(msg.width, msg.height);
    });
    socket.on('updateTile', function(msg) {
-      var tileImageIndex;
 
-      self.tileList.set(msg.x, msg.y, msg.type, msg.layer);
-      var tileIndex = self.tileList.findHighestLayerAtCoord(msg.x, msg.y);
+      for(var key in msg.layers) {
+         self.tileList.set(msg.x, msg.y, key, 
+                           msg.layers[key].type, msg.layers[key].index);
+         self.tileMapLayers[key].setTile(msg.x, msg.y, 
+                              self.tileIndices[key] + msg.layers[key].index);
 
-      if(tileIndex >= 0) {
-         var tile = self.tileList.list[tileIndex];
-
-         if(tile.layer == 'floor') {
-            tileImageIndex = tile.type + self.tileIndices.floor;
-            self.tileMapLayers.floor.setTile(msg.x, msg.y, tileImageIndex);
-         }
-         else if(tile.layer == 'wall') {
-            var mapTileImageLookup = mapTileImageMap[tile.type];
-            if(tile.type == '') {
-               tileImageIndex = 0;
-            }
-            else if(mapTileImageLookup) {
-               tileImageIndex = mapTileImageLookup + self.tileIndices.wall;
-            }
-            else {
-               tileImageIndex = 1; // questionMark
-            }
-            self.tileMapLayers.wall.setTile(msg.x, msg.y, tileImageIndex);
-         }
       }
+
 
    });
    socket.on('addPawn', function(msg) {
@@ -355,18 +505,35 @@ NodeStation.Play.create = function () {
       }
    });
    socket.on('addDoor', function(msg) {
-      var door = self.doorList.add(msg.x, msg.y, msg.state);
+      var door = self.doorList.add(msg.x, msg.y, msg.state, msg.type);
+      var doorType = doorTypeTable[msg.type];
+
+      door.group = new Kiwi.Group(self);
       door.sprite = new Kiwi.GameObjects.Sprite(
-         self, self.textures.doors);
+         self, self.textures[doorType.spriteSheet]);
+
+      door.spriteCover = new Kiwi.GameObjects.Sprite(
+         self, self.textures[doorType.spriteSheet]);
+
+      door.group.addChildAt(door.sprite, 0);
+      door.group.addChildAt(door.spriteCover, 1);
+
+      if(doorType.windowed) {
+         door.spriteCover.visible = false;
+      }
+      
          
-      applyCoordToSprite(door.sprite, door);
+      applyCoordToSprite(door.group, door);
       if(door.state == 'open') {
          door.sprite.cellIndex = 1;
+         door.spriteCover.cellIndex = 16;
+         
       }
       else {
          door.sprite.cellIndex = 0;
+         door.spriteCover.cellIndex = 15;
       }
-      self.doorGroup.addChild(door.sprite); 
+      self.doorGroup.addChild(door.group); 
 
    });
    socket.on('removeDoor', function(msg) {
@@ -567,12 +734,15 @@ NodeStation.Play.update = function() {
    for(var i = 0; i < this.doorList.list.length; i++) {
       var door = this.doorList.list[i];
       if(door.dirty) {
-         applyCoordToSprite(door.sprite, door);
+         applyCoordToSprite(door.group, door);
          if(door.state == 'open') {
             door.sprite.cellIndex = 1;
+            door.spriteCover.cellIndex = 16;
+            
          }
          else {
             door.sprite.cellIndex = 0;
+            door.spriteCover.cellIndex = 15;
          }
       }
    }

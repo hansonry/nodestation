@@ -138,12 +138,16 @@ function DoorList() {
       return doorIndex;
    }
    
-   this.add = function(x, y, state) {
+   this.add = function(x, y, state, type) {
       var door = {
          x: x,
          y: y,
          state: state,
          sprite: undefined,
+         spriteCover: undefined,
+         spriteLight: undefined,
+         group: undefined,
+         type: type,
          dirty: true
       };
       self.list.push(door);
@@ -164,38 +168,19 @@ function TileList() {
    this.width  = -1;
    this.height = -1;
 
-   this.findHighestLayerAtCoord = function(x, y) {
+
+   this.findByCoord = function(x, y, layer) {
       var tileIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
          var tile = self.list[i];
          if(tile.x == x && tile.y == y) {
-            if(tileIndex < 0) {
-               tileIndex = i;
-            }
-            else {
-               var prevTile = self.list[tileIndex];
-               if(prevTile.layer == 'floor' && 
-                  tile.layer == 'wall') { // TODO: Make this not suck
-                  tileIndex = i;
-               }
-            }
-         }
-      }
-
-      return tileIndex;
-   }
-
-   this.findByCoordAndLayer = function(x, y, layer) {
-      var tileIndex = -1;
-      for(var i = 0; i < self.list.length; i++) {
-         var tile = self.list[i];
-         if(tile.x == x && tile.y == y && tile.layer == layer) {
             tileIndex = -1;
             break;
          }
       }
       return tileIndex;
    };
+
    this.resize = function(width, height) {
       self.width = width;
       self.height = height;
@@ -204,22 +189,29 @@ function TileList() {
       self.list = [];
    };
 
-   this.set = function(x, y, type, layer) {
-      var tileInex = self.findByCoordAndLayer(x, y, layer);
+   this.set = function(x, y, layer, type, index) {
+      var tileIndex = self.findByCoord(x, y);
+      var tile = self.setByIndex(tileIndex, x, y, layer, type, index);
+      return tile;
+   };
+   this.setByIndex = function(tileIndex, x, y, layer, type, index) {
       var tile = undefined;
-      if(tileInex < 0) {
+      if(tileIndex < 0) {
          tile = {
             x: x,
             y: y,
-            type: type,
-            layer: layer
+            layers: {}
          };
          self.list.push(tile);
       }
       else {
-         tile = self.list[tileInex];
-         tile.type = type;
+         tile = self.list[tileIndex];
       }
+
+      tile.layers[layer] = {
+         type: type,
+         index: index
+      };
 
       return tile;
    };

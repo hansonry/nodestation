@@ -43,12 +43,15 @@ module.exports = {
          });
       },
       update: function(socket, tile) {
-         socket.emit('updateTile', {
-            type: tile.type,
+         var msg = {
             x: tile.x,
             y: tile.y,
-            layer: tile.layer
-         });
+            layers: {}
+         }
+         for(var key in tile.layers) {
+            msg.layers[key] = tile.layers[key];
+         }
+         socket.emit('updateTile', msg);
       }
    },
    item: {
@@ -81,6 +84,7 @@ module.exports = {
          socket.emit('addDoor', {
             x: door.x,
             y: door.y,
+            type: door.type,
             state: door.state
          });
       },
@@ -94,6 +98,7 @@ module.exports = {
          socket.emit('updateDoor', {
             x: door.x,
             y: door.y,
+            type: door.type,
             state: door.state
          });
       }

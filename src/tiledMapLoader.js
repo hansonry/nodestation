@@ -12,6 +12,7 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
    var tilesetFloors = undefined;
    var tilesetWalls = undefined;
    var tilesetItems = undefined;
+   var tilesetDoors = undefined;
 
    for(var i = 0; i < rawMap.tilesets.length; i++) {
       var tileset = rawMap.tilesets[i];
@@ -23,6 +24,9 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
       }
       else if(tileset.name == "Items") {
          tilesetItems = tileset;
+      }
+      else if(tileset.name == "Doors") {
+         tilesetDoors = tileset;
       }
       else {
          throw "Unexpected Tileset: " + tileset.name;
@@ -37,6 +41,9 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
    }
    if(tilesetItems == undefined) {
       throw 'Failed to find Tileset "Items"';
+   }
+   if(tilesetDoors == undefined) {
+      throw 'Failed to find Tileset "Doors"';
    }
 
    for(var i = 0; i < rawMap.layers.length; i++) {
@@ -59,8 +66,8 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
                for(var m = 0; m < tileLayer.data.length; m ++) {
                   var gid = tileLayer.data[m];
                   if(gid > 0) {
-                     tileList.add(gid - tileset.firstgid, 
-                                  x + offset.x, y + offset.y, 'floor');
+                     tileList.set(x + offset.x, y + offset.y, 'floor', 
+                                  '', gid - tileset.firstgid);
                   }
                   
                   x ++;
@@ -89,13 +96,37 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
                   var gid = tileLayer.data[m];
                   var tile = tileset.tiles[gid - tileset.firstgid];
                   if(gid > 0) {
-                     if(tile.type == 'door') {
-                        doorList.add(x + offset.x, y + offset.y);
-                     }
-                     else {
-                        tileList.add(tile.type, x + offset.x, y + offset.y, 
-                                     'wall');
-                     }
+                     tileList.set(x + offset.x, y + offset.y, 'wall', 
+                                  tile.type, gid - tileset.firstgid);
+                  }
+                  
+                  x ++;
+                  if(x >= tileLayer.width) {
+                     x = 0;
+                     y ++;
+                  }
+               }
+            }
+         }
+         else if(layer.name == "Door") {
+            var tileset = tilesetDoors;
+            var groupOffset = { x: layer.x, y: layer.y };
+            for(var k = 0; k < layer.layers.length; k++) {
+               var tileLayer = layer.layers[k];
+               if(tileLayer.type != 'tilelayer') {
+                  throw 'Expected TileLayer';
+               }
+               var offset = {
+                  x: groupOffset.x + tileLayer.x, 
+                  y: groupOffset.y + tileLayer.y
+               };
+               var x = 0;
+               var y = 0;
+               for(var m = 0; m < tileLayer.data.length; m ++) {
+                  var gid = tileLayer.data[m];
+                  var tile = tileset.tiles[gid - tileset.firstgid];
+                  if(gid > 0) {
+                     doorList.add(x + offset.x, y + offset.y, tile.type);
                   }
                   
                   x ++;

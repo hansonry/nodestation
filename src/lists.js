@@ -137,11 +137,12 @@ function DoorList() {
       }
       return doorIndex;
    };
-   this.add = function(x, y) {
+   this.add = function(x, y, type) {
       var obj = {
          state: 'close',
          x: x, 
          y: y,
+         type: type,
          dirty: true
       };
       self.list.push(obj);
@@ -180,6 +181,18 @@ function TileList() {
    this.height = -1;
 
 
+   this.findByCoord = function(x, y) {
+      var tileIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         var tile = self.list[i];
+         if(tile.x == x && tile.y == y) {
+            tileIndex = i;
+            break;
+         }
+      }
+      return tileIndex;
+   }
+
    this.resize = function(width, height) {
       self.width = width;
       self.height = height;
@@ -198,14 +211,26 @@ function TileList() {
    };
 
 
-   this.add = function(type, x, y, layer) {
-      var obj = {
+   this.set = function(x, y, layer, type, index) {
+      var tileIndex = self.findByCoord(x, y);
+      var obj;
+      if(tileIndex < 0) {
+         obj = {
+            x: x, 
+            y: y,
+            layers: {}
+         };
+
+         self.list.push(obj);
+      }
+      else {
+         obj = self.list[tileIndex];
+      }
+
+      obj.layers[layer] = {
+         index: index,
          type: type,
-         layer: layer,
-         x: x, 
-         y: y, 
       };
-      self.list.push(obj);
       return obj;
    };
    this.remove = function(tile) {
@@ -221,7 +246,7 @@ function TileList() {
       var blocking = false;
       for(var i = 0; i < self.list.length; i ++) {
          var tile = self.list[i];
-         if(tile.x == x && tile.y == y && tile.type == 'wall') {
+         if(tile.x == x && tile.y == y && tile.layers.wall != undefined) {            
             blocking = true;
             break;
          }

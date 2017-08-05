@@ -51,5 +51,28 @@ NodeStation.Loading.preload = function () {
 	this.addSpriteSheet( "items", "assets/img/items.png", 32, 32 );
 	this.addSpriteSheet( "doors", "assets/img/doors.png", 32, 32 );
 	this.addSpriteSheet( "pawnClothes", "assets/img/pawnClothes.png", 32, 32 );
+
+   // Doors
+   this.addSpriteSheet( "doorAtmos",               "assets/img/doors/atmos.png", 32, 32);
+   this.addSpriteSheet( "doorBananium",            "assets/img/doors/bananium.png", 32, 32);
+   this.addSpriteSheet( "doorCommand",             "assets/img/doors/command.png", 32, 32);
+   this.addSpriteSheet( "doorDiamond",             "assets/img/doors/diamond.png", 32, 32);
+   this.addSpriteSheet( "doorEngineering",         "assets/img/doors/engineering.png", 32, 32);
+   this.addSpriteSheet( "doorFreezer",             "assets/img/doors/freezer.png", 32, 32);
+   this.addSpriteSheet( "doorGold",                "assets/img/doors/gold.png", 32, 32);
+   this.addSpriteSheet( "doorMaintenance",         "assets/img/doors/maintenance.png", 32, 32);
+   this.addSpriteSheet( "doorMaintenanceExternal", "assets/img/doors/maintenanceexternal.png", 32, 32);
+   this.addSpriteSheet( "doorMedical",             "assets/img/doors/medical.png", 32, 32);
+   this.addSpriteSheet( "doorMining",              "assets/img/doors/mining.png", 32, 32);
+   this.addSpriteSheet( "doorPlasma",              "assets/img/doors/plasma.png", 32, 32);
+   this.addSpriteSheet( "doorPublic",              "assets/img/doors/public.png", 32, 32);
+   this.addSpriteSheet( "doorResearch",            "assets/img/doors/research.png", 32, 32);
+   this.addSpriteSheet( "doorStandstone",          "assets/img/doors/sandstone.png", 32, 32);
+   this.addSpriteSheet( "doorScience",             "assets/img/doors/science.png", 32, 32);
+   this.addSpriteSheet( "doorSecurity",            "assets/img/doors/security.png", 32, 32);
+   this.addSpriteSheet( "doorSilver",              "assets/img/doors/silver.png", 32, 32);
+   this.addSpriteSheet( "doorUranium",             "assets/img/doors/uranium.png", 32, 32);
+   this.addSpriteSheet( "doorVirology",            "assets/img/doors/virology.png", 32, 32);
+   this.addSpriteSheet( "doorWood",                "assets/img/doors/wood.png", 32, 32);
 };
 
