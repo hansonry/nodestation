@@ -40,7 +40,6 @@ var itemImageMap = {
 var mapTileImageMap = {
    questionMark: 0,
    wall:         1,
-   floor:        2
 };
 
 var consts = {
@@ -56,6 +55,19 @@ function applyCoordToSprite(sprite, coord, offsetX, offsetY) {
    offsetY = offsetY || 0;
    sprite.x = coord.x * consts.tile.width + offsetX;
    sprite.y = coord.y * consts.tile.height + offsetY;
+}
+
+function createTileTypes(tileMap, length) {
+   // This function was written by probing the createTileType return
+   // May not be compatable in the future
+   var firstIndex = -1;
+   for(var i = 0; i < length; i++) {
+      var tileType = tileMap.createTileType(i);
+      if(i == 0) {
+         firstIndex = tileType.index;
+      }
+   }
+   return firstIndex;
 }
 
 var socket = undefined;
@@ -86,9 +98,9 @@ NodeStation.Play.create = function () {
    this.addChildAt(this.worldGroup, 0);
    this.addChildAt(this.uiGroup, 1);
    
-   this.worldGroup.addChildAt(this.itemGroup, 1); 
-   this.worldGroup.addChildAt(this.pawnGroup, 2); 
-   this.worldGroup.addChildAt(this.doorGroup, 3); // Over Pawn
+   this.worldGroup.addChildAt(this.itemGroup, 10); 
+   this.worldGroup.addChildAt(this.pawnGroup, 11); 
+   this.worldGroup.addChildAt(this.doorGroup, 12); // Over Pawn
 
 	/*
 	* Replace with your own game creation code here...
@@ -128,20 +140,21 @@ NodeStation.Play.create = function () {
    this.map = new Kiwi.GameObjects.Tilemap.TileMap(this);
 
    this.map.setTo(consts.tile.width, consts.tile.height, 10, 10);
+
+
+   this.tileIndices = {
+      floor: createTileTypes(this.map, this.textures.mapFloor.cells.length),
+      wall:  createTileTypes(this.map, 3)
+   };
    
-   this.map.createTileType(0);
-   this.map.createTileType(1);
-   this.map.createTileType(2);
-   
-   this.mapLayer = this.map.createNewLayer('map', this.textures.mapTiles);
+   this.tileMapLayers = {
+      floor: this.map.createNewLayer('floor', this.textures.mapFloor),
+      wall:  this.map.createNewLayer('wall',  this.textures.mapTiles)
+   };
    
 
-   this.mapLayer.setTile(0, 0, 1);
-   this.mapLayer.setTile(0, 1, 2);
-   this.worldGroup.addChildAt( this.mapLayer, 0);
-   this.mapLayer.x = 20;
-   this.mapLayer.y = 20;
-   this.mapLayer.visible = true;
+   this.worldGroup.addChildAt( this.tileMapLayers.floor, 0);
+   this.worldGroup.addChildAt( this.tileMapLayers.wall,  1);
 
 
    
@@ -174,11 +187,20 @@ NodeStation.Play.create = function () {
    
    
    socket.on('newMap', function(msg) {
-      self.worldGroup.removeChild(self.mapLayer);
-      self.mapLayer.destroy();
+      self.worldGroup.removeChild(self.tileMapLayers.floor);
+      self.worldGroup.removeChild(self.tileMapLayers.wall);
+      self.tileMapLayers.floor.destroy();
+      self.tileMapLayers.wall.destroy();
+
       self.map.setTo(consts.tile.width, consts.tile.height, msg.width, msg.height);
-      self.mapLayer = self.map.createNewLayer('map', self.textures.mapTiles);
-      self.worldGroup.addChildAt(self.mapLayer, 0);
+      self.tileMapLayers = {
+         floor: self.map.createNewLayer('floor', self.textures.mapFloor),
+         wall:  self.map.createNewLayer('wall',  self.textures.mapTiles)
+      };
+      
+
+      self.worldGroup.addChildAt( self.tileMapLayers.floor, 0);
+      self.worldGroup.addChildAt( self.tileMapLayers.wall,  1);
       self.tileList.resize(msg.width, msg.height);
    });
    socket.on('updateTile', function(msg) {
@@ -187,24 +209,28 @@ NodeStation.Play.create = function () {
       self.tileList.set(msg.x, msg.y, msg.type, msg.layer);
       var tileIndex = self.tileList.findHighestLayerAtCoord(msg.x, msg.y);
 
-      if(tileIndex < 0) {
-         tileImageIndex = 0;
-      }
-      else {
+      if(tileIndex >= 0) {
          var tile = self.tileList.list[tileIndex];
-         var mapTileImageLookup = mapTileImageMap[tile.type];
-         if(tile.type == '') {
-            tileImageIndex = 0;
+
+         if(tile.layer == 'floor') {
+            tileImageIndex = tile.type + self.tileIndices.floor;
+            self.tileMapLayers.floor.setTile(msg.x, msg.y, tileImageIndex);
          }
-         else if(mapTileImageLookup) {
-            tileImageIndex = mapTileImageLookup + 1;
-         }
-         else {
-            tileImageIndex = 1; // questionMark
+         else if(tile.layer == 'wall') {
+            var mapTileImageLookup = mapTileImageMap[tile.type];
+            if(tile.type == '') {
+               tileImageIndex = 0;
+            }
+            else if(mapTileImageLookup) {
+               tileImageIndex = mapTileImageLookup + self.tileIndices.wall;
+            }
+            else {
+               tileImageIndex = 1; // questionMark
+            }
+            self.tileMapLayers.wall.setTile(msg.x, msg.y, tileImageIndex);
          }
       }
 
-      self.mapLayer.setTile(msg.x, msg.y, tileImageIndex);
    });
    socket.on('addPawn', function(msg) {
       var pawnIndex = self.pawnList.findById(msg.id);

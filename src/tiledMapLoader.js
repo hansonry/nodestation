@@ -9,13 +9,17 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
    tileList.resize(rawMap.width, rawMap.height);
    
    // Find Tilesets
-   var tilesetFloorsAndWalls = undefined;
+   var tilesetFloors = undefined;
+   var tilesetWalls = undefined;
    var tilesetItems = undefined;
 
    for(var i = 0; i < rawMap.tilesets.length; i++) {
       var tileset = rawMap.tilesets[i];
-      if(tileset.name == "Floors And Walls") {
-         tilesetFloorsAndWalls = tileset;
+      if(tileset.name == "Floors") {
+         tilesetFloors = tileset;
+      }
+      else if(tileset.name == "Walls") {
+         tilesetWalls = tileset;
       }
       else if(tileset.name == "Items") {
          tilesetItems = tileset;
@@ -25,8 +29,11 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
       }
    }
    
-   if(tilesetFloorsAndWalls == undefined) {
-      throw 'Failed to find Tileset "Floors And Walls"'
+   if(tilesetFloors == undefined) {
+      throw 'Failed to find Tileset "Floors"'
+   }
+   if(tilesetFloors == undefined) {
+      throw 'Failed to find Tileset "Walls"'
    }
    if(tilesetItems == undefined) {
       throw 'Failed to find Tileset "Items"';
@@ -36,7 +43,7 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
       var layer = rawMap.layers[i];
       if(layer.type == 'group') {
          if(layer.name == 'Floor') {            
-            var tileset = tilesetFloorsAndWalls;
+            var tileset = tilesetFloors;
             var groupOffset = { x: layer.x, y: layer.y };
             for(var k = 0; k < layer.layers.length; k++) {
                var tileLayer = layer.layers[k];
@@ -52,7 +59,7 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
                for(var m = 0; m < tileLayer.data.length; m ++) {
                   var gid = tileLayer.data[m];
                   if(gid > 0) {
-                     tileList.add(tileset.tiles[gid - tileset.firstgid].type, 
+                     tileList.add(gid - tileset.firstgid, 
                                   x + offset.x, y + offset.y, 'floor');
                   }
                   
@@ -65,7 +72,7 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
             }
          }
          else if(layer.name == 'Wall') {
-            var tileset = tilesetFloorsAndWalls;
+            var tileset = tilesetWalls;
             var groupOffset = { x: layer.x, y: layer.y };
             for(var k = 0; k < layer.layers.length; k++) {
                var tileLayer = layer.layers[k];
