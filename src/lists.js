@@ -33,6 +33,17 @@ function PawnList() {
    var self = this;
    this.list = [];
    this.init = {x: 1, y: 1}
+   this.findById = function(id) {
+      var pawnIndex = -1;
+      for(var i = 0; i < self.list.length; i++) {
+         var pawn = self.list[i];
+         if(pawn.id == id) {
+            pawnIndex = i;
+            break;
+         }
+      }
+      return pawnIndex;
+   }
    this.findInArea = function(x, y, width, height) {
       var pawnIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
@@ -146,6 +157,7 @@ function DoorList() {
          ticksLeft: 0,
          openSpeedTicks: 10,
          triggered: false,
+         triggeredById: '',
          dirty: true
       };
       self.list.push(obj);

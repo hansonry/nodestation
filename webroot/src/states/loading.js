@@ -53,6 +53,7 @@ NodeStation.Loading.preload = function () {
 	this.addSpriteSheet( "pawnClothes", "assets/img/pawnClothes.png", 32, 32 );
 
    // Doors
+   this.addSpriteSheet( "doorOverlays",            "assets/img/doors/overlays.png", 32, 32);
    this.addSpriteSheet( "doorAtmos",               "assets/img/doors/atmos.png", 32, 32);
    this.addSpriteSheet( "doorBananium",            "assets/img/doors/bananium.png", 32, 32);
    this.addSpriteSheet( "doorCommand",             "assets/img/doors/command.png", 32, 32);

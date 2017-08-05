@@ -518,9 +518,13 @@ NodeStation.Play.create = function () {
 
       door.spriteCover = new Kiwi.GameObjects.Sprite(
          self, self.textures[doorType.spriteSheet]);
+      door.spriteLight = new Kiwi.GameObjects.Sprite(
+         self, self.textures.doorOverlays);
+      door.spriteLight.visible = false;
 
       door.group.addChildAt(door.sprite, 0);
       door.group.addChildAt(door.spriteCover, 1);
+      door.group.addChildAt(door.spriteLight, 2);
 
       if(doorType.windowed) {
          door.spriteCover.visible = false;
@@ -752,27 +756,37 @@ NodeStation.Play.update = function() {
          if(door.state == 'open') {
             door.sprite.cellIndex = 1;
             door.spriteCover.cellIndex = 16;
+            door.spriteLight.visible = false;
             
          }
          else if(door.state == 'close') {
             door.sprite.cellIndex = 0;
             door.spriteCover.cellIndex = 15;
+            door.spriteLight.visible = false;
          }
          else {
             var percent = getActionPercent(door.ticksLeft, 
                                            door.openSpeedTicks, 
                                            door.lastUpdateWatch, 
                                            this.updateTimeSeconds);
+            door.spriteLight.visible = true;
             
             var offset = Math.floor(percent * consts.door.animationLength);
             if(door.state == 'opening') {
 
                door.sprite.cellIndex = 2 + offset;
                door.spriteCover.cellIndex = 17 + offset;
+               door.spriteLight.cellIndex = offset;
             }
             else if(door.state == 'closing') {
                door.sprite.cellIndex = 2 + offset + consts.door.animationLength;
                door.spriteCover.cellIndex = 17 + offset + consts.door.animationLength;
+               door.spriteLight.cellIndex = offset + consts.door.animationLength;
+            }
+            else if(door.state == 'nope') {
+               door.sprite.cellIndex = 0;
+               door.spriteCover.cellIndex = 15;
+               door.spriteLight.cellIndex = offset + (consts.door.animationLength * 2);
             }
          }
       }
