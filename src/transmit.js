@@ -99,7 +99,9 @@ module.exports = {
             x: door.x,
             y: door.y,
             type: door.type,
-            state: door.state
+            state: door.state,
+            ticksLeft: door.ticksLeft,
+            openSpeedTicks: door.openSpeedTicks
          });
       }
    },

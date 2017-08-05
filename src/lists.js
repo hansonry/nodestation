@@ -143,6 +143,9 @@ function DoorList() {
          x: x, 
          y: y,
          type: type,
+         ticksLeft: 0,
+         openSpeedTicks: 10,
+         triggered: false,
          dirty: true
       };
       self.list.push(obj);

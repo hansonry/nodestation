@@ -147,7 +147,9 @@ function DoorList() {
          spriteCover: undefined,
          spriteLight: undefined,
          group: undefined,
+         ticksLeft: 0,
          type: type,
+         lastUpdateWatch: 0,
          dirty: true
       };
       self.list.push(door);

@@ -213,7 +213,10 @@ var consts = {
    tile: {
      width:  32,
      height: 32
-   } 
+   },
+   door: {
+      animationLength: 6
+   }
 };
 
 function applyCoordToSprite(sprite, coord, offsetX, offsetY) {
@@ -373,6 +376,7 @@ NodeStation.Play.create = function () {
    socket.on('updateTile', function(msg) {
 
       for(var key in msg.layers) {
+         // I might be too dumb to read this code
          self.tileList.set(msg.x, msg.y, key, 
                            msg.layers[key].type, msg.layers[key].index);
          self.tileMapLayers[key].setTile(msg.x, msg.y, 
@@ -553,7 +557,10 @@ NodeStation.Play.create = function () {
          door.x = msg.x;
          door.y = msg.y;
          door.state = msg.state;
+         door.ticksLeft = msg.ticksLeft;
+         door.openSpeedTicks = msg.openSpeedTicks;
          door.dirty = true;
+         door.lastUpdateWatch = 0;
       }
    });
 
@@ -674,6 +681,22 @@ function chatOnSubmit() {
    return false;
 }
 
+function getActionPercent(ticksLeft, totalTicks, lastUpdateWatch, updateTimeSeconds) {
+   var totalTime = totalTicks * updateTimeSeconds;
+   var timeLeft  = (ticksLeft * updateTimeSeconds) - lastUpdateWatch;
+
+   if(timeLeft < 0) {
+      timeLeft = 0
+   }
+   else if(timeLeft > totalTime) { 
+      timeLeft = totalTime;
+   }
+
+   var percent = 1 - (timeLeft / totalTime);
+
+   return percent;
+
+}
 
 NodeStation.Play.update = function() {
 
@@ -685,22 +708,11 @@ NodeStation.Play.update = function() {
 
       pawn.lastUpdateWatch += this.networkClock.delta;
       if(pawn.motion.state == 'walking') {
-         var totalTime = pawn.motion.walkSpeedTicks * this.updateTimeSeconds;
-         var timeLeft  = (pawn.motion.ticksLeft * this.updateTimeSeconds) - pawn.lastUpdateWatch;
 
-         //console.log("tl: " + timeLeft + ", tt: " + totalTime + ", ticksLeft: " + pawn.motion.ticksLeft + ", lastUpdateWatch: " + pawn.lastUpdateWatch);
-         
-      
-
-         if(timeLeft < 0) {
-            timeLeft = 0
-         }
-         else if(timeLeft > totalTime) { 
-            timeLeft = totalTime;
-         }
-
-
-         var percent   = 1 - (timeLeft / totalTime);
+         var percent = getActionPercent(pawn.motion.ticksLeft, 
+                                        pawn.motion.walkSpeedTicks, 
+                                        pawn.lastUpdateWatch, 
+                                        this.updateTimeSeconds);
 
 
          var dx = pawn.motion.target.x - pawn.x;
@@ -733,16 +745,35 @@ NodeStation.Play.update = function() {
    // Updating Doors
    for(var i = 0; i < this.doorList.list.length; i++) {
       var door = this.doorList.list[i];
+      door.lastUpdateWatch += this.networkClock.delta;
       if(door.dirty) {
+         
          applyCoordToSprite(door.group, door);
          if(door.state == 'open') {
             door.sprite.cellIndex = 1;
             door.spriteCover.cellIndex = 16;
             
          }
-         else {
+         else if(door.state == 'close') {
             door.sprite.cellIndex = 0;
             door.spriteCover.cellIndex = 15;
+         }
+         else {
+            var percent = getActionPercent(door.ticksLeft, 
+                                           door.openSpeedTicks, 
+                                           door.lastUpdateWatch, 
+                                           this.updateTimeSeconds);
+            
+            var offset = Math.floor(percent * consts.door.animationLength);
+            if(door.state == 'opening') {
+
+               door.sprite.cellIndex = 2 + offset;
+               door.spriteCover.cellIndex = 17 + offset;
+            }
+            else if(door.state == 'closing') {
+               door.sprite.cellIndex = 2 + offset + consts.door.animationLength;
+               door.spriteCover.cellIndex = 17 + offset + consts.door.animationLength;
+            }
          }
       }
    }
