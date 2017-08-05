@@ -269,8 +269,8 @@ NodeStation.Play.create = function () {
    this.addChildAt(this.uiGroup, 1);
    
    this.worldGroup.addChildAt(this.itemGroup, 10); 
-   this.worldGroup.addChildAt(this.pawnGroup, 11); 
-   this.worldGroup.addChildAt(this.doorGroup, 12); // Over Pawn
+   this.worldGroup.addChildAt(this.doorGroup, 11);
+   this.worldGroup.addChildAt(this.pawnGroup, 12); 
 
 	/*
 	* Replace with your own game creation code here...
