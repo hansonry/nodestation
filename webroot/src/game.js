@@ -1,7 +1,24 @@
+/*
+    Node Station - A Space Station 13 clone
+    Copyright (C) 2017  Ryan Hanson
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
-
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'engineContent',
+// Ajust the numbers here to change scaling
+var game = new Phaser.Game(480, 320, Phaser.AUTO, 'engineContent',
                            {preload: preload, create: create, update: update},
                            false, false);
 
@@ -205,6 +222,7 @@ function create() {
          pawn.sprites.body.face = game.add.sprite(0, 0, 'pawnFace');
          //pawn.sprites.body.face.smoothed = false;
          pawn.sprites.body.eyes = game.add.sprite(0, 0, 'pawnFace');
+         //pawn.sprites.body.eyes.smoothed = false;
 
          pawn.sprites.clothes.head = game.add.sprite(0, 0, 'pawnHead');
          //pawn.sprites.clothes.head.smoothed = false;
