@@ -57,13 +57,17 @@ function PawnList() {
                clothes: {
                   head: 208,
                   underwear: 68,
-                  feet: 32,
+                  feet:  32,
                   hands: -1,
                   neck: -1,
                   uniform: 12,
                   suit: -1,
                   mask: -1
                }
+            },
+            colors: {
+               skin: 0xffe0bd,
+               hair: 0xb55239
             },
             group: undefined,
             x: 0,
@@ -83,7 +87,7 @@ function PawnList() {
                      sprite.visible = false;
                   }
                   else {
-                     sprite.cellIndex = cellIndex + offset;
+                     sprite.frame = cellIndex + offset;
                      sprite.visible = true;
                   }
                }
@@ -94,6 +98,14 @@ function PawnList() {
                set(this.sprites.body.leftLeg,  this.cellIndices.body.leftLeg,  offset);
                set(this.sprites.body.rightLeg, this.cellIndices.body.rightLeg, offset);
                set(this.sprites.body.face,     this.cellIndices.body.face,     offset);
+
+               this.sprites.body.head.tint = this.colors.skin;
+               this.sprites.body.body.tint = this.colors.skin;
+               this.sprites.body.leftArm.tint = this.colors.skin;
+               this.sprites.body.rightArm.tint = this.colors.skin;
+               this.sprites.body.leftLeg.tint = this.colors.skin;
+               this.sprites.body.rightLeg.tint = this.colors.skin;
+               this.sprites.body.face.tint = this.colors.hair;
 
                set(this.sprites.clothes.head,      this.cellIndices.clothes.head,      offset);
                set(this.sprites.clothes.underwear, this.cellIndices.clothes.underwear, offset);
