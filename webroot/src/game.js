@@ -5,8 +5,14 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'engineContent',
                            {preload: preload, create: create, update: update},
                            false, false);
 
-var gameScale = 2;
+
+var gameScale = 1;
 function preload() {
+
+   game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+   game.scale.pageAlignHorizontally = true;
+   game.scale.pageAlignVertically = true;
+
 	game.load.spritesheet( "items", "assets/img/items.png", 32, 32 );
 	game.load.image( "mapTiles", "assets/img/mapTiles.png", 32, 32 );
    game.load.image( "mapFloor", "assets/img/floors.png", 32, 32);
@@ -198,6 +204,7 @@ function create() {
          //pawn.sprites.body.rightLeg.smoothed = false;
          pawn.sprites.body.face = game.add.sprite(0, 0, 'pawnFace');
          //pawn.sprites.body.face.smoothed = false;
+         pawn.sprites.body.eyes = game.add.sprite(0, 0, 'pawnFace');
 
          pawn.sprites.clothes.head = game.add.sprite(0, 0, 'pawnHead');
          //pawn.sprites.clothes.head.smoothed = false;
@@ -222,27 +229,28 @@ function create() {
          pawn.group = game.add.group(groups.pawn);
          // totaly guessing on order
          pawn.group.addAt(pawn.sprites.body.head, 0);
-         pawn.group.addAt(pawn.sprites.body.body, 1);
-         pawn.group.addAt(pawn.sprites.body.leftArm, 2);
-         pawn.group.addAt(pawn.sprites.body.rightArm, 3);
-         pawn.group.addAt(pawn.sprites.body.leftLeg, 4);
-         pawn.group.addAt(pawn.sprites.body.rightLeg, 5);
+         pawn.group.addAt(pawn.sprites.body.eyes, 1);
+         pawn.group.addAt(pawn.sprites.body.body, 2);
+         pawn.group.addAt(pawn.sprites.body.leftArm, 3);
+         pawn.group.addAt(pawn.sprites.body.rightArm, 4);
+         pawn.group.addAt(pawn.sprites.body.leftLeg, 5);
+         pawn.group.addAt(pawn.sprites.body.rightLeg, 6);
 
 
-         pawn.group.addAt(pawn.sprites.clothes.underwear, 6);
+         pawn.group.addAt(pawn.sprites.clothes.underwear, 7);
 
-         pawn.group.addAt(pawn.sprites.clothes.feet, 7);
-         pawn.group.addAt(pawn.sprites.clothes.hands, 8);
-         pawn.group.addAt(pawn.sprites.clothes.uniform, 9);
+         pawn.group.addAt(pawn.sprites.clothes.feet, 8);
+         pawn.group.addAt(pawn.sprites.clothes.hands, 9);
+         pawn.group.addAt(pawn.sprites.clothes.uniform, 10);
 
 
-         pawn.group.addAt(pawn.sprites.clothes.mask, 10);
-         pawn.group.addAt(pawn.sprites.clothes.neck, 11);
+         pawn.group.addAt(pawn.sprites.clothes.mask, 11);
+         pawn.group.addAt(pawn.sprites.clothes.neck, 12);
 
-         pawn.group.addAt(pawn.sprites.body.face, 12);
+         pawn.group.addAt(pawn.sprites.body.face, 13);
 
-         pawn.group.addAt(pawn.sprites.clothes.head, 13);
-         pawn.group.addAt(pawn.sprites.clothes.suit, 14); 
+         pawn.group.addAt(pawn.sprites.clothes.head, 14);
+         pawn.group.addAt(pawn.sprites.clothes.suit, 15); 
 
 
          

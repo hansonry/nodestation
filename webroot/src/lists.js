@@ -31,7 +31,8 @@ function PawnList() {
                   rightArm: undefined,
                   leftLeg: undefined,
                   rigthLeg: undefined,
-                  face: undefined
+                  face: undefined,
+                  eyes: undefined
                },
                clothes: {
                   head: undefined,
@@ -46,13 +47,14 @@ function PawnList() {
             },
             cellIndices: {
                body: {
-                  head: 20,
-                  body: 32,
-                  leftArm: 4,
+                  head:     20,
+                  body:     32,
+                  leftArm:  4,
                   rightArm: 8,
-                  leftLeg: 12,
+                  leftLeg:  12,
                   rightLeg: 16,
-                  face:    126
+                  face:     126,
+                  eyes:     1
                },
                clothes: {
                   head: 208,
@@ -67,7 +69,8 @@ function PawnList() {
             },
             colors: {
                skin: 0xffe0bd,
-               hair: 0xb55239
+               hair: 0xb55239,
+               eyes: 0x542a0e
             },
             group: undefined,
             x: 0,
@@ -98,6 +101,7 @@ function PawnList() {
                set(this.sprites.body.leftLeg,  this.cellIndices.body.leftLeg,  offset);
                set(this.sprites.body.rightLeg, this.cellIndices.body.rightLeg, offset);
                set(this.sprites.body.face,     this.cellIndices.body.face,     offset);
+               set(this.sprites.body.eyes,     this.cellIndices.body.eyes,     offset);
 
                this.sprites.body.head.tint = this.colors.skin;
                this.sprites.body.body.tint = this.colors.skin;
@@ -106,6 +110,7 @@ function PawnList() {
                this.sprites.body.leftLeg.tint = this.colors.skin;
                this.sprites.body.rightLeg.tint = this.colors.skin;
                this.sprites.body.face.tint = this.colors.hair;
+               this.sprites.body.eyes.tint = this.colors.eyes;
 
                set(this.sprites.clothes.head,      this.cellIndices.clothes.head,      offset);
                set(this.sprites.clothes.underwear, this.cellIndices.clothes.underwear, offset);
