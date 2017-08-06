@@ -23,13 +23,52 @@ function PawnList() {
       if(pawnIndex < 0) {
          pawn = { 
             id: id, 
-            sprite: undefined,
-            spriteTop: undefined,
-            spriteBottom: undefined,
-            spriteFoot: undefined,
+            sprites: {
+               body: {
+                  head: undefined,
+                  body: undefined,
+                  leftArm: undefined,
+                  rightArm: undefined,
+                  leftLeg: undefined,
+                  rigthLeg: undefined,
+                  face: undefined
+               },
+               clothes: {
+                  head: undefined,
+                  underwear: undefined,
+                  feet: undefined,
+                  hands: undefined,
+                  neck: undefined,
+                  uniform: undefined,
+                  suit: undefined,
+                  mask: undefined
+               }
+            },
+            cellIndices: {
+               body: {
+                  head: 20,
+                  body: 32,
+                  leftArm: 4,
+                  rightArm: 8,
+                  leftLeg: 12,
+                  rightLeg: 16,
+                  face:    126
+               },
+               clothes: {
+                  head: 208,
+                  underwear: 68,
+                  feet: 32,
+                  hands: -1,
+                  neck: -1,
+                  uniform: 12,
+                  suit: -1,
+                  mask: -1
+               }
+            },
             group: undefined,
             x: 0,
             y: 0,
+            facing: 'south',
             motion: {
                state: 'standing',
                ticksLeft: 0,
@@ -37,7 +76,35 @@ function PawnList() {
                target: { x: 0, y: 0 }
             },
             lastUpdateWatch: 0,
-            dirty: true
+            dirty: true,
+            updateCellIndices: function(offset) {
+               function set(sprite, cellIndex, offset) {
+                  if(cellIndex < 0) {
+                     sprite.visible = false;
+                  }
+                  else {
+                     sprite.cellIndex = cellIndex + offset;
+                     sprite.visible = true;
+                  }
+               }
+               set(this.sprites.body.head,     this.cellIndices.body.head,     offset);
+               set(this.sprites.body.body,     this.cellIndices.body.body,     offset);
+               set(this.sprites.body.leftArm,  this.cellIndices.body.leftArm,  offset);
+               set(this.sprites.body.rightArm, this.cellIndices.body.rightArm, offset);
+               set(this.sprites.body.leftLeg,  this.cellIndices.body.leftLeg,  offset);
+               set(this.sprites.body.rightLeg, this.cellIndices.body.rightLeg, offset);
+               set(this.sprites.body.face,     this.cellIndices.body.face,     offset);
+
+               set(this.sprites.clothes.head,      this.cellIndices.clothes.head,      offset);
+               set(this.sprites.clothes.underwear, this.cellIndices.clothes.underwear, offset);
+               set(this.sprites.clothes.feet,      this.cellIndices.clothes.feet,      offset);
+               set(this.sprites.clothes.hands,     this.cellIndices.clothes.hands,     offset);
+               set(this.sprites.clothes.neck,      this.cellIndices.clothes.neck,      offset);
+               set(this.sprites.clothes.uniform,   this.cellIndices.clothes.uniform,   offset);
+               set(this.sprites.clothes.suit,      this.cellIndices.clothes.suit,      offset);
+               set(this.sprites.clothes.mask,      this.cellIndices.clothes.mask,      offset);
+
+            }
 
          };
          self.list.push(pawn);

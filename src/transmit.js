@@ -3,9 +3,10 @@ module.exports = {
    pawn: {
       add: function(socket, pawn) {
          socket.emit('addPawn', {
-            id: pawn.id,
-            x:  pawn.x,
-            y:  pawn.y
+            id:     pawn.id,
+            x:      pawn.x,
+            y:      pawn.y,
+            facing: pawn.facing
          });
       },
       remove: function(socket, pawn) {
@@ -18,6 +19,7 @@ module.exports = {
             id: pawn.id,
             x:  pawn.x,
             y:  pawn.y,
+            facing: pawn.facing,
             motion: {
                state: pawn.motion.state,
                target: {

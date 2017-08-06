@@ -175,23 +175,28 @@ setInterval(function() {
    // Update pawn motion
    for(var i = 0; i < clientList.list.length; i++) {
       var client = clientList.list[i];
+      var pawn = client.controlledPawn;
       var dx = 0;
       var dy = 0;
+      var newFacing = pawn.facing;
       if(client.keys.up) {
          dy = -1;
+         newFacing = 'north';
       }
       else if(client.keys.down) {
          dy = 1;
+         newFacing = 'south';
       }
-      if(client.keys.left) {
+      else if(client.keys.left) {
+         newFacing = 'west';
          dx = -1;
       }
       else if(client.keys.right) {
+         newFacing = 'east';
          dx = 1;
       }
       //console.log("dx: " + dx + ", dy: " + dy);
 
-      var pawn = client.controlledPawn;
 
 
       var new_x = pawn.x + dx;
@@ -208,8 +213,15 @@ setInterval(function() {
             }
          }
       }
+
+      // Update Facing
+      if(pawn.motion.state == 'standing' && pawn.facing != newFacing) {
+         pawn.facing = newFacing;
+         pawn.dirty = true;
+      }
       
 
+      // Update motion
       if((dx != 0 || dy != 0) && 
          pawn.motion.state == 'standing' &&
          !tileList.isBlocking(new_x, new_y) &&

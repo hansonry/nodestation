@@ -75,5 +75,18 @@ NodeStation.Loading.preload = function () {
    this.addSpriteSheet( "doorUranium",             "assets/img/doors/uranium.png", 32, 32);
    this.addSpriteSheet( "doorVirology",            "assets/img/doors/virology.png", 32, 32);
    this.addSpriteSheet( "doorWood",                "assets/img/doors/wood.png", 32, 32);
+
+   // Pawn
+   this.addSpriteSheet( "pawnBodyParts", "assets/img/pawn/human_parts_greyscale.png", 32, 32);
+   this.addSpriteSheet( "pawnFeet",      "assets/img/pawn/feet.png", 32, 32);
+   this.addSpriteSheet( "pawnHands",     "assets/img/pawn/hands.png", 32, 32);
+   this.addSpriteSheet( "pawnHead",      "assets/img/pawn/head.png", 32, 32);
+   this.addSpriteSheet( "pawnFace",      "assets/img/pawn/human_face.png", 32, 32);
+   this.addSpriteSheet( "pawnMask",      "assets/img/pawn/mask.png", 32, 32);
+   this.addSpriteSheet( "pawnNeck",      "assets/img/pawn/neck.png", 32, 32);
+   this.addSpriteSheet( "pawnSuit",      "assets/img/pawn/suit.png", 32, 32);
+   this.addSpriteSheet( "pawnUnderwear", "assets/img/pawn/underwear.png", 32, 32);
+   this.addSpriteSheet( "pawnUniform",   "assets/img/pawn/uniform.png", 32, 32);
+
 };
 

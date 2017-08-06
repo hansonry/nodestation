@@ -224,30 +224,72 @@ NodeStation.Play.create = function () {
       if(pawnIndex < 0) {
          var pawn = self.pawnList.add(msg.id);
          
-         
-         pawn.sprite = new Kiwi.GameObjects.Sprite(
-            self, self.textures.pawn);                  
-         pawn.spriteTop = new Kiwi.GameObjects.Sprite(
-            self, self.textures.pawnClothes);
-         pawn.spriteTop.cellIndex = 1;
-         pawn.spriteBottom = new Kiwi.GameObjects.Sprite(
-            self, self.textures.pawnClothes);
-         pawn.spriteBottom.cellIndex = 2;
-         pawn.spriteFoot = new Kiwi.GameObjects.Sprite(
-            self, self.textures.pawnClothes);
-         pawn.spriteFoot.cellIndex = 3;
-         
+         pawn.sprites.body.head = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnBodyParts);
+         pawn.sprites.body.body = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnBodyParts);
+         pawn.sprites.body.leftArm = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnBodyParts);
+         pawn.sprites.body.rightArm = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnBodyParts);
+         pawn.sprites.body.leftLeg = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnBodyParts);
+         pawn.sprites.body.rightLeg = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnBodyParts);
+         pawn.sprites.body.face = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnFace);
+
+         pawn.sprites.clothes.head = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnHead);
+         pawn.sprites.clothes.underwear = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnUnderwear);
+         pawn.sprites.clothes.feet = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnFeet);
+         pawn.sprites.clothes.hands = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnHands);
+         pawn.sprites.clothes.neck = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnNeck);
+         pawn.sprites.clothes.uniform = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnUniform);
+         pawn.sprites.clothes.suit = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnSuit);
+         pawn.sprites.clothes.mask = new Kiwi.GameObjects.Sprite(
+            self, self.textures.pawnMask);
+
+
+
+
          pawn.group = new Kiwi.Group(self);
-         pawn.group.addChildAt(pawn.sprite, 0);
-         pawn.group.addChildAt(pawn.spriteTop, 1);
-         pawn.group.addChildAt(pawn.spriteBottom, 1);
-         pawn.group.addChildAt(pawn.spriteFoot, 1);
+         // totaly guessing on order
+         pawn.group.addChildAt(pawn.sprites.body.head, 0);
+         pawn.group.addChildAt(pawn.sprites.body.body, 1);
+         pawn.group.addChildAt(pawn.sprites.body.leftArm, 2);
+         pawn.group.addChildAt(pawn.sprites.body.rightArm, 3);
+         pawn.group.addChildAt(pawn.sprites.body.leftLeg, 4);
+         pawn.group.addChildAt(pawn.sprites.body.rightLeg, 5);
+
+
+         pawn.group.addChildAt(pawn.sprites.clothes.underwear, 6);
+
+         pawn.group.addChildAt(pawn.sprites.clothes.feet, 7);
+         pawn.group.addChildAt(pawn.sprites.clothes.hands, 8);
+         pawn.group.addChildAt(pawn.sprites.clothes.uniform, 9);
+
+
+         pawn.group.addChildAt(pawn.sprites.clothes.mask, 10);
+         pawn.group.addChildAt(pawn.sprites.clothes.neck, 11);
+
+         pawn.group.addChildAt(pawn.sprites.body.face, 12);
+
+         pawn.group.addChildAt(pawn.sprites.clothes.head, 13);
+         pawn.group.addChildAt(pawn.sprites.clothes.suit, 14); 
 
          self.pawnGroup.addChild(pawn.group);
 
          
          pawn.x = msg.x;
          pawn.y = msg.y;
+         pawn.facing = msg.facing;
          applyCoordToSprite(pawn.group, pawn);
          pawn.dirty = true;
 
@@ -264,7 +306,7 @@ NodeStation.Play.create = function () {
       if(pawnIndex >= 0)
       {
          var pawn = self.pawnList.list[pawnIndex];
-         self.pawnGroup(pawn.group);
+         self.pawnGroup.removeChild(pawn.group);
          self.pawnList.removeByIndex(pawnIndex);
       }
    });
@@ -284,8 +326,9 @@ NodeStation.Play.create = function () {
          pawn.motion.target.x       = msg.motion.target.x;
          pawn.motion.target.y       = msg.motion.target.y;
          pawn.lastUpdateWatch       = 0;
-         pawn.x = msg.x;
-         pawn.y = msg.y;
+         pawn.x                     = msg.x;
+         pawn.y                     = msg.y;
+         pawn.facing                = msg.facing;
          pawn.dirty = true;
 
 
@@ -543,6 +586,23 @@ NodeStation.Play.update = function() {
    for(var i = 0; i < this.pawnList.list.length; i++) {
       var pawn = this.pawnList.list[i];
 
+      var facingOffset;
+      if(pawn.facing == 'south') {
+         facingOffset = 0;
+      }
+      else if(pawn.facing == 'north') {
+         facingOffset = 1;
+      }
+      else if(pawn.facing == 'east') {
+         facingOffset = 2;
+      }
+      else if(pawn.facing == 'west') {
+         facingOffset = 3;
+      }
+      else {
+         facingOffset = 0;
+      }
+
       pawn.lastUpdateWatch += this.networkClock.delta;
       if(pawn.motion.state == 'walking') {
 
@@ -559,15 +619,17 @@ NodeStation.Play.update = function() {
          var offsetY = consts.tile.height * percent * dy;
 
          applyCoordToSprite(pawn.group, pawn, offsetX, offsetY);
+         pawn.updateCellIndices(facingOffset);
          pawn.dirty = false;
 
       }
-      else if(pawn.motion.state == 'standing') {
-         if(pawn.dirty) {
-            applyCoordToSprite(pawn.group, pawn, offsetX, offsetY);
-            pawn.dirty = false;
-         }
 
+      if(pawn.dirty) {
+         applyCoordToSprite(pawn.group, pawn);
+
+
+         pawn.updateCellIndices(facingOffset);
+         pawn.dirty = false;
       }
       if(pawn.id == this.ownedPawnId) {
          // Setup the Camera

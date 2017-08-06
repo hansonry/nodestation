@@ -62,6 +62,7 @@ function PawnList() {
          id: id,
          x: self.init.x, 
          y: self.init.y,
+         facing: 'south',
          motion: {
             state: 'standing',
             target: { x: self.init.x, y: self.init.y },
