@@ -225,7 +225,8 @@ setInterval(function() {
       if((dx != 0 || dy != 0) && 
          pawn.motion.state == 'standing' &&
          !tileList.isBlocking(new_x, new_y) &&
-         !doorList.isBlocking(new_x, new_y)) {
+         !doorList.isBlocking(new_x, new_y) &&
+         !pawnList.isBlocking(new_x, new_y)) {
 
          pawn.motion.target.x = new_x;
          pawn.motion.target.y = new_y;

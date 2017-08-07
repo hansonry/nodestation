@@ -83,6 +83,15 @@ function PawnList() {
          }
       }
    };
+   this.isBlocking = function(x, y) {
+      var pawnIndex = self.findInArea(x, y, 1, 1);
+      if(pawnIndex < 0) {
+         return false;
+      }
+      else {
+         return true;
+      }
+   }
    return this;
 }
 
