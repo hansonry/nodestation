@@ -28,7 +28,8 @@ module.exports = {
                },
                walkSpeedTicks: pawn.motion.walkSpeedTicks,
                ticksLeft: pawn.motion.ticksLeft
-            }
+            },
+            health: pawn.health
          });
       },
       owned: function(socket, pawn) {

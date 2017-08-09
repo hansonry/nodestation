@@ -96,11 +96,15 @@ var consts = {
 };
 
 function applyCoordToSprite(sprite, coord, offsetX, offsetY) {
+   var hw = consts.tile.width  / 2;
+   var hh = consts.tile.height / 2;
    
    offsetX = offsetX || 0;
    offsetY = offsetY || 0;
-   sprite.x = Math.floor(coord.x * consts.tile.width  + offsetX);
-   sprite.y = Math.floor(coord.y * consts.tile.height + offsetY);
+
+
+   sprite.x = Math.floor(coord.x * consts.tile.width  + offsetX + hw);
+   sprite.y = Math.floor(coord.y * consts.tile.height + offsetY + hh);
 }
 
 function createTileTypes(tileMap, length) {
@@ -214,39 +218,41 @@ function create() {
       var pawnIndex = self.pawnList.findById(msg.id);
       if(pawnIndex < 0) {
          var pawn = self.pawnList.add(msg.id);
+         var x = -consts.tile.width  / 2;
+         var y = -consts.tile.height / 2;
          
-         pawn.sprites.body.head = game.add.sprite(0, 0, 'pawnBodyParts');
+         pawn.sprites.body.head = game.add.sprite(x, y, 'pawnBodyParts');
          //pawn.sprites.body.head.smoothed = false;
-         pawn.sprites.body.body = game.add.sprite(0, 0, 'pawnBodyParts');
+         pawn.sprites.body.body = game.add.sprite(x, y, 'pawnBodyParts');
          //pawn.sprites.body.body.smoothed = false;
-         pawn.sprites.body.leftArm = game.add.sprite(0, 0, 'pawnBodyParts');
+         pawn.sprites.body.leftArm = game.add.sprite(x, y, 'pawnBodyParts');
          //pawn.sprites.body.leftArm.smoothed = false;
-         pawn.sprites.body.rightArm = game.add.sprite(0, 0, 'pawnBodyParts');
+         pawn.sprites.body.rightArm = game.add.sprite(x, y, 'pawnBodyParts');
          //pawn.sprites.body.rightArm.smoothed = false;
-         pawn.sprites.body.leftLeg = game.add.sprite(0, 0, 'pawnBodyParts');
+         pawn.sprites.body.leftLeg = game.add.sprite(x, y, 'pawnBodyParts');
          //pawn.sprites.body.leftLeg.smoothed = false;
-         pawn.sprites.body.rightLeg = game.add.sprite(0, 0, 'pawnBodyParts');
+         pawn.sprites.body.rightLeg = game.add.sprite(x, y, 'pawnBodyParts');
          //pawn.sprites.body.rightLeg.smoothed = false;
-         pawn.sprites.body.face = game.add.sprite(0, 0, 'pawnFace');
+         pawn.sprites.body.face = game.add.sprite(x, y, 'pawnFace');
          //pawn.sprites.body.face.smoothed = false;
-         pawn.sprites.body.eyes = game.add.sprite(0, 0, 'pawnFace');
+         pawn.sprites.body.eyes = game.add.sprite(x, y, 'pawnFace');
          //pawn.sprites.body.eyes.smoothed = false;
 
-         pawn.sprites.clothes.head = game.add.sprite(0, 0, 'pawnHead');
+         pawn.sprites.clothes.head = game.add.sprite(x, y, 'pawnHead');
          //pawn.sprites.clothes.head.smoothed = false;
-         pawn.sprites.clothes.underwear = game.add.sprite(0, 0, 'pawnUnderwear');
+         pawn.sprites.clothes.underwear = game.add.sprite(x, y, 'pawnUnderwear');
          //pawn.sprites.clothes.underwear.smoothed = false;
-         pawn.sprites.clothes.feet = game.add.sprite(0, 0, 'pawnFeet');
+         pawn.sprites.clothes.feet = game.add.sprite(x, y, 'pawnFeet');
          //pawn.sprites.clothes.feet.smoothed = false;
-         pawn.sprites.clothes.hands = game.add.sprite(0, 0, 'pawnHands');
+         pawn.sprites.clothes.hands = game.add.sprite(x, y, 'pawnHands');
          //pawn.sprites.clothes.hands.smoothed = false;
-         pawn.sprites.clothes.neck = game.add.sprite(0, 0, 'pawnNeck');
+         pawn.sprites.clothes.neck = game.add.sprite(x, y, 'pawnNeck');
          //pawn.sprites.clothes.neck.smoothed = false;
-         pawn.sprites.clothes.uniform = game.add.sprite(0, 0, 'pawnUniform');
+         pawn.sprites.clothes.uniform = game.add.sprite(x, y, 'pawnUniform');
          //pawn.sprites.clothes.uniform.smoothed = false;
-         pawn.sprites.clothes.suit = game.add.sprite(0, 0, 'pawnSuit');
+         pawn.sprites.clothes.suit = game.add.sprite(x, y, 'pawnSuit');
          //pawn.sprites.clothes.suit.smoothed = false;
-         pawn.sprites.clothes.mask = game.add.sprite(0, 0, 'pawnMask');
+         pawn.sprites.clothes.mask = game.add.sprite(x, y, 'pawnMask');
          //pawn.sprites.clothes.mask.smoothed = false;
 
 
@@ -277,7 +283,6 @@ function create() {
 
          pawn.group.addAt(pawn.sprites.clothes.head, 14);
          pawn.group.addAt(pawn.sprites.clothes.suit, 15); 
-
 
          
          pawn.x = msg.x;
@@ -330,22 +335,27 @@ function create() {
          pawn.x                     = msg.x;
          pawn.y                     = msg.y;
          pawn.facing                = msg.facing;
+         pawn.health                = msg.health;
          pawn.dirty = true;
 
       }
    });
    socket.on('addItem', function(msg) {
-      sprite = game.add.sprite(0, 0, 'items');
+      var x = -consts.tile.width  / 2;
+      var y = -consts.tile.height / 2;
+      var item = self.itemList.add(msg.id, msg.type, msg.x, msg.y);
+      item.sprite = game.add.sprite(x, y, 'items');
+      item.group = game.add.group(groups.item);
+      item.group.add(item.sprite);
+
       var cellIndex = itemImageMap[msg.type];
       if(cellIndex != undefined) {
-         sprite.frame = cellIndex;
+         item.sprite.frame = cellIndex;
       }
       else {
-         sprite.frame = 0;
+         item.sprite.frame = 0;
       }
-      groups.item.add(sprite);
-      var item = self.itemList.add(msg.id, sprite, msg.type, msg.x, msg.y);
-      applyCoordToSprite(sprite, item);
+      applyCoordToSprite(item.group, item);
 
       item.inventoryId = msg.inventoryId;
       if(item.inventoryId == '') {
@@ -359,8 +369,8 @@ function create() {
       var itemIndex = self.itemList.findById(id);
       if(itemIndex >= 0)
       {
-         var sprite = pawnList.list[itemIndex].sprite;
-         groups.item.remove(sprite, true);
+         var item = pawnList.list[itemIndex];
+         groups.item.remove(item.group, true);
          self.pawnList.remove(itemIndex);
       }
    });
@@ -373,7 +383,7 @@ function create() {
          item.x = msg.x;
          item.y = msg.y;
                   
-         applyCoordToSprite(item.sprite, item);
+         applyCoordToSprite(item.group, item);
          if(item.inventoryId == '') {
             item.sprite.visible = true;
          }
@@ -385,11 +395,13 @@ function create() {
    socket.on('addDoor', function(msg) {
       var door = self.doorList.add(msg.x, msg.y, msg.state, msg.type);
       var doorType = doorTypeTable[msg.type];
+      var x = -consts.tile.width  / 2;
+      var y = -consts.tile.height / 2;
 
       door.group = game.add.group(groups.door);
-      door.sprite = game.add.sprite(0, 0, doorType.spriteSheet);
-      door.spriteCover = game.add.sprite(0, 0, doorType.spriteSheet);
-      door.spriteLight = game.add.sprite(0, 0, 'doorOverlays');
+      door.sprite = game.add.sprite(x, y, doorType.spriteSheet);
+      door.spriteCover = game.add.sprite(x, y, doorType.spriteSheet);
+      door.spriteLight = game.add.sprite(x, y, 'doorOverlays');
 
       door.spriteLight.visible = false;
 
@@ -611,16 +623,49 @@ function update() {
          var offsetY = consts.tile.height * percent * dy;
 
          applyCoordToSprite(pawn.group, pawn, offsetX, offsetY);
-         pawn.updateCellIndices(facingOffset);
-         pawn.dirty = false;
 
+      }
+      else if(pawn.motion.state == 'attacking') {
+
+         var percent = getActionPercent(pawn.motion.ticksLeft, 
+                                        pawn.motion.walkSpeedTicks, 
+                                        pawn.lastUpdateWatch, 
+                                        updateTimeSeconds);
+
+
+         var dx = pawn.motion.target.x - pawn.x;
+         var dy = pawn.motion.target.y - pawn.y;
+
+         console.log(percent);
+
+         var offsetX;
+         var offsetY;
+         if(percent < 0.5) {
+            offsetX = consts.tile.width  * percent * dx;
+            offsetY = consts.tile.height * percent * dy;
+         }
+         else {
+            offsetX = consts.tile.width  * (1 - percent) * dx;
+            offsetY = consts.tile.height * (1 - percent) * dy;
+         }
+
+         applyCoordToSprite(pawn.group, pawn, offsetX, offsetY);
+
+      }
+      else if(pawn.dirty) {
+         applyCoordToSprite(pawn.group, pawn);
       }
 
       if(pawn.dirty) {
-         applyCoordToSprite(pawn.group, pawn);
-
-
          pawn.updateCellIndices(facingOffset);
+
+         if(pawn.health > 0) {
+            pawn.group.angle = 0;
+         }
+         else {
+            pawn.group.angle = -90;
+         }
+         
          pawn.dirty = false;
       }
       if(pawn.id == ownedPawnId) {

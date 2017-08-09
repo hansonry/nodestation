@@ -83,6 +83,7 @@ function PawnList() {
                target: { x: 0, y: 0 }
             },
             lastUpdateWatch: 0,
+            health: 100,
             dirty: true,
             updateCellIndices: function(offset) {
                function set(sprite, cellIndex, offset) {
@@ -180,11 +181,19 @@ function ItemList() {
       return itemIndex;
    };
    
-   this.add = function(id, sprite, type, x, y) {
+   this.add = function(id, type, x, y) {
       var itemIndex = self.findById(id);
       var item;
       if(itemIndex < 0) {
-         item = { id: id, type: type, sprite: sprite, x: x, y: y, inventoryId: '' };
+         item = { 
+            id: id, 
+            type: type, 
+            sprite: undefined, 
+            group: undefined,
+            x: x, 
+            y: y, 
+            inventoryId: '' 
+         };
          
          self.list.push(item);
       }

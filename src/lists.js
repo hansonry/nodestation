@@ -66,11 +66,12 @@ function PawnList() {
          facing: 'south',
          motion: {
             state: 'standing',
-            target: { x: self.init.x, y: self.init.y },
+            target: { x: self.init.x, y: self.init.y, id: '' },
             walkSpeedTicks: 5,
             ticksLeft: 0
          },
          intent: 'help',
+         health: 100,
          dirty: true
       };
       self.list.push(obj);

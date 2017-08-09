@@ -88,8 +88,6 @@ io.on('connection', function(socket) {
    }
 
 
-   //tx.pawn.owned(socket, client.controlledPawn);
-
    socket.on('key', function(msg) {
       //console.log(msg);
       if(msg.event == 'down') {
@@ -170,15 +168,27 @@ setInterval(function() {
       var pawn = pawnList.list[i];
 
 
-      if(pawn.motion.state == 'walking') {
+      if(pawn.motion.state == 'walking' || pawn.motion.state == 'attacking') {
          pawn.motion.ticksLeft --;
-         if(pawn.motion.ticksLeft <= 0) {
-            pawn.x = pawn.motion.target.x;
-            pawn.y = pawn.motion.target.y;
-            pawn.motion.state = 'standing';
-         }
          
          pawn.dirty = true;
+      }
+      if(pawn.motion.state == 'walking' && pawn.motion.ticksLeft <= 0) {
+         pawn.x = pawn.motion.target.x;
+         pawn.y = pawn.motion.target.y;
+         pawn.motion.state = 'standing';
+      }
+      if(pawn.motion.state == 'attacking' && pawn.motion.ticksLeft <= 0) {
+         var targetPawnIndex = pawnList.findById(pawn.motion.target.id);
+         pawn.motion.state = 'standing';
+         if(targetPawnIndex >= 0) {
+            var targetPawn = pawnList.list[targetPawnIndex];
+            targetPawn.health -= 10;
+            if(targetPawn.health < 0) {
+               targetPawn.health = 0;
+            }
+            targetPawn.dirty = true;
+         }
       }
 
 
@@ -191,21 +201,23 @@ setInterval(function() {
       var dx = 0;
       var dy = 0;
       var newFacing = pawn.facing;
-      if(client.keys.up) {
-         dy = -1;
-         newFacing = 'north';
-      }
-      else if(client.keys.down) {
-         dy = 1;
-         newFacing = 'south';
-      }
-      else if(client.keys.left) {
-         newFacing = 'west';
-         dx = -1;
-      }
-      else if(client.keys.right) {
-         newFacing = 'east';
-         dx = 1;
+      if(pawn.health > 0) {
+         if(client.keys.up) {
+            dy = -1;
+            newFacing = 'north';
+         }
+         else if(client.keys.down) {
+            dy = 1;
+            newFacing = 'south';
+         }
+         else if(client.keys.left) {
+            newFacing = 'west';
+            dx = -1;
+         }
+         else if(client.keys.right) {
+            newFacing = 'east';
+            dx = 1;
+         }
       }
       //console.log("dx: " + dx + ", dy: " + dy);
 
@@ -235,16 +247,43 @@ setInterval(function() {
 
       // Update motion
       if((dx != 0 || dy != 0) && 
-         pawn.motion.state == 'standing' &&
+         pawn.motion.state == 'standing' &&          
          !tileList.isBlocking(new_x, new_y) &&
-         !doorList.isBlocking(new_x, new_y) &&
-         !pawnList.isBlocking(new_x, new_y)) {
+         !doorList.isBlocking(new_x, new_y)) {
 
-         pawn.motion.target.x = new_x;
-         pawn.motion.target.y = new_y;
-         pawn.motion.state = 'walking';
-         pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
-         pawn.dirty = true;
+         var targetPawnIndex = pawnList.findInArea(new_x, new_y, 1, 1);
+         var targetPawn;
+
+         if(targetPawnIndex < 0) {
+            targetPawn = undefined;
+         }
+         else {
+            var targetPawn = pawnList.list[targetPawnIndex];
+         }
+
+         if(targetPawn == undefined || targetPawn.health <= 0) {
+            pawn.motion.target.x = new_x;
+            pawn.motion.target.y = new_y;
+            pawn.motion.state = 'walking';
+            pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+            pawn.dirty = true;
+         }
+         else {
+
+
+            if(pawn.intent == 'harm') {
+               pawn.motion.state = 'attacking';
+               pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+               pawn.motion.target.id = targetPawn.id;
+               pawn.motion.target.x = targetPawn.x;
+               pawn.motion.target.y = targetPawn.y;
+               pawn.dirty = true;
+            }
+            else if(pawn.intent == 'help') {
+               // TODO: Fill me out
+            }
+         }
+         
          
       }
 
