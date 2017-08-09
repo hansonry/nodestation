@@ -6,6 +6,7 @@ module.exports = {
             id:     pawn.id,
             x:      pawn.x,
             y:      pawn.y,
+            health: pawn.health,
             facing: pawn.facing
          });
       },

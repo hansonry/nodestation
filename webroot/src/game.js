@@ -259,6 +259,7 @@ function create() {
 
 
          pawn.group = game.add.group(groups.pawn);
+         pawn.group.z2 = 0;
          // totaly guessing on order
          pawn.group.addAt(pawn.sprites.body.head, 0);
          pawn.group.addAt(pawn.sprites.body.eyes, 1);
@@ -288,6 +289,7 @@ function create() {
          pawn.x = msg.x;
          pawn.y = msg.y;
          pawn.facing = msg.facing;
+         pawn.health = msg.health;
          applyCoordToSprite(pawn.group, pawn);
          pawn.dirty = true;
 
@@ -636,8 +638,6 @@ function update() {
          var dx = pawn.motion.target.x - pawn.x;
          var dy = pawn.motion.target.y - pawn.y;
 
-         console.log(percent);
-
          var offsetX;
          var offsetY;
          if(percent < 0.5) {
@@ -667,15 +667,24 @@ function update() {
          }
          
          pawn.dirty = false;
+
+         pawn.group.z2 = pawn.group.y;
+         if(pawn.health <= 0) {
+            // If your dead move you way back on the z sort
+            pawn.group.z2 -= consts.tile.height;
+         }
       }
       if(pawn.id == ownedPawnId) {
          // Setup the Camera
-         //game.camera.x = pawn.group.x;// + (game.camera.width  - consts.tile.width)  / 2;
-         //game.camera.y = pawn.group.y; // + (game.camera.height - consts.tile.height) / 2;
          game.camera.follow(pawn.group);
+         if(pawn.health > 0) {
+            // The player always get highest visible priorty
+            pawn.group.z2 ++;
+         }
       }
 
    }
+   groups.pawn.sort('z2', Phaser.Group.SORT_ASCENDING);
    
    // Updating Doors
    for(var i = 0; i < doorList.list.length; i++) {
