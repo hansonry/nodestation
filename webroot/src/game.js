@@ -34,6 +34,9 @@ function preload() {
 	game.load.image( "mapTiles", "assets/img/mapTiles.png", 32, 32 );
    game.load.image( "mapFloor", "assets/img/floors.png", 32, 32);
 
+   // UI
+   game.load.atlas("screen", "assets/img/ui/screen_midnight.png", "assets/img/ui/screen_midnight_atlas.json");
+
 
    // Doors
    game.load.spritesheet( "doorOverlays",            "assets/img/doors/overlays.png", 32, 32);
@@ -117,7 +120,7 @@ var socket = undefined;
 var pawnList, itemList, tileList, doorList;
 var updateTimeSeconds = 0.05;
 var ownedPawnId = '';
-
+var ownedPawnIntent = 'help';
 var groups = {};
 
 function create() {
@@ -141,6 +144,11 @@ function create() {
    groups.pawn.scale.set(gameScale);
    groups.door.scale.set(gameScale);
    groups.item.scale.set(gameScale);
+
+
+   // UI Setup
+   var uiHarmSprite = game.add.image(0, 0, "screen", "help");
+   uiHarmSprite.fixedToCamera = true;
 
 
    var map = game.add.tilemap();
@@ -299,6 +307,13 @@ function create() {
    socket.on('ownedPawn', function(msg) {
       console.log(msg);
       ownedPawnId = msg.id;
+      ownedPawnIntent = msg.intent;
+      if(ownedPawnIntent == 'help') {
+         uiHarmSprite.frameName = 'help';
+      }
+      else if(ownedPawnIntent == 'harm') {
+         uiHarmSprite.frameName = 'harm';
+      }
    });
    socket.on('updatePawn', function(msg) {
       var pawnIndex = self.pawnList.findById(msg.id);
@@ -463,6 +478,9 @@ function create() {
          }
          else if(e.keyCode == Phaser.KeyCode.D) {
             pawnDrop();
+         }
+         else if(e.keyCode == Phaser.KeyCode.H) {
+            socket.emit('intent', {type: 'switch'});
          }
 
          if(key) {

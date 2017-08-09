@@ -11,7 +11,8 @@ function ClientList() {
             left: false,
             right: false
          },
-         controlledPawn: undefined
+         controlledPawn: undefined,
+         dirtyPawn: true
       };
       self.list.push(obj);
       return obj;
@@ -69,6 +70,7 @@ function PawnList() {
             walkSpeedTicks: 5,
             ticksLeft: 0
          },
+         intent: 'help',
          dirty: true
       };
       self.list.push(obj);

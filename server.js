@@ -88,7 +88,7 @@ io.on('connection', function(socket) {
    }
 
 
-   tx.pawn.owned(socket, client.controlledPawn);
+   //tx.pawn.owned(socket, client.controlledPawn);
 
    socket.on('key', function(msg) {
       //console.log(msg);
@@ -125,6 +125,18 @@ io.on('connection', function(socket) {
          }
       }
 
+   });
+   socket.on('intent', function (msg) {
+      // Dont really care about the message this time
+      var pawn = client.controlledPawn;
+      if(pawn.intent == 'help') {
+         pawn.intent = 'harm';
+         client.dirtyPawn = true;
+      }
+      else if(pawn.intent == 'harm') {
+         pawn.intent = 'help';
+         client.dirtyPawn = true;
+      }
    });
    socket.on('disconnect', function() {
       for(var i = 0; i < clientList.list.length; i++) {
@@ -324,6 +336,16 @@ setInterval(function() {
             tx.door.update(targetClient.socket, door);
          }
          door.dirty = false;
+      }
+   }
+
+   // Update private Pawn information
+
+   for(var i = 0; i < clientList.list.length; i++) {
+      var targetClient = clientList.list[i];
+      if(targetClient.dirtyPawn) {
+         tx.pawn.owned(targetClient.socket, targetClient.controlledPawn);
+         targetClient.dirtyPawn = false;
       }
    }
    

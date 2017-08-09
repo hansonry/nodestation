@@ -33,7 +33,8 @@ module.exports = {
       },
       owned: function(socket, pawn) {
          socket.emit('ownedPawn', {
-            id: pawn.id
+            id: pawn.id,
+            intent: pawn.intent
          });
       }
    },
