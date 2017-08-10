@@ -252,16 +252,9 @@ setInterval(function() {
          !doorList.isBlocking(new_x, new_y)) {
 
          var targetPawnIndex = pawnList.findInArea(new_x, new_y, 1, 1);
-         var targetPawn;
+
 
          if(targetPawnIndex < 0) {
-            targetPawn = undefined;
-         }
-         else {
-            var targetPawn = pawnList.list[targetPawnIndex];
-         }
-
-         if(targetPawn == undefined || targetPawn.health <= 0) {
             pawn.motion.target.x = new_x;
             pawn.motion.target.y = new_y;
             pawn.motion.state = 'walking';
@@ -269,22 +262,38 @@ setInterval(function() {
             pawn.dirty = true;
          }
          else {
+            var targetPawn = pawnList.list[targetPawnIndex];
+            if(targetPawn.health > 0) {
+               if(pawn.intent == 'harm') {
+                  pawn.motion.state = 'attacking';
+                  pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+                  pawn.motion.target.id = targetPawn.id;
+                  pawn.motion.target.x = targetPawn.x;
+                  pawn.motion.target.y = targetPawn.y;
+                  pawn.dirty = true;
+               }
+               else if(pawn.intent == 'help' && targetPawn.intent == 'help') {
+                  pawn.motion.target.x = new_x;
+                  pawn.motion.target.y = new_y;
+                  pawn.motion.state = 'walking';
+                  pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+                  pawn.dirty = true;
 
-
-            if(pawn.intent == 'harm') {
-               pawn.motion.state = 'attacking';
+                  targetPawn.motion.target.x = pawn.x;
+                  targetPawn.motion.target.y = pawn.y;
+                  targetPawn.motion.state = 'walking';
+                  targetPawn.motion.ticksLeft = targetPawn.motion.walkSpeedTicks;
+                  targetPawn.dirty = true;
+               }
+            }
+            else  {
+               pawn.motion.target.x = new_x;
+               pawn.motion.target.y = new_y;
+               pawn.motion.state = 'walking';
                pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
-               pawn.motion.target.id = targetPawn.id;
-               pawn.motion.target.x = targetPawn.x;
-               pawn.motion.target.y = targetPawn.y;
                pawn.dirty = true;
             }
-            else if(pawn.intent == 'help') {
-               // TODO: Fill me out
-            }
          }
-         
-         
       }
 
       //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
