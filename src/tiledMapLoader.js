@@ -1,6 +1,6 @@
 
 
-function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
+function tiledMapLoader(rawMap, tileList, itemList, doorList, typeSet, shortid) {
    // Map Conversion
    if(rawMap.type != 'map') {
       throw 'rawMap is not a map';
@@ -150,11 +150,14 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, shortid) {
             // Items in tiled have origin in the lower left corner
             var x = Math.floor((object.x + 15) / 32);
             var y = Math.floor((object.y - 15) / 32);
-            if(type == 'idCard') {               
-               var item = itemList.add(shortid.generate(), 'idCard');
+            if(typeSet.hasItemType(type)) {               
+               var item = itemList.add(shortid.generate());
                item.x = x;
                item.y = y;
-
+               typeSet.initItem(item, type);
+            }
+            else {
+               throw "Unknown Item Type: " + type;
             }
          }
       }

@@ -112,10 +112,9 @@ function ItemList() {
       }
       return itemIndex;
    }
-   this.add = function(id, type) {
+   this.add = function(id) {
       var obj = {
          id: id,
-         type: type,
          x: 0, 
          y: 0,
          inventoryId: '',

@@ -24,19 +24,27 @@ var io             = require('socket.io')(http);
 var shortid        = require('shortid');
 var lists          = require('./src/lists');
 var tx             = require('./src/transmit');
-var rawMap         = require('./map/stationMap');
 var tiledMapLoader = require('./src/tiledMapLoader');
+var typeSetReq     = require('./src/typeSet');
+
+var rawMap         = require('./map/stationMap');
+var rawTypes       = require('./webroot/src/types');
+
 
 var clientList = lists.createClientList();
 var pawnList   = lists.createPawnList();
 var tileList   = lists.createTileList();
 var itemList   = lists.createItemList();
 var doorList   = lists.createDoorList();
+var typeSet    = typeSetReq.createTypeSet();
+
+rawTypes.buildTypeSet(typeSet);
+tiledMapLoader.load(rawMap, tileList, itemList, doorList, typeSet, shortid);
+
 
 var updateTimeSeconds = 0.05;
 var hostPort = 3000;
 
-tiledMapLoader.load(rawMap, tileList, itemList, doorList, shortid);
 
 
 app.use(express.static('webroot'));

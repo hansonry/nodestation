@@ -181,13 +181,12 @@ function ItemList() {
       return itemIndex;
    };
    
-   this.add = function(id, type, x, y) {
+   this.add = function(id,  x, y) {
       var itemIndex = self.findById(id);
       var item;
       if(itemIndex < 0) {
          item = { 
             id: id, 
-            type: type, 
             sprite: undefined, 
             group: undefined,
             x: x, 

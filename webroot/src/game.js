@@ -122,6 +122,7 @@ function createTileTypes(tileMap, length) {
 
 var socket = undefined;
 var pawnList, itemList, tileList, doorList;
+var typeSet;
 var updateTimeSeconds = 0.05;
 var ownedPawnId = '';
 var ownedPawnIntent = 'help';
@@ -134,6 +135,9 @@ function create() {
    itemList = new ItemList();
    tileList = new TileList();
    doorList = new DoorList();
+   typeSet  = new TypeSet();
+
+   buildTypeSet(typeSet); // Load in all the types
 
    groups.ui = game.add.group();
    groups.world = game.add.group();
@@ -345,18 +349,14 @@ function create() {
    socket.on('addItem', function(msg) {
       var x = -consts.tile.width  / 2;
       var y = -consts.tile.height / 2;
-      var item = self.itemList.add(msg.id, msg.type, msg.x, msg.y);
-      item.sprite = game.add.sprite(x, y, 'items');
+      var item = self.itemList.add(msg.id, msg.x, msg.y);
+      typeSet.initItem(item, msg.type);
+      item.sprite = game.add.sprite(x, y, item.render.icon.image);
+      item.sprite.frame = item.render.icon.index;
+
       item.group = game.add.group(groups.item);
       item.group.add(item.sprite);
 
-      var cellIndex = itemImageMap[msg.type];
-      if(cellIndex != undefined) {
-         item.sprite.frame = cellIndex;
-      }
-      else {
-         item.sprite.frame = 0;
-      }
       applyCoordToSprite(item.group, item);
 
       item.inventoryId = msg.inventoryId;
