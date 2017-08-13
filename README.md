@@ -32,3 +32,9 @@ For Linux:
 nodejs server.js
 ```
 
+## Controls
+* Moving      - Arrow Keys
+* Grab        - 'g' Key
+* Drop        - 'd' Key
+* Toggle Harm - 'h' key
+
