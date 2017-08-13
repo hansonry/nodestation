@@ -37,4 +37,5 @@ nodejs server.js
 * Grab        - 'g' Key
 * Drop        - 'd' Key
 * Toggle Harm - 'h' key
+* Inventory   - 'i' key
 
