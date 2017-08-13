@@ -133,16 +133,19 @@ io.on('connection', function(socket) {
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == pawn.id) {
-            item.inventory.id = '';
-            item.x = pawn.x;
-            item.y = pawn.y;
-            item.dirty = true;
-            if(pawn.inventorySlots.handRight == item.id) {
-               pawn.inventorySlots.handRight = '';
-               pawn.dirty = true;
-            }
-            else if(pawn.inventorySlots.handLeft == item.id) {
-               pawn.inventorySlots.handLeft = '';
+            var inLeftHand  = pawn.inventorySlots.handLeft == item.id;
+            var inRightHand = pawn.inventorySlots.handRight == item.id;
+            if(inLeftHand || inRightHand) {
+               item.inventory.id = '';
+               item.x = pawn.x;
+               item.y = pawn.y;
+               item.dirty = true;
+               if(inLeftHand) {
+                  pawn.inventorySlots.handLeft = '';
+               }
+               else if(inRightHand) {
+                  pawn.inventorySlots.handRight = '';
+               }
                pawn.dirty = true;
             }
 

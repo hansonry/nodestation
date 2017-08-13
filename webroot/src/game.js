@@ -405,6 +405,8 @@ function create() {
          pawn.inventorySlots.hands     = msg.inventorySlots.hands;
          pawn.inventorySlots.neck      = msg.inventorySlots.neck;
 
+         //console.log(pawn.inventorySlots);
+
          pawn.dirty = true;
 
       }
@@ -631,8 +633,13 @@ function pawnDrop() {
    var ownedPawnIndex = pawnList.findById(ownedPawnId);
    if(ownedPawnIndex >= 0) {
       var ownedPawn = pawnList.list[ownedPawnIndex];
-      // find the item we are over
-      var itemIndex = itemList.findByInventoryId(ownedPawn.id);
+      // find an item to drop in the hands
+      var itemId = ownedPawn.inventorySlots.handRight;
+      if(itemId == '') {
+         itemId = ownedPawn.inventorySlots.handLeft;
+      }
+
+      var itemIndex = itemList.findById(itemId);
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == ownedPawn.id) {
@@ -726,9 +733,9 @@ function update() {
                var width = uiInventoryMenu.getWidth();
                uiInventoryActionMenu.setPosition(width, 32);
                uiInventoryActionMenu.clear();
-               uiInventoryActionMenu.addItem('Drop', 'drop');
-               
 
+               
+               // Can it be equipped?
                if(item.pawnSlotType != '') {
 
                   var slot = ownedPawn.inventorySlots[item.pawnSlotType];
@@ -740,6 +747,11 @@ function update() {
                      ownedPawn.inventorySlots.handRight == '')) {
                      uiInventoryActionMenu.addItem('Unequip', 'unequip');
                   }
+               }
+               // Only drop things in our hand
+               if(ownedPawn.inventorySlots.handRight == item.id ||
+                  ownedPawn.inventorySlots.handLeft == item.id) {
+                  uiInventoryActionMenu.addItem('Drop', 'drop');
                }
 
                
