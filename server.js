@@ -394,19 +394,21 @@ setInterval(function() {
       else if(door.state == 'close' && door.triggered) {
          // Open the door only if they have an ID card
          var itemIndex = itemList.findByInventoryIdAndType(door.triggeredById, 'idCard');
-         if(itemIndex >= 0) {
-         
-            door.state = 'opening';
-            door.dirty = true;
-            door.ticksLeft = door.openSpeedTicks;
-         }
-         else {
-            door.state = 'nope'; // This will haunt me later
-            door.dirty = true;
-            door.ticksLeft = door.openSpeedTicks;
+         var pawnIndex = pawnList.findById(door.triggeredById);
+         if(pawnIndex >= 0) {
+            var pawn = pawnList.list[pawnIndex];
+            if(pawn.inventorySlots.card == '') {
+               door.state = 'nope'; // This will haunt me later
+               door.dirty = true;
+               door.ticksLeft = door.openSpeedTicks;
+            }
+            else {
+               door.state = 'opening';
+               door.dirty = true;
+               door.ticksLeft = door.openSpeedTicks;
 
+            }
          }
-
       }
 
       door.triggered = false;
