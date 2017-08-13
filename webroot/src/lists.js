@@ -177,7 +177,7 @@ function ItemList() {
       var itemIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
          var tempItem = self.list[i];
-         if(tempItem.x == x && tempItem.y == y) {
+         if(tempItem.x == x && tempItem.y == y && tempItem.inventory.id == '') {
             itemIndex = i;
             break;
          }
@@ -193,6 +193,14 @@ function ItemList() {
          }
       }
       return itemIndex;
+   };
+   this.findAllByInventroyId = function(id, list) {
+      for(var i = 0; i < self.list.length; i++) {
+         var item = self.list[i];
+         if(item.inventory.id == id) {
+            list.push(item);
+         }
+      }
    };
    
    this.add = function(id,  x, y) {

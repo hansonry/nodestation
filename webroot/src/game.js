@@ -35,7 +35,8 @@ function preload() {
    game.load.image( "mapFloor", "assets/img/floors.png", 32, 32);
 
    // UI
-   game.load.atlas("screen", "assets/img/ui/screen_midnight.png", "assets/img/ui/screen_midnight_atlas.json");
+   game.load.atlas( "screen", "assets/img/ui/screen_midnight.png", "assets/img/ui/screen_midnight_atlas.json");
+	game.load.image( "arrow", "assets/img/ui/arrow.png");
 
 
    // Doors
@@ -121,6 +122,9 @@ function createTileTypes(tileMap, length) {
 }
 
 var uiItemIdCardSlot, uiItemHandLeft, uiItemHandRight;
+var uiInventoryMenu, uiInventoryActionMenu;
+
+var inMenu = false;
 
 
 var socket = undefined;
@@ -142,9 +146,8 @@ function create() {
 
    buildTypeSet(typeSet); // Load in all the types
 
-   groups.ui = game.add.group();
    groups.world = game.add.group();
-
+   groups.ui = game.add.group();
 
    groups.map  = game.add.group(groups.world);
    groups.door = game.add.group(groups.world);
@@ -159,28 +162,35 @@ function create() {
 
    // UI Setup
    var uiHarmSprite = game.add.image(0, 0, "screen", "help");
-   uiHarmSprite.fixedToCamera = true;
 
    
-
    var uiIdCardSlot = game.add.image(32, 0, "screen", "idCardSlot");
-   uiIdCardSlot.fixedToCamera = true;
    uiItemIdCardSlot = game.add.image(32, 0, "screen", "idCardSlot");
-   uiItemIdCardSlot.fixedToCamera = true;
    uiItemIdCardSlot.visible = false;
 
    var uiHandRight = game.add.image(64, 0, "screen", "handRight");
-   uiHandRight.fixedToCamera = true;
    uiItemHandRight = game.add.image(64, 0, "screen", "handRight");
-   uiItemHandRight.fixedToCamera = true;
    uiItemHandRight.visible = false;
    var uiHandLeft = game.add.image(96, 0, "screen", "handLeft");
-   uiHandLeft.fixedToCamera = true;
    uiItemHandLeft = game.add.image(96, 0, "screen", "handLeft");
-   uiItemHandLeft.fixedToCamera = true;
    uiItemHandLeft.visible = false;
 
    
+   uiInventoryMenu = new Menu(game);
+   uiInventoryMenu.setPosition(0, 32);
+   uiInventoryMenu.addToGroup(groups.ui);
+   uiInventoryActionMenu = new Menu(game);
+   uiInventoryActionMenu.addToGroup(groups.ui);
+   
+    
+   groups.ui.add(uiHarmSprite);
+   groups.ui.add(uiIdCardSlot);
+   groups.ui.add(uiItemIdCardSlot);
+   groups.ui.add(uiHandRight);
+   groups.ui.add(uiItemHandRight);
+   groups.ui.add(uiHandLeft);
+   groups.ui.add(uiItemHandLeft);
+   groups.ui.fixedToCamera = true;
 
 
    var map = game.add.tilemap();
@@ -524,41 +534,52 @@ function create() {
       var textbox = document.getElementById("chatInputTextbox");
       if(textbox.value == "") {
 
-         var key = undefined;
-         if(e.keyCode == Phaser.KeyCode.UP) {
-            key = 'up';
-            textbox.blur();
-         }
-         else if(e.keyCode == Phaser.KeyCode.DOWN) {
-            key = 'down';
-            textbox.blur();
-         }
-         else if(e.keyCode == Phaser.KeyCode.LEFT) {
-            key = 'left';
-            textbox.blur();
-         }
-         else if(e.keyCode == Phaser.KeyCode.RIGHT) {
-            key = 'right';
-            textbox.blur();
-         }
-         else if(e.keyCode == Phaser.KeyCode.G) {
-            pawnGrab();
-         }
-         else if(e.keyCode == Phaser.KeyCode.D) {
-            pawnDrop();
-         }
-         else if(e.keyCode == Phaser.KeyCode.H) {
-            socket.emit('intent', {type: 'switch'});
-         }
+         uiInventoryMenu.onKeyDown(e);
+         uiInventoryActionMenu.onKeyDown(e);
 
-         if(key) {
-            socket.emit('key', { event: 'down', key: key });
+         if(!inMenu) {
+            var key = undefined;
+            if(e.keyCode == Phaser.KeyCode.UP) {
+               key = 'up';
+               textbox.blur();
+            }
+            else if(e.keyCode == Phaser.KeyCode.DOWN) {
+               key = 'down';
+               textbox.blur();
+            }
+            else if(e.keyCode == Phaser.KeyCode.LEFT) {
+               key = 'left';
+               textbox.blur();
+            }
+            else if(e.keyCode == Phaser.KeyCode.RIGHT) {
+               key = 'right';
+               textbox.blur();
+            }
+            else if(e.keyCode == Phaser.KeyCode.G) {
+               pawnGrab();
+            }
+            else if(e.keyCode == Phaser.KeyCode.D) {
+               pawnDrop();
+            }
+            else if(e.keyCode == Phaser.KeyCode.H) {
+               socket.emit('intent', {type: 'switch'});
+            }
+            else if(e.keyCode == Phaser.KeyCode.I) {
+               pawnInventory();
+            }
+
+            if(key) {
+               socket.emit('key', { event: 'down', key: key });
+            }
          }
       }
    };
    game.input.keyboard.onUpCallback = function() {
       var e = game.input.keyboard.event;
       var key = undefined;
+      uiInventoryMenu.onKeyUp(e);
+      uiInventoryActionMenu.onKeyUp(e);
+
       if(e.keyCode == Phaser.KeyCode.UP) {
          key = 'up';
       }
@@ -596,6 +617,15 @@ function pawnGrab() {
    }
 }
 
+
+function rawPawnDrop(itemId) {
+   var msg = {
+      itemId: itemId
+   };
+   socket.emit('drop', msg);
+   //console.log(msg);
+}
+
 function pawnDrop() {
    var ownedPawnIndex = pawnList.findById(ownedPawnId);
    if(ownedPawnIndex >= 0) {
@@ -605,14 +635,24 @@ function pawnDrop() {
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == ownedPawn.id) {
-            socket.emit('drop', {
-               itemId: item.id
-            });
+            rawPawnDrop(item.id);
          }
       }
    }
 }
 
+
+
+function pawnInventory() {
+   uiInventoryMenu.clear();
+   var items = [];
+   itemList.findAllByInventroyId(ownedPawnId, items);
+   for(var i = 0; i < items.length; i ++) {
+      uiInventoryMenu.addItem(items[i].type, items[i].id);
+   }
+   uiInventoryMenu.setEnabled(true);
+   inMenu = true;
+}
 
 function chatOnSubmit() {
    var textbox = document.getElementById("chatInputTextbox");
@@ -641,6 +681,41 @@ function getActionPercent(ticksLeft, totalTicks, lastUpdateWatch, updateTimeSeco
 }
 
 function update() {
+
+   // Handel Inventory Menu
+   var uiInventoryResults = uiInventoryMenu.getStatus();
+   var uiInventoryActionResults = uiInventoryActionMenu.getStatus();
+
+   if(uiInventoryResults.state == 'canceled') {
+      uiInventoryMenu.setVisible(false);
+      uiInventoryMenu.setEnabled(false);
+      inMenu = false;
+   } else if(uiInventoryResults.state == 'selected') {
+      uiInventoryMenu.setEnabled(false);
+      var width = uiInventoryMenu.getWidth();
+      uiInventoryActionMenu.setPosition(width, 32);
+      uiInventoryActionMenu.clear();
+      uiInventoryActionMenu.addItem('Drop', 'drop');
+      uiInventoryActionMenu.setEnabled(true);
+   }
+   if(uiInventoryActionResults.state == 'canceled') {
+      uiInventoryMenu.setVisible(false);
+      uiInventoryMenu.setEnabled(false);
+      uiInventoryActionMenu.setVisible(false);
+      uiInventoryActionMenu.setEnabled(false);
+      inMenu = false;
+   }
+   else if(uiInventoryActionResults.state == 'selected') {
+      uiInventoryMenu.setVisible(false);
+      uiInventoryMenu.setEnabled(false);
+      uiInventoryActionMenu.setVisible(false);
+      uiInventoryActionMenu.setEnabled(false);
+      if(uiInventoryActionResults.result == 'drop') {      
+         rawPawnDrop(uiInventoryResults.result);
+      }
+      inMenu = false;
+   }
+
 
    // Moving the sprites between updates
    for(var i = 0; i < pawnList.list.length; i++) {
