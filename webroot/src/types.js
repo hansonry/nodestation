@@ -42,8 +42,10 @@ function buildTypeSet(typeSet) {
 }
 
 
+if(typeof module !== 'undefined') {
 
-module.exports = {
-   buildTypeSet: buildTypeSet
-};
+   module.exports = {
+      buildTypeSet: buildTypeSet
+   };
+}
 

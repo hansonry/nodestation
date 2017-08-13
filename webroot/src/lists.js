@@ -45,6 +45,20 @@ function PawnList() {
                   mask: undefined
                }
             },
+            inventorySlots: {
+               handLeft:  '',
+               handRight: '',
+               card:      '',
+               uniform:   '',
+               suit:      '',
+               head:      '',
+               eyes:      '',
+               mask:      '',
+               ears:      '',
+               feet:      '',
+               hands:     '',
+               neck:      ''
+            },
             cellIndices: {
                body: {
                   head:     20,
@@ -173,7 +187,7 @@ function ItemList() {
    this.findByInventoryId = function(id) {
       var itemIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
-         if(self.list[i].inventoryId == id) {
+         if(self.list[i].inventory.id == id) {
             itemIndex = i;
             break;
          }
@@ -191,7 +205,9 @@ function ItemList() {
             group: undefined,
             x: x, 
             y: y, 
-            inventoryId: '' 
+            inventory: {
+               id: ''
+            }
          };
          
          self.list.push(item);

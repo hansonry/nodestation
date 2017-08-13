@@ -7,6 +7,20 @@ module.exports = {
             x:      pawn.x,
             y:      pawn.y,
             health: pawn.health,
+            inventorySlots: {
+               handLeft:  pawn.inventorySlots.handLeft,
+               handRight: pawn.inventorySlots.handRight,
+               card:      pawn.inventorySlots.card,
+               uniform:   pawn.inventorySlots.uniform,
+               suit:      pawn.inventorySlots.suit,
+               head:      pawn.inventorySlots.head,
+               eyes:      pawn.inventorySlots.eyes,
+               mask:      pawn.inventorySlots.mask,
+               ears:      pawn.inventorySlots.ears,
+               feet:      pawn.inventorySlots.feet,
+               hands:     pawn.inventorySlots.hands,
+               neck:      pawn.inventorySlots.neck
+            },
             facing: pawn.facing
          });
       },
@@ -30,7 +44,21 @@ module.exports = {
                walkSpeedTicks: pawn.motion.walkSpeedTicks,
                ticksLeft: pawn.motion.ticksLeft
             },
-            health: pawn.health
+            health: pawn.health,
+            inventorySlots: {
+               handLeft:  pawn.inventorySlots.handLeft,
+               handRight: pawn.inventorySlots.handRight,
+               card:      pawn.inventorySlots.card,
+               uniform:   pawn.inventorySlots.uniform,
+               suit:      pawn.inventorySlots.suit,
+               head:      pawn.inventorySlots.head,
+               eyes:      pawn.inventorySlots.eyes,
+               mask:      pawn.inventorySlots.mask,
+               ears:      pawn.inventorySlots.ears,
+               feet:      pawn.inventorySlots.feet,
+               hands:     pawn.inventorySlots.hands,
+               neck:      pawn.inventorySlots.neck
+            }
          });
       },
       owned: function(socket, pawn) {
@@ -66,7 +94,9 @@ module.exports = {
             type: item.type,
             x: item.x,
             y: item.y,
-            inventoryId: item.inventoryId
+            inventory: {
+               id: item.inventory.id,
+            }
          });
       },
       remove: function(socket, item) {
@@ -80,7 +110,9 @@ module.exports = {
             type: item.type,
             x: item.x,
             y: item.y,
-            inventoryId: item.inventoryId
+            inventory: {
+               id: item.inventory.id,
+            }
          });
       }
    },

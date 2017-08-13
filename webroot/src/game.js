@@ -120,6 +120,9 @@ function createTileTypes(tileMap, length) {
    return firstIndex;
 }
 
+var uiItemIdCardSlot, uiItemHandLeft, uiItemHandRight;
+
+
 var socket = undefined;
 var pawnList, itemList, tileList, doorList;
 var typeSet;
@@ -157,6 +160,27 @@ function create() {
    // UI Setup
    var uiHarmSprite = game.add.image(0, 0, "screen", "help");
    uiHarmSprite.fixedToCamera = true;
+
+   
+
+   var uiIdCardSlot = game.add.image(32, 0, "screen", "idCardSlot");
+   uiIdCardSlot.fixedToCamera = true;
+   uiItemIdCardSlot = game.add.image(32, 0, "screen", "idCardSlot");
+   uiItemIdCardSlot.fixedToCamera = true;
+   uiItemIdCardSlot.visible = false;
+
+   var uiHandRight = game.add.image(64, 0, "screen", "handRight");
+   uiHandRight.fixedToCamera = true;
+   uiItemHandRight = game.add.image(64, 0, "screen", "handRight");
+   uiItemHandRight.fixedToCamera = true;
+   uiItemHandRight.visible = false;
+   var uiHandLeft = game.add.image(96, 0, "screen", "handLeft");
+   uiHandLeft.fixedToCamera = true;
+   uiItemHandLeft = game.add.image(96, 0, "screen", "handLeft");
+   uiItemHandLeft.fixedToCamera = true;
+   uiItemHandLeft.visible = false;
+
+   
 
 
    var map = game.add.tilemap();
@@ -294,6 +318,21 @@ function create() {
          pawn.y = msg.y;
          pawn.facing = msg.facing;
          pawn.health = msg.health;
+
+
+         pawn.inventorySlots.handLeft  = msg.inventorySlots.handLeft;
+         pawn.inventorySlots.handRight = msg.inventorySlots.handRight;
+         pawn.inventorySlots.card      = msg.inventorySlots.card;
+         pawn.inventorySlots.uniform   = msg.inventorySlots.uniform;
+         pawn.inventorySlots.suit      = msg.inventorySlots.suit;
+         pawn.inventorySlots.head      = msg.inventorySlots.head;
+         pawn.inventorySlots.eyes      = msg.inventorySlots.eyes;
+         pawn.inventorySlots.mask      = msg.inventorySlots.mask;
+         pawn.inventorySlots.ears      = msg.inventorySlots.ears;
+         pawn.inventorySlots.feet      = msg.inventorySlots.feet;
+         pawn.inventorySlots.hands     = msg.inventorySlots.hands;
+         pawn.inventorySlots.neck      = msg.inventorySlots.neck;
+
          applyCoordToSprite(pawn.group, pawn);
          pawn.dirty = true;
 
@@ -342,6 +381,20 @@ function create() {
          pawn.y                     = msg.y;
          pawn.facing                = msg.facing;
          pawn.health                = msg.health;
+
+         pawn.inventorySlots.handLeft  = msg.inventorySlots.handLeft;
+         pawn.inventorySlots.handRight = msg.inventorySlots.handRight;
+         pawn.inventorySlots.card      = msg.inventorySlots.card;
+         pawn.inventorySlots.uniform   = msg.inventorySlots.uniform;
+         pawn.inventorySlots.suit      = msg.inventorySlots.suit;
+         pawn.inventorySlots.head      = msg.inventorySlots.head;
+         pawn.inventorySlots.eyes      = msg.inventorySlots.eyes;
+         pawn.inventorySlots.mask      = msg.inventorySlots.mask;
+         pawn.inventorySlots.ears      = msg.inventorySlots.ears;
+         pawn.inventorySlots.feet      = msg.inventorySlots.feet;
+         pawn.inventorySlots.hands     = msg.inventorySlots.hands;
+         pawn.inventorySlots.neck      = msg.inventorySlots.neck;
+
          pawn.dirty = true;
 
       }
@@ -359,8 +412,9 @@ function create() {
 
       applyCoordToSprite(item.group, item);
 
-      item.inventoryId = msg.inventoryId;
-      if(item.inventoryId == '') {
+      item.inventory.id = msg.inventory.id;
+
+      if(item.inventory.id == '') {
          item.sprite.visible = true;
       }
       else {
@@ -381,12 +435,12 @@ function create() {
       if(itemIndex >= 0)
       {
          var item = self.itemList.list[itemIndex];
-         item.inventoryId = msg.inventoryId;
          item.x = msg.x;
          item.y = msg.y;
+         item.inventory.id = msg.inventory.id;
                   
          applyCoordToSprite(item.group, item);
-         if(item.inventoryId == '') {
+         if(item.inventory.id == '') {
             item.sprite.visible = true;
          }
          else {
@@ -533,7 +587,7 @@ function pawnGrab() {
       var itemIndex = itemList.findByCoord(ownedPawn.x, ownedPawn.y);
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
-         if(item.inventoryId == '') {
+         if(item.inventory.id == '') {
             socket.emit('grab', {
                itemId: item.id
             });
@@ -550,7 +604,7 @@ function pawnDrop() {
       var itemIndex = itemList.findByInventoryId(ownedPawn.id);
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
-         if(item.inventoryId == ownedPawn.id) {
+         if(item.inventory.id == ownedPawn.id) {
             socket.emit('drop', {
                itemId: item.id
             });
@@ -664,6 +718,26 @@ function update() {
          }
          else {
             pawn.group.angle = -90;
+         }
+
+         if(pawn.id == ownedPawnId) {
+
+            function updateInventoryIcon(slot, image) {
+               if(slot == '') {
+                  image.visible = false;
+               }
+               else {
+                  var itemIndex = itemList.findById(slot);
+                  if(itemIndex >= 0) {
+                  var item = itemList.list[itemIndex];
+                     image.loadTexture(item.render.icon.image, item.render.icon.index);
+                     image.visible = true;
+                  }
+               }
+            }
+            updateInventoryIcon(pawn.inventorySlots.handRight, uiItemHandRight);
+            updateInventoryIcon(pawn.inventorySlots.handLeft,  uiItemHandLeft);
+            updateInventoryIcon(pawn.inventorySlots.card,      uiItemIdCardSlot);
          }
          
          pawn.dirty = false;

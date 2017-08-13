@@ -13,6 +13,111 @@
          "trimmed": false,
          "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
          "sourceSize": {"w": 32, "h": 32}
+      },
+      "uniform": {
+         "frame": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "suit": {
+         "frame": {"x": 32, "y": 0, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "backpack": {
+         "frame": {"x": 64, "y": 0, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "idCardSlot": {
+         "frame": {"x": 96, "y": 0, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "beltSlot": {
+         "frame": {"x": 128, "y": 0, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "head": {
+         "frame": {"x": 160, "y": 0, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "eyes": {
+         "frame": {"x": 192, "y": 0, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "ear": {
+         "frame": {"x": 0, "y": 32, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "mask": {
+         "frame": {"x": 32, "y": 32, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "belt": {
+         "frame": {"x": 64, "y": 32, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "pocket": {
+         "frame": {"x": 96, "y": 32, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "gloves": {
+         "frame": {"x": 128, "y": 32, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "shoes": {
+         "frame": {"x": 160, "y": 32, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "handRight": {
+         "frame": {"x": 192, "y": 32, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
+      },
+      "handLeft": {
+         "frame": {"x": 0, "y": 64, "w": 32, "h": 32},
+         "rotated": false,
+         "trimmed": false,
+         "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+         "sourceSize": {"w": 32, "h": 32}
       }
    }
 }

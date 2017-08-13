@@ -70,6 +70,20 @@ function PawnList() {
             walkSpeedTicks: 5,
             ticksLeft: 0
          },
+         inventorySlots: {
+            handLeft:  '',
+            handRight: '',
+            card:      '',
+            uniform:   '',
+            suit:      '',
+            head:      '',
+            eyes:      '',
+            mask:      '',
+            ears:      '',
+            feet:      '',
+            hands:     '',
+            neck:      ''
+         },
          intent: 'help',
          health: 100,
          dirty: true
@@ -105,7 +119,7 @@ function ItemList() {
       var itemIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
          var item = self.list[i];
-         if(item.inventoryId == inventoryId && item.type == type) {
+         if(item.inventory.id == inventoryId && item.type == type) {
             itemIndex = i;
             break;
          }
@@ -117,7 +131,9 @@ function ItemList() {
          id: id,
          x: 0, 
          y: 0,
-         inventoryId: '',
+         inventory: {
+            id: ''
+         },
          dirty: true
       };
       self.list.push(obj);
