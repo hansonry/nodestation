@@ -626,6 +626,7 @@ function rawPawnDrop(itemId) {
    //console.log(msg);
 }
 
+
 function pawnDrop() {
    var ownedPawnIndex = pawnList.findById(ownedPawnId);
    if(ownedPawnIndex >= 0) {
@@ -641,6 +642,15 @@ function pawnDrop() {
    }
 }
 
+
+function rawInternalMove(itemId, destSlot) {
+   var msg = {
+      itemId: itemId,
+      destSlot: destSlot
+   };
+   //console.log(msg);
+   socket.emit('internalMove', msg);
+}
 
 
 function pawnInventory() {
@@ -683,37 +693,98 @@ function getActionPercent(ticksLeft, totalTicks, lastUpdateWatch, updateTimeSeco
 function update() {
 
    // Handel Inventory Menu
-   var uiInventoryResults = uiInventoryMenu.getStatus();
-   var uiInventoryActionResults = uiInventoryActionMenu.getStatus();
+   var ownedPawnIndex = pawnList.findById(ownedPawnId);
+   if(ownedPawnIndex < 0) {
+      uiInventoryMenu.setVisible(false);
+      uiInventoryMenu.setEnabled(false);
+      uiInventoryActionMenu.setVisible(false);
+      uiInventoryActionMenu.setEnabled(false);
+      inMenu = false;
+   }
+   else {
 
-   if(uiInventoryResults.state == 'canceled') {
-      uiInventoryMenu.setVisible(false);
-      uiInventoryMenu.setEnabled(false);
-      inMenu = false;
-   } else if(uiInventoryResults.state == 'selected') {
-      uiInventoryMenu.setEnabled(false);
-      var width = uiInventoryMenu.getWidth();
-      uiInventoryActionMenu.setPosition(width, 32);
-      uiInventoryActionMenu.clear();
-      uiInventoryActionMenu.addItem('Drop', 'drop');
-      uiInventoryActionMenu.setEnabled(true);
-   }
-   if(uiInventoryActionResults.state == 'canceled') {
-      uiInventoryMenu.setVisible(false);
-      uiInventoryMenu.setEnabled(false);
-      uiInventoryActionMenu.setVisible(false);
-      uiInventoryActionMenu.setEnabled(false);
-      inMenu = false;
-   }
-   else if(uiInventoryActionResults.state == 'selected') {
-      uiInventoryMenu.setVisible(false);
-      uiInventoryMenu.setEnabled(false);
-      uiInventoryActionMenu.setVisible(false);
-      uiInventoryActionMenu.setEnabled(false);
-      if(uiInventoryActionResults.result == 'drop') {      
-         rawPawnDrop(uiInventoryResults.result);
+      var uiInventoryResults = uiInventoryMenu.getStatus();
+      var uiInventoryActionResults = uiInventoryActionMenu.getStatus();
+      var ownedPawn = pawnList.list[ownedPawnIndex];
+       
+
+      if(uiInventoryResults.state == 'canceled') {
+         uiInventoryMenu.setVisible(false);
+         uiInventoryMenu.setEnabled(false);
+         inMenu = false;
+      } else if(uiInventoryResults.state == 'selected') {
+         uiInventoryMenu.setEnabled(false);
+         var itemId = uiInventoryResults.result;
+         var itemIndex = itemList.findById(itemId);
+         if(itemIndex < 0) {
+            inMenu = false;
+            uiInventoryMenu.setVisible(false);
+         }
+         else {
+            var item = itemList.list[itemIndex];
+            if(item.inventory.id == ownedPawnId) {
+               var width = uiInventoryMenu.getWidth();
+               uiInventoryActionMenu.setPosition(width, 32);
+               uiInventoryActionMenu.clear();
+               uiInventoryActionMenu.addItem('Drop', 'drop');
+               
+
+               if(item.pawnSlotType != '') {
+
+                  var slot = ownedPawn.inventorySlots[item.pawnSlotType];
+                  if(slot == '') {
+                     uiInventoryActionMenu.addItem('Equip', 'equip');
+                  }
+                  else if(slot == item.id && 
+                     (ownedPawn.inventorySlots.handLeft == '' || 
+                     ownedPawn.inventorySlots.handRight == '')) {
+                     uiInventoryActionMenu.addItem('Unequip', 'unequip');
+                  }
+               }
+
+               
+               
+               uiInventoryActionMenu.setEnabled(true);
+            }
+            else {
+               inMenu = false;
+               uiInventoryMenu.setVisible(false);
+            }
+         }
       }
-      inMenu = false;
+      if(uiInventoryActionResults.state == 'canceled') {
+         uiInventoryMenu.setVisible(false);
+         uiInventoryMenu.setEnabled(false);
+         uiInventoryActionMenu.setVisible(false);
+         uiInventoryActionMenu.setEnabled(false);
+         inMenu = false;
+      }
+      else if(uiInventoryActionResults.state == 'selected') {
+         uiInventoryMenu.setVisible(false);
+         uiInventoryMenu.setEnabled(false);
+         uiInventoryActionMenu.setVisible(false);
+         uiInventoryActionMenu.setEnabled(false);
+         var itemIndex = itemList.findById(uiInventoryResults.result);
+         if(itemIndex >= 0) {
+            var item = itemList.list[itemIndex];
+            if(uiInventoryActionResults.result == 'drop') {      
+               rawPawnDrop(item.id);
+            }
+            else if(uiInventoryActionResults.result == 'equip') {
+               rawInternalMove(item.id, item.pawnSlotType);
+
+            }
+            else if(uiInventoryActionResults.result == 'unequip') {
+               if(ownedPawn.inventorySlots.handRight == '') {
+                  rawInternalMove(item.id, 'handRight');
+               }
+               else if(ownedPawn.inventorySlots.handLeft == '') {
+                  rawInternalMove(item.id, 'handLeft');
+               }
+            }
+         }
+         inMenu = false;
+      }
    }
 
 

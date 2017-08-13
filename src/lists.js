@@ -86,7 +86,17 @@ function PawnList() {
          },
          intent: 'help',
          health: 100,
-         dirty: true
+         dirty: true,
+         findSlotByItemId: function(itemId) {
+            var slot = '';
+            for(var k in this.inventorySlots) {
+               if(this.inventorySlots[k] == itemId) {
+                  slot = k;
+                  break;
+               }
+            }
+            return slot;
+         }
       };
       self.list.push(obj);
       return obj;

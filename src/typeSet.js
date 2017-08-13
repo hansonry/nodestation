@@ -40,6 +40,8 @@ function TypeSet() {
       if(itemTypeIndex >= 0) {
          var itemType = self.items[itemTypeIndex];
          item.type = name;
+         item.pawnSlotType = '';
+         item.pawnVisible = false;
          itemType.createFunction(item);
       }
    }

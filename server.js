@@ -150,6 +150,41 @@ io.on('connection', function(socket) {
       }
 
    });
+   socket.on('internalMove', function(msg) {
+      var pawn = client.controlledPawn;
+      var itemIndex = itemList.findById(msg.itemId);
+      if(itemIndex >= 0 && pawn.inventorySlots[msg.destSlot] == '') {
+         var item = itemList.list[itemIndex];
+         if(item.inventory.id == pawn.id) {
+            var inLeftHand  = pawn.inventorySlots.handLeft == item.id;
+            var inRightHand = pawn.inventorySlots.handRight == item.id;
+            if(inLeftHand || inRightHand) {
+               // The item is in our hands, we can move it
+               if(inLeftHand) {
+                  pawn.inventorySlots.handLeft = '';
+               }
+               else if(inRightHand) {
+                  pawn.inventorySlots.handRight = '';
+               }
+               pawn.inventorySlots[msg.destSlot] = item.id;
+               pawn.dirty = true;               
+               
+
+            }
+            else if(msg.destSlot == 'handLeft' || msg.destSlot == 'handRight') {
+               // We are going to move it to one of our hands
+               var slot = pawn.findSlotByItemId(item.id);
+               if(slot != '') {
+                  pawn.inventorySlots[slot] = '';
+                  pawn.inventorySlots[msg.destSlot] = item.id;
+                  pawn.dirty = true;
+               }
+
+            }
+         }
+      }
+     
+   });
    socket.on('intent', function (msg) {
       // Dont really care about the message this time
       var pawn = client.controlledPawn;

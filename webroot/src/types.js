@@ -22,7 +22,7 @@
 
 function buildTypeSet(typeSet) {
    typeSet.addItemType('idCard', function(item) {
-      item.isWearable = false;
+      item.pawnSlotType = 'card';
       item.render = {
          icon: {
             image: 'items',
@@ -31,7 +31,8 @@ function buildTypeSet(typeSet) {
       };
    });
    typeSet.addItemType('shirt', function(item) {
-      item.isWearable = true;
+      item.pawnSlotType = 'uniform';
+      item.pawnVisible = true;
       item.render = {
          icon: {
             image: 'items',
