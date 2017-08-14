@@ -25,18 +25,22 @@ function buildTypeSet(typeSet) {
       item.pawnSlotType = 'card';
       item.render = {
          icon: {
-            image: 'items',
+            image: 'card',
             index: 1
          }
       };
    });
-   typeSet.addItemType('shirt', function(item) {
+   typeSet.addItemType('uniformCaptian', function(item) {
       item.pawnSlotType = 'uniform';
       item.pawnVisible = true;
       item.render = {
          icon: {
-            image: 'items',
-            index: 0
+            image: 'clothingUniform',
+            index: 1
+         },
+         pawn: {
+            image: 'pawnSuit',
+            index: 12
          }
       };
    });

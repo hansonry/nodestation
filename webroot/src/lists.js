@@ -78,7 +78,9 @@ function PawnList() {
                   neck: -1,
                   uniform: 12,
                   suit: -1,
-                  mask: -1
+                  mask: -1,
+                  eyes: -1,
+                  ears: -1
                }
             },
             colors: {
@@ -135,6 +137,8 @@ function PawnList() {
                set(this.sprites.clothes.uniform,   this.cellIndices.clothes.uniform,   offset);
                set(this.sprites.clothes.suit,      this.cellIndices.clothes.suit,      offset);
                set(this.sprites.clothes.mask,      this.cellIndices.clothes.mask,      offset);
+               set(this.sprites.clothes.eyes,      this.cellIndices.clothes.eyes,      offset);
+               set(this.sprites.clothes.ears,      this.cellIndices.clothes.ears,      offset);
 
             }
 

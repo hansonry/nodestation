@@ -1,4 +1,17 @@
 
+function findTileset(gid, tilesets) {
+   var foundTileset = undefined;
+   for(var i = 0; i < tilesets.length; i++) {
+      var tileset = tilesets[i];
+      if(gid >= tileset.firstgid && 
+         gid <  tileset.firstgid + tileset.tilecount) {
+         foundTileset = tileset;
+         break;
+      }
+   }
+   return foundTileset;
+}
+
 
 function tiledMapLoader(rawMap, tileList, itemList, doorList, typeSet, shortid) {
    // Map Conversion
@@ -11,7 +24,6 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, typeSet, shortid) 
    // Find Tilesets
    var tilesetFloors = undefined;
    var tilesetWalls = undefined;
-   var tilesetItems = undefined;
    var tilesetDoors = undefined;
 
    for(var i = 0; i < rawMap.tilesets.length; i++) {
@@ -22,14 +34,8 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, typeSet, shortid) 
       else if(tileset.name == "Walls") {
          tilesetWalls = tileset;
       }
-      else if(tileset.name == "Items") {
-         tilesetItems = tileset;
-      }
       else if(tileset.name == "Doors") {
          tilesetDoors = tileset;
-      }
-      else {
-         throw "Unexpected Tileset: " + tileset.name;
       }
    }
    
@@ -38,9 +44,6 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, typeSet, shortid) 
    }
    if(tilesetFloors == undefined) {
       throw 'Failed to find Tileset "Walls"'
-   }
-   if(tilesetItems == undefined) {
-      throw 'Failed to find Tileset "Items"';
    }
    if(tilesetDoors == undefined) {
       throw 'Failed to find Tileset "Doors"';
@@ -143,9 +146,9 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, typeSet, shortid) 
 
       }
       else if(layer.type == 'objectgroup' && layer.name == 'Item') { // Items
-         var tileset = tilesetItems;
          for(var k = 0; k < layer.objects.length; k++) {
             var object = layer.objects[k];
+            var tileset = findTileset(object.gid, rawMap.tilesets);
             var type = tileset.tiles[object.gid - tileset.firstgid].type;
             // Items in tiled have origin in the lower left corner
             var x = Math.floor((object.x + 15) / 32);

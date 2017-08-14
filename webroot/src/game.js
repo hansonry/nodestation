@@ -33,11 +33,21 @@ function preload() {
 	game.load.spritesheet( "items", "assets/img/items.png", 32, 32 );
 	game.load.image( "mapTiles", "assets/img/mapTiles.png", 32, 32 );
    game.load.image( "mapFloor", "assets/img/floors.png", 32, 32);
+   
+   // Items
+   game.load.spritesheet( "card", "assets/img/items/card.png", 32, 32 );
+   
+   // Clothing Items
+   game.load.spritesheet( "clothingUniform", "assets/img/items/clothing/uniforms.png", 32, 32 );
+   game.load.spritesheet( "clothingFeet",    "assets/img/items/clothing/shoes.png",    32, 32 );
+   game.load.spritesheet( "clothingMask",    "assets/img/items/clothing/masks.png",    32, 32 );
+   game.load.spritesheet( "clothingEyes",    "assets/img/items/clothing/glasses.png",  32, 32 );
+   game.load.spritesheet( "clothingHead",    "assets/img/items/clothing/hats.png",     32, 32 );
+   game.load.spritesheet( "clothingSuits",   "assets/img/items/clothing/suits.png",    32, 32 );
 
    // UI
    game.load.atlas( "screen", "assets/img/ui/screen_midnight.png", "assets/img/ui/screen_midnight_atlas.json");
 	game.load.image( "arrow", "assets/img/ui/arrow.png");
-
 
    // Doors
    game.load.spritesheet( "doorOverlays",            "assets/img/doors/overlays.png", 32, 32);
@@ -74,12 +84,9 @@ function preload() {
    game.load.spritesheet( "pawnSuit",      "assets/img/pawn/suit.png", 32, 32);
    game.load.spritesheet( "pawnUnderwear", "assets/img/pawn/underwear.png", 32, 32);
    game.load.spritesheet( "pawnUniform",   "assets/img/pawn/uniform.png", 32, 32);
+   game.load.spritesheet( "pawnEyes",      "assets/img/pawn/eyes.png", 32, 32);
+   game.load.spritesheet( "pawnEars",      "assets/img/pawn/ears.png", 32, 32);
 }
-
-var itemImageMap = {
-   questionMark: 0,
-   idCard:       1  
-};
 
 var mapTileImageMap = {
    questionMark: 0,
@@ -121,8 +128,22 @@ function createTileTypes(tileMap, length) {
    return firstIndex;
 }
 
-var uiItemIdCardSlot, uiItemHandLeft, uiItemHandRight;
 var uiInventoryMenu, uiInventoryActionMenu;
+
+var uiSlotImages = {
+   handLeft:  {},
+   handRight: {},
+   card:      {},
+   uniform:   {},
+   suit:      {},
+   head:      {},
+   eyes:      {},
+   mask:      {},
+   ears:      {},
+   feet:      {},
+   hands:     {},
+   neck:      {}
+};
 
 var inMenu = false;
 
@@ -164,32 +185,37 @@ function create() {
    var uiHarmSprite = game.add.image(0, 0, "screen", "help");
 
    
-   var uiIdCardSlot = game.add.image(32, 0, "screen", "idCardSlot");
-   uiItemIdCardSlot = game.add.image(32, 0, "screen", "idCardSlot");
-   uiItemIdCardSlot.visible = false;
-
-   var uiHandRight = game.add.image(64, 0, "screen", "handRight");
-   uiItemHandRight = game.add.image(64, 0, "screen", "handRight");
-   uiItemHandRight.visible = false;
-   var uiHandLeft = game.add.image(96, 0, "screen", "handLeft");
-   uiItemHandLeft = game.add.image(96, 0, "screen", "handLeft");
-   uiItemHandLeft.visible = false;
-
+   function initSlotImage(slot, x, y, imageName, subImageName, group) {
+      slot.background   = game.add.image(x, y, imageName, subImageName);
+      slot.item         = game.add.image(x, y, imageName, subImageName);
+      slot.item.visible = false;
+      
+      group.add(slot.background);
+      group.add(slot.item);
+   }
+   
+   initSlotImage(uiSlotImages.card,      32,  0, "screen", "idCardSlot", groups.ui);
+   initSlotImage(uiSlotImages.handRight, 64,  0, "screen", "handRight",  groups.ui);
+   initSlotImage(uiSlotImages.handLeft,  96,  0, "screen", "handLeft",   groups.ui);
+   initSlotImage(uiSlotImages.uniform,   128, 0, "screen", "uniform",    groups.ui);
+   initSlotImage(uiSlotImages.suit,      160, 0, "screen", "suit",       groups.ui);
+   initSlotImage(uiSlotImages.head,      192, 0, "screen", "head",       groups.ui);
+   initSlotImage(uiSlotImages.eyes,      224, 0, "screen", "eyes",       groups.ui);
+   initSlotImage(uiSlotImages.mask,      256, 0, "screen", "mask",       groups.ui);
+   initSlotImage(uiSlotImages.ears,      288, 0, "screen", "ears",       groups.ui);
+   initSlotImage(uiSlotImages.feet,      320, 0, "screen", "feet",       groups.ui);
+   initSlotImage(uiSlotImages.hands,     352, 0, "screen", "hands",      groups.ui);
+   initSlotImage(uiSlotImages.neck,      384, 0, "screen", "neck",       groups.ui);
+   
    
    uiInventoryMenu = new Menu(game);
    uiInventoryMenu.setPosition(0, 32);
-   uiInventoryMenu.addToGroup(groups.ui);
    uiInventoryActionMenu = new Menu(game);
+   
+   uiInventoryMenu.addToGroup(groups.ui);
    uiInventoryActionMenu.addToGroup(groups.ui);
    
-    
    groups.ui.add(uiHarmSprite);
-   groups.ui.add(uiIdCardSlot);
-   groups.ui.add(uiItemIdCardSlot);
-   groups.ui.add(uiHandRight);
-   groups.ui.add(uiItemHandRight);
-   groups.ui.add(uiHandLeft);
-   groups.ui.add(uiItemHandLeft);
    groups.ui.fixedToCamera = true;
 
 
@@ -292,7 +318,8 @@ function create() {
          //pawn.sprites.clothes.suit.smoothed = false;
          pawn.sprites.clothes.mask = game.add.sprite(x, y, 'pawnMask');
          //pawn.sprites.clothes.mask.smoothed = false;
-
+         pawn.sprites.clothes.eyes = game.add.sprite(x, y, 'pawnEyes');
+         pawn.sprites.clothes.ears = game.add.sprite(x, y, 'pawnEars');
 
 
 
@@ -319,9 +346,11 @@ function create() {
          pawn.group.addAt(pawn.sprites.clothes.neck, 12);
 
          pawn.group.addAt(pawn.sprites.body.face, 13);
-
-         pawn.group.addAt(pawn.sprites.clothes.head, 14);
-         pawn.group.addAt(pawn.sprites.clothes.suit, 15); 
+         
+         pawn.group.addAt(pawn.sprites.clothes.eyes, 14);
+         pawn.group.addAt(pawn.sprites.clothes.ears, 15);
+         pawn.group.addAt(pawn.sprites.clothes.head, 16);
+         pawn.group.addAt(pawn.sprites.clothes.suit, 17); 
 
          
          pawn.x = msg.x;
@@ -869,6 +898,34 @@ function update() {
       }
 
       if(pawn.dirty) {
+         
+         function updatePawnAppearance(pawn, slotName) {
+            var slot = pawn.inventorySlots[slotName];
+            if(slot == '') {
+               pawn.cellIndices.clothes[slotName] = -1;
+            }
+            else {
+               var itemIndex = itemList.findById(slot);
+               if(itemIndex >= 0) {
+                  var item = itemList.list[itemIndex];
+                  pawn.cellIndices.clothes[slotName] = item.render.pawn.index;
+               }
+               else {
+                  pawn.cellIndices.clothes[slotName] = -1;
+               }
+            }
+         }
+         
+         updatePawnAppearance(pawn, 'uniform');
+         updatePawnAppearance(pawn, 'suit');
+         updatePawnAppearance(pawn, 'head');
+         updatePawnAppearance(pawn, 'eyes');
+         updatePawnAppearance(pawn, 'mask');
+         updatePawnAppearance(pawn, 'ears');
+         updatePawnAppearance(pawn, 'feet');
+         updatePawnAppearance(pawn, 'hands');
+         updatePawnAppearance(pawn, 'neck');
+         
          pawn.updateCellIndices(facingOffset);
 
          if(pawn.health > 0) {
@@ -893,10 +950,20 @@ function update() {
                   }
                }
             }
-            updateInventoryIcon(pawn.inventorySlots.handRight, uiItemHandRight);
-            updateInventoryIcon(pawn.inventorySlots.handLeft,  uiItemHandLeft);
-            updateInventoryIcon(pawn.inventorySlots.card,      uiItemIdCardSlot);
+            updateInventoryIcon(pawn.inventorySlots.handRight, uiSlotImages.handRight.item);
+            updateInventoryIcon(pawn.inventorySlots.handLeft,  uiSlotImages.handLeft.item);
+            updateInventoryIcon(pawn.inventorySlots.card,      uiSlotImages.card.item);
+            updateInventoryIcon(pawn.inventorySlots.uniform,   uiSlotImages.uniform.item);
+            updateInventoryIcon(pawn.inventorySlots.suit,      uiSlotImages.suit.item);
+            updateInventoryIcon(pawn.inventorySlots.head,      uiSlotImages.head.item);
+            updateInventoryIcon(pawn.inventorySlots.eyes,      uiSlotImages.eyes.item);
+            updateInventoryIcon(pawn.inventorySlots.mask,      uiSlotImages.mask.item);
+            updateInventoryIcon(pawn.inventorySlots.ears,      uiSlotImages.ears.item);
+            updateInventoryIcon(pawn.inventorySlots.feet,      uiSlotImages.feet.item);
+            updateInventoryIcon(pawn.inventorySlots.hands,     uiSlotImages.hands.item);
+            updateInventoryIcon(pawn.inventorySlots.neck,      uiSlotImages.neck.item);
          }
+         
          
          pawn.dirty = false;
 
