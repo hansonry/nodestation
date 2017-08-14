@@ -73,8 +73,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":181,
-                 "y":188
+                 "x":190,
+                 "y":191
                 }, 
                 {
                  "gid":1244,
@@ -99,6 +99,30 @@
                  "width":32,
                  "x":61,
                  "y":185
+                }, 
+                {
+                 "gid":1259,
+                 "height":32,
+                 "id":20,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":191,
+                 "y":191
+                }, 
+                {
+                 "gid":1349,
+                 "height":32,
+                 "id":21,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":192,
+                 "y":192
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -106,7 +130,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":20,
+ "nextobjectid":22,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.0.2",
@@ -401,6 +425,46 @@
              "1":
                 {
                  "type":"idCard"
+                }
+            },
+         "tilewidth":32
+        }, 
+        {
+         "columns":8,
+         "firstgid":1255,
+         "image":"..\/webroot\/assets\/img\/items\/clothing\/shoes.png",
+         "imageheight":224,
+         "imagewidth":256,
+         "margin":0,
+         "name":"ItemsFeet",
+         "spacing":0,
+         "tilecount":56,
+         "tileheight":32,
+         "tiles":
+            {
+             "4":
+                {
+                 "type":"feetCaptian"
+                }
+            },
+         "tilewidth":32
+        }, 
+        {
+         "columns":18,
+         "firstgid":1311,
+         "image":"..\/webroot\/assets\/img\/items\/clothing\/hats.png",
+         "imageheight":544,
+         "imagewidth":576,
+         "margin":0,
+         "name":"ItemsHead",
+         "spacing":0,
+         "tilecount":306,
+         "tileheight":32,
+         "tiles":
+            {
+             "38":
+                {
+                 "type":"hatCaptian"
                 }
             },
          "tilewidth":32

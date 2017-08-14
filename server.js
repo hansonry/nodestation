@@ -31,12 +31,13 @@ var rawMap         = require('./map/stationMap');
 var rawTypes       = require('./webroot/src/types');
 
 
+var typeSet    = typeSetReq.createTypeSet();
 var clientList = lists.createClientList();
 var pawnList   = lists.createPawnList();
 var tileList   = lists.createTileList();
-var itemList   = lists.createItemList();
+var itemList   = lists.createItemList(typeSet);
 var doorList   = lists.createDoorList();
-var typeSet    = typeSetReq.createTypeSet();
+
 
 rawTypes.buildTypeSet(typeSet);
 tiledMapLoader.load(rawMap, tileList, itemList, doorList, typeSet, shortid);
@@ -61,7 +62,28 @@ function nextTo(x1, y1, x2, y2) {
 io.on('connection', function(socket) {
    console.log('a user connected');
    var client = clientList.add(socket);
+   
+   // Setup and Dress Pawn
    client.controlledPawn = pawnList.add(shortid.generate());
+   {
+      var pawn = client.controlledPawn;
+      var itemUniform = itemList.add(shortid.generate(), 'uniformCaptian');
+      itemUniform.inventory.id = pawn.id;
+      pawn.inventorySlots.uniform = itemUniform.id;
+
+      var itemHead = itemList.add(shortid.generate(), 'hatCaptian');
+      itemHead.inventory.id = pawn.id;
+      pawn.inventorySlots.head = itemHead.id;
+      
+      var itemFeet = itemList.add(shortid.generate(), 'feetCaptian');
+      itemFeet.inventory.id = pawn.id;
+      pawn.inventorySlots.feet = itemFeet.id;
+      
+      var itemCard = itemList.add(shortid.generate(), 'idCard');
+      itemCard.inventory.id = pawn.id;
+      pawn.inventorySlots.card = itemCard.id;
+
+   }
 
    // Send Server Information
 

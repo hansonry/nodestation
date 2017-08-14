@@ -154,10 +154,9 @@ function tiledMapLoader(rawMap, tileList, itemList, doorList, typeSet, shortid) 
             var x = Math.floor((object.x + 15) / 32);
             var y = Math.floor((object.y - 15) / 32);
             if(typeSet.hasItemType(type)) {               
-               var item = itemList.add(shortid.generate());
+               var item = itemList.add(shortid.generate(), type);
                item.x = x;
-               item.y = y;
-               typeSet.initItem(item, type);
+               item.y = y;               
             }
             else {
                throw "Unknown Item Type: " + type;

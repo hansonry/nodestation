@@ -122,9 +122,10 @@ function PawnList() {
    return this;
 }
 
-function ItemList() {
+function ItemList(typeSet) {
    var self = this;
    this.list = [];
+   this.typeSet = typeSet;
    this.findByInventoryIdAndType = function(inventoryId, type) {
       var itemIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
@@ -136,7 +137,7 @@ function ItemList() {
       }
       return itemIndex;
    }
-   this.add = function(id) {
+   this.add = function(id, type) {
       var obj = {
          id: id,
          x: 0, 
@@ -146,6 +147,7 @@ function ItemList() {
          },
          dirty: true
       };
+      self.typeSet.initItem(obj, type);
       self.list.push(obj);
       return obj;
    };
@@ -319,8 +321,8 @@ module.exports = {
    createTileList: function() {
       return new TileList();
    },
-   createItemList: function() {
-      return new ItemList();
+   createItemList: function(typeSet) {
+      return new ItemList(typeSet);
    },
    createDoorList: function() {
       return new DoorList();

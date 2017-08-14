@@ -23,6 +23,7 @@
 function buildTypeSet(typeSet) {
    typeSet.addItemType('idCard', function(item) {
       item.pawnSlotType = 'card';
+      item.name = 'ID Card';
       item.render = {
          icon: {
             image: 'card',
@@ -33,6 +34,7 @@ function buildTypeSet(typeSet) {
    typeSet.addItemType('uniformCaptian', function(item) {
       item.pawnSlotType = 'uniform';
       item.pawnVisible = true;
+      item.name = 'Captian Uniform';
       item.render = {
          icon: {
             image: 'clothingUniform',
@@ -44,6 +46,37 @@ function buildTypeSet(typeSet) {
          }
       };
    });
+   typeSet.addItemType('feetCaptian', function(item) {
+      item.pawnSlotType = 'feet';
+      item.pawnVisible = true;
+      item.name = 'Captian Boots';
+      item.render = {
+         icon: {
+            image: 'clothingFeet',
+            index: 4
+         },
+         pawn: {
+            image: 'pawnFeet',
+            index: 32
+         }
+      };
+   });
+   typeSet.addItemType('hatCaptian', function(item) {
+      item.pawnSlotType = 'head';
+      item.pawnVisible = true;
+      item.name = 'Captian Hat';
+      item.render = {
+         icon: {
+            image: 'clothingHead',
+            index: 38
+         },
+         pawn: {
+            image: 'pawnHead',
+            index: 208
+         }
+      };
+   });
+
 }
 
 

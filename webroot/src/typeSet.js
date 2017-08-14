@@ -37,6 +37,7 @@ function TypeSet() {
          item.type = name;
          item.pawnSlotType = '';
          item.pawnVisible = false;
+         item.name = name;
          itemType.createFunction(item);
       }
    }

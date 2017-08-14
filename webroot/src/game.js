@@ -694,7 +694,7 @@ function pawnInventory() {
    var items = [];
    itemList.findAllByInventroyId(ownedPawnId, items);
    for(var i = 0; i < items.length; i ++) {
-      uiInventoryMenu.addItem(items[i].type, items[i].id);
+      uiInventoryMenu.addItem(items[i].name, items[i].id);
    }
    uiInventoryMenu.setEnabled(true);
    inMenu = true;
@@ -908,7 +908,11 @@ function update() {
                var itemIndex = itemList.findById(slot);
                if(itemIndex >= 0) {
                   var item = itemList.list[itemIndex];
-                  pawn.cellIndices.clothes[slotName] = item.render.pawn.index;
+                  if(item.pawnVisible) {
+                     pawn.cellIndices.clothes[slotName] = item.render.pawn.index;
+                  } else {
+                     pawn.cellIndices.clothes[slotName] = -1;
+                  }
                }
                else {
                   pawn.cellIndices.clothes[slotName] = -1;
