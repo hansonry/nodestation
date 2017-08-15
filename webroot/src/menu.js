@@ -37,18 +37,13 @@ function Menu(game) {
          }
       });
       // Set the displays
-      console.log("readyDisplay");
       var lIndex = 0;
       var y = 0;
       for(var i = 0; i < _headings.length; i++) {
-         console.log("here");
-         console.log(_headings[i].text);
          _headings[i].text.x = 0;
          _headings[i].text.y = y;
          y += 16;
-         console.log(lIndex);
          while(lIndex < _list.length && _list[lIndex].heading == _headings[i].name) {
-            console.log(_list[lIndex]);
             _list[lIndex].text.x = 16;
             _list[lIndex].text.y = y;
             y += 16;
