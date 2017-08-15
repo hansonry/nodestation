@@ -5,6 +5,7 @@ function Menu(game) {
    var self = this;
 
    var _list = [];
+   var _headings = [];
    var _enabled = false;
    var _game = game;
    var _group = game.add.group();
@@ -17,17 +18,68 @@ function Menu(game) {
    _group.add(_arrow);
 
 
+   function readyDisplay() {
+      // Sort the list
+      _list = _list.sort(function(a, b) {
+         if(a.heading == b.heading) {
+            return a.index - b.index;
+         }
+         else {
+            for(var i = 0; i < _headings.length; i++) {
+               if(a.heading == _headings[i].name) {
+                  return -1;
+               }
+               else if(b.heading == _headings[i].name) {
+                  return 1;
+               }
+            }
+            return 0;
+         }
+      });
+      // Set the displays
+      console.log("readyDisplay");
+      var lIndex = 0;
+      var y = 0;
+      for(var i = 0; i < _headings.length; i++) {
+         console.log("here");
+         console.log(_headings[i].text);
+         _headings[i].text.x = 0;
+         _headings[i].text.y = y;
+         y += 16;
+         console.log(lIndex);
+         while(lIndex < _list.length && _list[lIndex].heading == _headings[i].name) {
+            console.log(_list[lIndex]);
+            _list[lIndex].text.x = 16;
+            _list[lIndex].text.y = y;
+            y += 16;
+            lIndex ++;
+         }
+      }
+      
+   }
+
 
    this.addToGroup = function(group) {
       group.add(_group);
    }
 
-   this.addItem = function(name, result) {
+   this.addHeading = function(name) {
+      var headingItem =  {};
+      headingItem.name = name;
+      headingItem.text = _game.make.text(-16, -16, name, {font: '16px Arial', fill: '#FFFFFF'});
+
+      _group.add(headingItem.text); 
+
+      _headings.push(headingItem);
+   };
+   this.addItem = function(name, result, heading) {
       var listItem = {
          name: name,
          result: result,
+         heading: heading,
+         index: _list.length
       };
-      listItem.text = _game.make.text(16, _list.length * 16, 
+      listItem.text = _game.make.text(0, 0, 
                              (_list.length + 1) + ": " + name, 
                              {font: '16px Arial', fill: '#FFFFFF'});
       _group.add(listItem.text); 
@@ -39,6 +91,9 @@ function Menu(game) {
       _group.removeAll();
       _list = [];
       _group.add(_arrow);
+      for(var i = 0; i < _headings.length; i++) {
+         _group.add(_headings[i].text);
+      }
    };
 
    this.setVisible = function(visible) {
@@ -47,10 +102,11 @@ function Menu(game) {
    this.setEnabled = function(enable) {
       _enabled = enable;
       if(enable) {
+         readyDisplay();
          _state = 'active';
          _group.visible = true;
          _highlightedIndex = 0;
-         _arrow.y = _highlightedIndex * 16;
+         _arrow.y = _list[_highlightedIndex].text.y;
       }      
       else {
          _state = 'ready';
@@ -84,7 +140,7 @@ function Menu(game) {
             _state = 'canceled';
          }
 
-         _arrow.y = _highlightedIndex * 16;
+         _arrow.y = _list[_highlightedIndex].text.y;
       }
    };
 

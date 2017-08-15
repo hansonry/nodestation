@@ -210,7 +210,12 @@ function create() {
    
    uiInventoryMenu = new Menu(game);
    uiInventoryMenu.setPosition(0, 32);
+
    uiInventoryActionMenu = new Menu(game);
+
+   uiInventoryMenu.addHeading('Hands');
+   uiInventoryMenu.addHeading('Equipped');
+   uiInventoryActionMenu.addHeading('Actions');
    
    uiInventoryMenu.addToGroup(groups.ui);
    uiInventoryActionMenu.addToGroup(groups.ui);
@@ -219,15 +224,16 @@ function create() {
    groups.ui.fixedToCamera = true;
 
 
+
    var map = game.add.tilemap();
    var mapTilesets = {};
    mapTilesets.floor =  map.addTilesetImage('mapFloor', undefined, 32, 32, 0, 0, 0);
    mapTilesets.wall  =  map.addTilesetImage('mapTiles', undefined, 32, 32, 0, 0, mapTilesets.floor.firstgid + mapTilesets.floor.total);
 
 
-  var mapLayers = {};
-  mapLayers.floor = map.create('floor', 10, 10, 32, 32, groups.map); 
-  mapLayers.wall = map.createBlankLayer('wall', 10, 10, 32, 32, groups.map); 
+   var mapLayers = {};
+   mapLayers.floor = map.create('floor', 10, 10, 32, 32, groups.map); 
+   mapLayers.wall = map.createBlankLayer('wall', 10, 10, 32, 32, groups.map); 
 
 
    // Connect to socket.io
@@ -691,13 +697,25 @@ function rawInternalMove(itemId, destSlot) {
 
 function pawnInventory() {
    uiInventoryMenu.clear();
-   var items = [];
-   itemList.findAllByInventroyId(ownedPawnId, items);
-   for(var i = 0; i < items.length; i ++) {
-      uiInventoryMenu.addItem(items[i].name, items[i].id);
+
+   var pawnIndex = pawnList.findById(ownedPawnId);
+   if(pawnIndex >= 0) {
+      var pawn = pawnList.list[pawnIndex];
+      var items = [];
+      itemList.findAllByInventroyId(ownedPawnId, items);
+      
+      for(var i = 0; i < items.length; i ++) {
+         if(items[i].id == pawn.inventorySlots.handRight ||
+            items[i].id == pawn.inventorySlots.handLeft) {
+            uiInventoryMenu.addItem(items[i].name, items[i].id, 'Hands');
+         }
+         else {
+            uiInventoryMenu.addItem(items[i].name, items[i].id, 'Equipped');
+         }
+      }
+      uiInventoryMenu.setEnabled(true);
+      inMenu = true;
    }
-   uiInventoryMenu.setEnabled(true);
-   inMenu = true;
 }
 
 function chatOnSubmit() {
@@ -769,18 +787,18 @@ function update() {
 
                   var slot = ownedPawn.inventorySlots[item.pawnSlotType];
                   if(slot == '') {
-                     uiInventoryActionMenu.addItem('Equip', 'equip');
+                     uiInventoryActionMenu.addItem('Equip', 'equip', 'Actions');
                   }
                   else if(slot == item.id && 
                      (ownedPawn.inventorySlots.handLeft == '' || 
                      ownedPawn.inventorySlots.handRight == '')) {
-                     uiInventoryActionMenu.addItem('Unequip', 'unequip');
+                     uiInventoryActionMenu.addItem('Unequip', 'unequip', 'Actions');
                   }
                }
                // Only drop things in our hand
                if(ownedPawn.inventorySlots.handRight == item.id ||
                   ownedPawn.inventorySlots.handLeft == item.id) {
-                  uiInventoryActionMenu.addItem('Drop', 'drop');
+                  uiInventoryActionMenu.addItem('Drop', 'drop', 'Actions');
                }
 
                
