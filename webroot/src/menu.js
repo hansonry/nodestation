@@ -100,8 +100,15 @@ function Menu(game) {
          readyDisplay();
          _state = 'active';
          _group.visible = true;
-         _highlightedIndex = 0;
-         _arrow.y = _list[_highlightedIndex].text.y;
+         if(_list.length > 0) {
+            _highlightedIndex = 0;
+            _arrow.y = _list[_highlightedIndex].text.y;
+            _arrow.visible = true;
+         }
+         else {
+            _arrow.visible = false;
+         }
+
       }      
       else {
          _state = 'ready';
@@ -134,8 +141,10 @@ function Menu(game) {
          else if(e.keyCode == Phaser.KeyCode.ESC) {
             _state = 'canceled';
          }
-
-         _arrow.y = _list[_highlightedIndex].text.y;
+         
+         if(_list.length > 0) {
+            _arrow.y = _list[_highlightedIndex].text.y;
+         }
       }
    };
 
