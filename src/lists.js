@@ -137,6 +137,15 @@ function ItemList(typeSet) {
       }
       return itemIndex;
    }
+   
+   this.findAllByInventoryId = function(inventoryId, list) {
+      for(var i = 0; i < self.list.length; i++) {
+         var item = self.list[i];
+         if(item.inventory.id == inventoryId) {
+            list.push(item);
+         }
+      }
+   }
    this.add = function(id, type) {
       var obj = {
          id: id,

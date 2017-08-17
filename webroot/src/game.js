@@ -734,6 +734,13 @@ function rawInternalMove(itemId, destSlot) {
    socket.emit('internalMove', msg);
 }
 
+function rawPawnStrip(targetPawnId) {
+   var msg = {
+      targetPawnId: targetPawnId
+   };
+   socket.emit('strip', msg);
+}
+
 
 function pawnInventory() {
    menu.inventory.items.clear();
@@ -1007,6 +1014,7 @@ function update() {
                menu.examine.inMenu = false;               
             }
             else if(actionsResults.result == 'strip') {
+               rawPawnStrip(thingResults.result);
                menu.examine.direction.setEnabled(false);
                menu.examine.direction.setVisible(false);
                menu.examine.things.setEnabled(false);

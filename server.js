@@ -223,6 +223,38 @@ io.on('connection', function(socket) {
       }
      
    });
+   socket.on('strip', function(msg) {
+      var pawn = client.controlledPawn;
+      var targetPawnIndex = pawnList.findById(msg.targetPawnId); 
+      if(targetPawnIndex >= 0) {
+         var targetPawn = pawnList.list[targetPawnIndex];
+         if(nextTo(pawn.x, pawn.y, targetPawn.x, targetPawn.y)) {
+            var items = [];
+            itemList.findAllByInventoryId(targetPawn.id, items);
+            for(var i = 0; i < items.length; i ++) {
+               var item = items[i];
+               item.x = targetPawn.x;
+               item.y = targetPawn.y;
+               item.inventory.id = '';
+               item.dirty = true;
+            }
+
+            targetPawn.inventorySlots.handLeft  = '';
+            targetPawn.inventorySlots.handRight = '';
+            targetPawn.inventorySlots.card      = '';
+            targetPawn.inventorySlots.uniform   = '';
+            targetPawn.inventorySlots.suit      = '';
+            targetPawn.inventorySlots.head      = '';
+            targetPawn.inventorySlots.eyes      = '';
+            targetPawn.inventorySlots.mask      = '';
+            targetPawn.inventorySlots.ears      = '';
+            targetPawn.inventorySlots.feet      = '';
+            targetPawn.inventorySlots.hands     = '';
+            targetPawn.inventorySlots.neck      = '';
+            targetPawn.dirty = true;
+         }
+      }
+   });
    socket.on('intent', function (msg) {
       // Dont really care about the message this time
       var pawn = client.controlledPawn;
