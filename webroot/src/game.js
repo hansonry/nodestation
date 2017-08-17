@@ -177,9 +177,9 @@ function create() {
    groups.world = game.add.group();
    groups.ui = game.add.group();
 
-   groups.map     = game.add.group(groups.world);
-   groups.door    = game.add.group(groups.world);
+   groups.map     = game.add.group(groups.world);   
    groups.item    = game.add.group(groups.world);
+   groups.door    = game.add.group(groups.world);
    groups.pawn    = game.add.group(groups.world);
    groups.worldUi = game.add.group(groups.world);
 
@@ -235,6 +235,7 @@ function create() {
    // Examine Menu
    menu.examine.direction = new DirectionMenu(game);
    menu.examine.things    = new Menu(game);
+   menu.examine.actions   = new Menu(game);
    
    menu.examine.things.setPosition(0, 32);
    
@@ -242,10 +243,13 @@ function create() {
    menu.examine.things.addHeading('Furniture');
    menu.examine.things.addHeading('Bodies');
    menu.examine.things.addHeading('Drop');
+   
+   menu.examine.actions.addHeading('Actions');
   
    
    menu.examine.direction.addToGroup(groups.worldUi);
    menu.examine.things.addToGroup(groups.ui);
+   menu.examine.actions.addToGroup(groups.ui);
 
    var map = game.add.tilemap();
    var mapTilesets = {};
@@ -597,6 +601,7 @@ function create() {
          menu.inventory.actions.onKeyDown(e);
          menu.examine.direction.onKeyDown(e);
          menu.examine.things.onKeyDown(e);
+         menu.examine.actions.onKeyDown(e);
 
          if(!menu.inventory.inMenu && !menu.examine.inMenu) {
             var key = undefined;
@@ -645,6 +650,7 @@ function create() {
       menu.inventory.actions.onKeyUp(e);
       menu.examine.direction.onKeyUp(e);
       menu.examine.things.onKeyUp(e);
+      menu.examine.actions.onKeyUp(e);
 
       if(e.keyCode == Phaser.KeyCode.UP) {
          key = 'up';
@@ -666,6 +672,13 @@ function create() {
 
 }
 
+function rawItemGrab(itemId) {
+   var msg = {
+      itemId: itemId
+   };
+   socket.emit('grab', msg);
+}
+
 function pawnGrab() {
    var ownedPawnIndex = pawnList.findById(ownedPawnId);
    if(ownedPawnIndex >= 0) {
@@ -674,17 +687,13 @@ function pawnGrab() {
       var itemIndex = itemList.findByCoord(ownedPawn.x, ownedPawn.y);
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
-         if(item.inventory.id == '') {
-            socket.emit('grab', {
-               itemId: item.id
-            });
-         }
+         rawItemGrab(item.id);
       }
    }
 }
 
 
-function rawPawnDrop(itemId, x, y) {
+function rawItemDrop(itemId, x, y) {
    var msg = {
       itemId: itemId,
       x: x,
@@ -709,7 +718,7 @@ function pawnDrop() {
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == ownedPawn.id) {
-            rawPawnDrop(item.id, ownedPawn.x, ownedPawn.y);
+            rawItemDrop(item.id, ownedPawn.x, ownedPawn.y);
          }
       }
    }
@@ -870,7 +879,7 @@ function update() {
             if(itemIndex >= 0) {
                var item = itemList.list[itemIndex];
                if(uiInventoryActionResults.result == 'drop') {      
-                  rawPawnDrop(item.id, ownedPawn.x, ownedPawn.y);
+                  rawItemDrop(item.id, ownedPawn.x, ownedPawn.y);
                }
                else if(uiInventoryActionResults.result == 'equip') {
                   rawInternalMove(item.id, item.pawnSlotType);
@@ -901,8 +910,9 @@ function update() {
       else {
          var ownedPawn = pawnList.list[ownedPawnIndex];
          
-         var dirResults = menu.examine.direction.getStatus();
-         var thingResults = menu.examine.things.getStatus();
+         var dirResults     = menu.examine.direction.getStatus();
+         var thingResults   = menu.examine.things.getStatus();
+         var actionsResults = menu.examine.actions.getStatus();
          if(dirResults.state == 'selected') {
             menu.examine.direction.setEnabled(false);
             menu.examine.things.clear();
@@ -935,14 +945,26 @@ function update() {
          
          if(thingResults.state == 'selected') {
             menu.examine.things.setEnabled(false);
+            var width = menu.examine.things.getWidth();
+            menu.examine.actions.setPosition(width, 32);
+            menu.examine.actions.clear();
+
             
             if(thingResults.heading == 'Drop') {
                var coords = menu.examine.direction.getSelectedCoord(ownedPawn.x, ownedPawn.y);
-               rawPawnDrop(thingResults.result, coords.x, coords.y);
+               rawItemDrop(thingResults.result, coords.x, coords.y);
                menu.examine.direction.setVisible(false);
                menu.examine.things.setEnabled(false);
                menu.examine.things.setVisible(false); 
                menu.examine.inMenu = false;
+            }
+            else if(thingResults.heading == 'Items') {
+               
+               if(ownedPawn.inventorySlots.handLeft  == '' || 
+                  ownedPawn.inventorySlots.handRight == '') {
+                  menu.examine.actions.addItem('Pickup', 'pickup', 'Actions');
+               }
+               menu.examine.actions.setEnabled(true);
             }
          }
          else if(thingResults.state == 'canceled') {
@@ -950,6 +972,29 @@ function update() {
             menu.examine.direction.setVisible(false);
             menu.examine.things.setEnabled(false);
             menu.examine.things.setVisible(false); 
+            menu.examine.inMenu = false;
+         }
+         
+         if(actionsResults.state == 'selected') {
+            if(actionsResults.result == 'pickup') {
+               rawItemGrab(thingResults.result);
+               menu.examine.direction.setEnabled(false);
+               menu.examine.direction.setVisible(false);
+               menu.examine.things.setEnabled(false);
+               menu.examine.things.setVisible(false); 
+               menu.examine.actions.setEnabled(false);
+               menu.examine.actions.setVisible(false); 
+               menu.examine.inMenu = false;
+
+            }
+         }
+         else if(actionsResults.state == 'canceled') {
+            menu.examine.direction.setEnabled(false);
+            menu.examine.direction.setVisible(false);
+            menu.examine.things.setEnabled(false);
+            menu.examine.things.setVisible(false); 
+            menu.examine.actions.setEnabled(false);
+            menu.examine.actions.setVisible(false); 
             menu.examine.inMenu = false;
          }
       }
