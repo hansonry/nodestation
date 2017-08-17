@@ -93,6 +93,12 @@ function Menu(game) {
 
    this.setVisible = function(visible) {
       _group.visible = visible;
+      if(!visible) {
+         _highlightedIndex = 0;
+         if(_list.length > 0) {
+            _arrow.y = _list[_highlightedIndex].text.y;
+         }
+      }
    };
    this.setEnabled = function(enable) {
       _enabled = enable;
@@ -101,9 +107,8 @@ function Menu(game) {
          _state = 'active';
          _group.visible = true;
          if(_list.length > 0) {
-            _highlightedIndex = 0;
-            _arrow.y = _list[_highlightedIndex].text.y;
             _arrow.visible = true;
+            _arrow.y = _list[_highlightedIndex].text.y;
          }
          else {
             _arrow.visible = false;
@@ -134,8 +139,13 @@ function Menu(game) {
             }
          }
          else if(e.keyCode == Phaser.KeyCode.ENTER) {
-            _state = 'selected';
-            _selectedIndex = _highlightedIndex;
+            if(_list.length > 0) {               
+               _state = 'selected';
+               _selectedIndex = _highlightedIndex;
+            }
+            else {
+               _state = 'canceled';
+            }
 
          }
          else if(e.keyCode == Phaser.KeyCode.ESC) {
@@ -159,7 +169,8 @@ function Menu(game) {
          selectedIndex: _selectedIndex,
       };
       if(_selectedIndex >= 0 && _selectedIndex < _list.length) {
-         result.result = _list[_selectedIndex].result;
+         result.result  = _list[_selectedIndex].result;
+         result.heading = _list[_selectedIndex].heading;
       }
       return result;
    };

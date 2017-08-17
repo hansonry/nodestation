@@ -177,10 +177,11 @@ function create() {
    groups.world = game.add.group();
    groups.ui = game.add.group();
 
-   groups.map  = game.add.group(groups.world);
-   groups.door = game.add.group(groups.world);
-   groups.item = game.add.group(groups.world);
-   groups.pawn = game.add.group(groups.world);
+   groups.map     = game.add.group(groups.world);
+   groups.door    = game.add.group(groups.world);
+   groups.item    = game.add.group(groups.world);
+   groups.pawn    = game.add.group(groups.world);
+   groups.worldUi = game.add.group(groups.world);
 
    
    groups.pawn.scale.set(gameScale);
@@ -215,6 +216,7 @@ function create() {
    initSlotImage(uiSlotImages.neck,      384, 0, "screen", "neck",       groups.ui);
    
    
+   // Inventory Menu
    menu.inventory.items = new Menu(game);
    menu.inventory.items.setPosition(0, 32);
 
@@ -230,7 +232,20 @@ function create() {
    groups.ui.add(uiHarmSprite);
    groups.ui.fixedToCamera = true;
 
-
+   // Examine Menu
+   menu.examine.direction = new DirectionMenu(game);
+   menu.examine.things    = new Menu(game);
+   
+   menu.examine.things.setPosition(0, 32);
+   
+   menu.examine.things.addHeading('Items');
+   menu.examine.things.addHeading('Furniture');
+   menu.examine.things.addHeading('Bodies');
+   menu.examine.things.addHeading('Drop');
+  
+   
+   menu.examine.direction.addToGroup(groups.worldUi);
+   menu.examine.things.addToGroup(groups.ui);
 
    var map = game.add.tilemap();
    var mapTilesets = {};
@@ -580,8 +595,10 @@ function create() {
 
          menu.inventory.items.onKeyDown(e);
          menu.inventory.actions.onKeyDown(e);
+         menu.examine.direction.onKeyDown(e);
+         menu.examine.things.onKeyDown(e);
 
-         if(!menu.inventory.inMenu) {
+         if(!menu.inventory.inMenu && !menu.examine.inMenu) {
             var key = undefined;
             if(e.keyCode == Phaser.KeyCode.UP) {
                key = 'up';
@@ -611,6 +628,9 @@ function create() {
             else if(e.keyCode == Phaser.KeyCode.I) {
                pawnInventory();
             }
+            else if(e.keyCode == Phaser.KeyCode.E) {               
+               examine();
+            }
 
             if(key) {
                socket.emit('key', { event: 'down', key: key });
@@ -623,6 +643,8 @@ function create() {
       var key = undefined;
       menu.inventory.items.onKeyUp(e);
       menu.inventory.actions.onKeyUp(e);
+      menu.examine.direction.onKeyUp(e);
+      menu.examine.things.onKeyUp(e);
 
       if(e.keyCode == Phaser.KeyCode.UP) {
          key = 'up';
@@ -662,9 +684,11 @@ function pawnGrab() {
 }
 
 
-function rawPawnDrop(itemId) {
+function rawPawnDrop(itemId, x, y) {
    var msg = {
-      itemId: itemId
+      itemId: itemId,
+      x: x,
+      y: y
    };
    socket.emit('drop', msg);
    //console.log(msg);
@@ -685,7 +709,7 @@ function pawnDrop() {
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == ownedPawn.id) {
-            rawPawnDrop(item.id);
+            rawPawnDrop(item.id, ownedPawn.x, ownedPawn.y);
          }
       }
    }
@@ -722,6 +746,17 @@ function pawnInventory() {
       }
       menu.inventory.items.setEnabled(true);
       menu.inventory.inMenu = true;
+   }
+}
+
+function examine() {
+   var pawnIndex = pawnList.findById(ownedPawnId);
+   if(pawnIndex >= 0) {
+      var pawn = pawnList.list[pawnIndex];
+      
+      menu.examine.direction.setPawnPosition(pawn.group.x, pawn.group.y);
+      menu.examine.direction.setEnabled(true);
+      menu.examine.inMenu = true;
    }
 }
 
@@ -835,7 +870,7 @@ function update() {
             if(itemIndex >= 0) {
                var item = itemList.list[itemIndex];
                if(uiInventoryActionResults.result == 'drop') {      
-                  rawPawnDrop(item.id);
+                  rawPawnDrop(item.id, ownedPawn.x, ownedPawn.y);
                }
                else if(uiInventoryActionResults.result == 'equip') {
                   rawInternalMove(item.id, item.pawnSlotType);
@@ -854,6 +889,74 @@ function update() {
          }
       }
    }
+   // Examine Menu
+   if(menu.examine.inMenu) {
+      if(ownedPawnIndex < 0) {
+         menu.examine.direction.setEnabled(false);
+         menu.examine.direction.setVisible(false);
+         menu.examine.things.setEnabled(false);
+         menu.examine.things.setVisible(false); 
+         menu.examine.inMenu = false;
+      }
+      else {
+         var ownedPawn = pawnList.list[ownedPawnIndex];
+         
+         var dirResults = menu.examine.direction.getStatus();
+         var thingResults = menu.examine.things.getStatus();
+         if(dirResults.state == 'selected') {
+            menu.examine.direction.setEnabled(false);
+            menu.examine.things.clear();
+            var coordItemList = [];
+            var coords = menu.examine.direction.getSelectedCoord(ownedPawn.x, ownedPawn.y);
+            itemList.findAllByCoord(coords.x, coords.y, coordItemList);
+            
+            for(var i = 0; i < coordItemList.length; i++) {
+               var item = coordItemList[i];
+               menu.examine.things.addItem(item.name, item.id, 'Items');               
+            }
+            var items = [];
+            itemList.findAllByInventroyId(ownedPawnId, items);
+            
+            for(var i = 0; i < items.length; i ++) {
+               if(items[i].id == ownedPawn.inventorySlots.handRight ||
+                  items[i].id == ownedPawn.inventorySlots.handLeft) {
+                  menu.examine.things.addItem(items[i].name, items[i].id, 'Drop');
+               }
+            }
+
+            
+            menu.examine.things.setEnabled(true);
+         }
+         else if(dirResults.state == 'canceled') {
+            menu.examine.direction.setEnabled(false);
+            menu.examine.direction.setVisible(false);
+            menu.examine.inMenu = false;
+         }
+         
+         if(thingResults.state == 'selected') {
+            menu.examine.things.setEnabled(false);
+            
+            if(thingResults.heading == 'Drop') {
+               var coords = menu.examine.direction.getSelectedCoord(ownedPawn.x, ownedPawn.y);
+               rawPawnDrop(thingResults.result, coords.x, coords.y);
+               menu.examine.direction.setVisible(false);
+               menu.examine.things.setEnabled(false);
+               menu.examine.things.setVisible(false); 
+               menu.examine.inMenu = false;
+            }
+         }
+         else if(thingResults.state == 'canceled') {
+            menu.examine.direction.setEnabled(false);
+            menu.examine.direction.setVisible(false);
+            menu.examine.things.setEnabled(false);
+            menu.examine.things.setVisible(false); 
+            menu.examine.inMenu = false;
+         }
+      }
+   }
+   
+   // Handel Examine Menu
+   
 
    // Moving the sprites between updates
    for(var i = 0; i < pawnList.list.length; i++) {

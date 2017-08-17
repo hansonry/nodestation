@@ -34,8 +34,9 @@ nodejs server.js
 
 ## Controls
 * Moving      - Arrow Keys
-* Grab        - 'g' Key
-* Drop        - 'd' Key
-* Toggle Harm - 'h' key
-* Inventory   - 'i' key
+* Grab        - 'g'   Key
+* Drop        - 'd'   Key
+* Toggle Harm - 'h'   Key
+* Inventory   - 'i'   Key
+* Cancel      - 'Esc' Key
 

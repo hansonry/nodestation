@@ -188,6 +188,15 @@ function ItemList() {
       }
       return itemIndex;
    };
+   this.findAllByCoord = function(x, y, list) {
+      for(var i = 0; i < self.list.length; i++) {
+         var item = self.list[i];
+         if(item.x == x && item.y == y && item.inventory.id == '') {
+            list.push(item);
+         }
+      }
+   }
+   
    this.findByInventoryId = function(id) {
       var itemIndex = -1;
       for(var i = 0; i < self.list.length; i++) {

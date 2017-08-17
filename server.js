@@ -152,15 +152,15 @@ io.on('connection', function(socket) {
    socket.on('drop', function (msg) {
       var pawn = client.controlledPawn;
       var itemIndex = itemList.findById(msg.itemId);
-      if(itemIndex >= 0) {
+      if(itemIndex >= 0 && nextTo(pawn.x, pawn.y, msg.x, msg.y)) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == pawn.id) {
             var inLeftHand  = pawn.inventorySlots.handLeft == item.id;
             var inRightHand = pawn.inventorySlots.handRight == item.id;
             if(inLeftHand || inRightHand) {
                item.inventory.id = '';
-               item.x = pawn.x;
-               item.y = pawn.y;
+               item.x = msg.x;
+               item.y = msg.y;
                item.dirty = true;
                if(inLeftHand) {
                   pawn.inventorySlots.handLeft = '';
