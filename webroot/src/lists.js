@@ -17,6 +17,15 @@ function PawnList() {
       return pawnIndex;
    };
    
+   this.findAllByCoord = function(x, y, list) {
+      for(var i = 0; i < self.list.length; i++) {
+         var pawn = self.list[i];
+         if(pawn.x == x && pawn.y == y) {
+            list.push(pawn);
+         }
+      }
+   }
+   
    this.add = function(id) {
       var pawnIndex = self.findById(id);
       var pawn;

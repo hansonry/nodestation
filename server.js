@@ -59,31 +59,21 @@ function nextTo(x1, y1, x2, y2) {
    return dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1;
 }
 
+function createItem(type) {
+   var item = itemList.add(shortid.generate(), type);
+   for(var k = 0; k < clientList.list.length; k++) {
+      var targetClient = clientList.list[k];
+      tx.item.add(targetClient.socket, item);
+   }
+   return item;
+}
+
 io.on('connection', function(socket) {
    console.log('a user connected');
    var client = clientList.add(socket);
    
    // Setup and Dress Pawn
    client.controlledPawn = pawnList.add(shortid.generate());
-   {
-      var pawn = client.controlledPawn;
-      var itemUniform = itemList.add(shortid.generate(), 'uniformCaptian');
-      itemUniform.inventory.id = pawn.id;
-      pawn.inventorySlots.uniform = itemUniform.id;
-
-      var itemHead = itemList.add(shortid.generate(), 'hatCaptian');
-      itemHead.inventory.id = pawn.id;
-      pawn.inventorySlots.head = itemHead.id;
-      
-      var itemFeet = itemList.add(shortid.generate(), 'feetCaptian');
-      itemFeet.inventory.id = pawn.id;
-      pawn.inventorySlots.feet = itemFeet.id;
-      
-      var itemCard = itemList.add(shortid.generate(), 'idCard');
-      itemCard.inventory.id = pawn.id;
-      pawn.inventorySlots.card = itemCard.id;
-
-   }
 
    // Send Server Information
 
@@ -116,6 +106,27 @@ io.on('connection', function(socket) {
       var door = doorList.list[i];
       tx.door.add(client.socket, door);
    }
+   
+   {
+      var pawn = client.controlledPawn;
+      var itemUniform = createItem('uniformCaptian');
+      itemUniform.inventory.id = pawn.id;
+      pawn.inventorySlots.uniform = itemUniform.id;
+
+      var itemHead = createItem('hatCaptian');
+      itemHead.inventory.id = pawn.id;
+      pawn.inventorySlots.head = itemHead.id;
+      
+      var itemFeet = createItem('feetCaptian');
+      itemFeet.inventory.id = pawn.id;
+      pawn.inventorySlots.feet = itemFeet.id;
+      
+      var itemCard = createItem('idCard');
+      itemCard.inventory.id = pawn.id;
+      pawn.inventorySlots.card = itemCard.id;
+
+   }
+
 
 
    socket.on('key', function(msg) {
@@ -152,7 +163,9 @@ io.on('connection', function(socket) {
    socket.on('drop', function (msg) {
       var pawn = client.controlledPawn;
       var itemIndex = itemList.findById(msg.itemId);
-      if(itemIndex >= 0 && nextTo(pawn.x, pawn.y, msg.x, msg.y)) {
+      if(itemIndex >= 0 && nextTo(pawn.x, pawn.y, msg.x, msg.y) && 
+         !tileList.isBlocking(msg.x, msg.y) &&
+         !doorList.isBlocking(msg.x, msg.y)) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == pawn.id) {
             var inLeftHand  = pawn.inventorySlots.handLeft == item.id;

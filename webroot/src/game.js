@@ -241,7 +241,7 @@ function create() {
    
    menu.examine.things.addHeading('Items');
    menu.examine.things.addHeading('Furniture');
-   menu.examine.things.addHeading('Bodies');
+   menu.examine.things.addHeading('People');
    menu.examine.things.addHeading('Drop');
    
    menu.examine.actions.addHeading('Actions');
@@ -808,12 +808,10 @@ function update() {
          menu.inventory.inMenu = false;
       }
       else {
-
-         var uiInventoryResults = menu.inventory.items.getStatus();
-         var uiInventoryActionResults = menu.inventory.actions.getStatus();
          var ownedPawn = pawnList.list[ownedPawnIndex];
-          
-
+         var uiInventoryResults       = menu.inventory.items.getStatus();
+         var uiInventoryActionResults = menu.inventory.actions.getStatus();
+         
          if(uiInventoryResults.state == 'canceled') {
             menu.inventory.items.setVisible(false);
             menu.inventory.items.setEnabled(false);
@@ -933,6 +931,13 @@ function update() {
                   menu.examine.things.addItem(items[i].name, items[i].id, 'Drop');
                }
             }
+            
+            var pawns = [];
+            pawnList.findAllByCoord(coords.x, coords.y, pawns);
+            for(var i = 0; i < pawns.length; i ++) {
+               var pawn = pawns[i];
+               menu.examine.things.addItem(pawn.id, pawn.id, 'People');
+            }
 
             
             menu.examine.things.setEnabled(true);
@@ -966,6 +971,11 @@ function update() {
                }
                menu.examine.actions.setEnabled(true);
             }
+            else if(thingResults.heading == 'People') {
+               menu.examine.actions.addItem('Drag', 'drag', 'Actions');
+               menu.examine.actions.addItem('Strip', 'strip', 'Actions');
+               menu.examine.actions.setEnabled(true);
+            }
          }
          else if(thingResults.state == 'canceled') {
             menu.examine.direction.setEnabled(false);
@@ -986,6 +996,24 @@ function update() {
                menu.examine.actions.setVisible(false); 
                menu.examine.inMenu = false;
 
+            }
+            else if(actionsResults.result == 'drag') {
+               menu.examine.direction.setEnabled(false);
+               menu.examine.direction.setVisible(false);
+               menu.examine.things.setEnabled(false);
+               menu.examine.things.setVisible(false); 
+               menu.examine.actions.setEnabled(false);
+               menu.examine.actions.setVisible(false); 
+               menu.examine.inMenu = false;               
+            }
+            else if(actionsResults.result == 'strip') {
+               menu.examine.direction.setEnabled(false);
+               menu.examine.direction.setVisible(false);
+               menu.examine.things.setEnabled(false);
+               menu.examine.things.setVisible(false); 
+               menu.examine.actions.setEnabled(false);
+               menu.examine.actions.setVisible(false); 
+               menu.examine.inMenu = false;
             }
          }
          else if(actionsResults.state == 'canceled') {
