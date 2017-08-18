@@ -68,6 +68,7 @@ function PawnList() {
             state: 'standing',
             target: { x: self.init.x, y: self.init.y, id: '' },
             walkSpeedTicks: 5,
+            ticksTotal: 0,
             ticksLeft: 0
          },
          inventorySlots: {
@@ -204,6 +205,7 @@ function DoorList() {
          y: y,
          type: type,
          ticksLeft: 0,
+         ticksTotal: 0,
          openSpeedTicks: 10,
          triggered: false,
          triggeredById: '',

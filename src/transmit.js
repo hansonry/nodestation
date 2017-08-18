@@ -41,7 +41,7 @@ module.exports = {
                   x: pawn.motion.target.x,
                   y: pawn.motion.target.y
                },
-               walkSpeedTicks: pawn.motion.walkSpeedTicks,
+               ticksTotal: pawn.motion.ticksTotal,
                ticksLeft: pawn.motion.ticksLeft
             },
             health: pawn.health,
@@ -138,7 +138,7 @@ module.exports = {
             type: door.type,
             state: door.state,
             ticksLeft: door.ticksLeft,
-            openSpeedTicks: door.openSpeedTicks
+            ticksTotal: door.ticksTotal
          });
       }
    },

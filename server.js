@@ -389,7 +389,8 @@ setInterval(function() {
             pawn.motion.target.x = new_x;
             pawn.motion.target.y = new_y;
             pawn.motion.state = 'walking';
-            pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+            pawn.motion.ticksTotal = pawn.motion.walkSpeedTicks;
+            pawn.motion.ticksLeft = pawn.motion.ticksTotal;
             pawn.dirty = true;
          }
          else {
@@ -397,7 +398,8 @@ setInterval(function() {
             if(targetPawn.health > 0) {
                if(pawn.intent == 'harm') {
                   pawn.motion.state = 'attacking';
-                  pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+                  pawn.motion.ticksTotal = pawn.motion.walkSpeedTicks;
+                  pawn.motion.ticksLeft = pawn.motion.ticksTotal;
                   pawn.motion.target.id = targetPawn.id;
                   pawn.motion.target.x = targetPawn.x;
                   pawn.motion.target.y = targetPawn.y;
@@ -407,13 +409,15 @@ setInterval(function() {
                   pawn.motion.target.x = new_x;
                   pawn.motion.target.y = new_y;
                   pawn.motion.state = 'walking';
-                  pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+                  pawn.motion.ticksTotal = pawn.motion.walkSpeedTicks;
+                  pawn.motion.ticksLeft = pawn.motion.ticksTotal;
                   pawn.dirty = true;
 
                   targetPawn.motion.target.x = pawn.x;
                   targetPawn.motion.target.y = pawn.y;
                   targetPawn.motion.state = 'walking';
-                  targetPawn.motion.ticksLeft = targetPawn.motion.walkSpeedTicks;
+                  pawn.motion.ticksTotal = pawn.motion.walkSpeedTicks;
+                  pawn.motion.ticksLeft = pawn.motion.ticksTotal;
                   targetPawn.dirty = true;
                }
             }
@@ -421,7 +425,8 @@ setInterval(function() {
                pawn.motion.target.x = new_x;
                pawn.motion.target.y = new_y;
                pawn.motion.state = 'walking';
-               pawn.motion.ticksLeft = pawn.motion.walkSpeedTicks;
+               pawn.motion.ticksTotal = pawn.motion.walkSpeedTicks;
+               pawn.motion.ticksLeft = pawn.motion.ticksTotal;
                pawn.dirty = true;
             }
          }
@@ -455,7 +460,8 @@ setInterval(function() {
          if(pawnIndex < 0) {
             door.state = 'closing';
             door.dirty = true;
-            door.ticksLeft = door.openSpeedTicks;
+            door.ticksTotal = door.openSpeedTicks;
+            door.ticksLeft  = door.ticksTotal;
          }
       }
       else if(door.state == 'close' && door.triggered) {
@@ -467,20 +473,18 @@ setInterval(function() {
             if(pawn.inventorySlots.card == '') {
                door.state = 'nope'; // This will haunt me later
                door.dirty = true;
-               door.ticksLeft = door.openSpeedTicks;
+               door.ticksTotal = door.openSpeedTicks;
+               door.ticksLeft  = door.ticksTotal;
             }
             else {
                door.state = 'opening';
                door.dirty = true;
-               door.ticksLeft = door.openSpeedTicks;
-
+               door.ticksTotal = door.openSpeedTicks;
+               door.ticksLeft  = door.ticksTotal;
             }
          }
       }
-
       door.triggered = false;
-
-
    }
 
 

@@ -104,7 +104,7 @@ function PawnList() {
             motion: {
                state: 'standing',
                ticksLeft: 0,
-               walkSpeedTicks: 5,
+               ticksLeft: 0,
                target: { x: 0, y: 0 }
             },
             lastUpdateWatch: 0,
@@ -286,6 +286,7 @@ function DoorList() {
          spriteLight: undefined,
          group: undefined,
          ticksLeft: 0,
+         ticksTotal: 0,
          type: type,
          lastUpdateWatch: 0,
          dirty: true

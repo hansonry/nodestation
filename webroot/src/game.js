@@ -444,7 +444,7 @@ function create() {
 
          pawn.motion.state          = msg.motion.state;
          pawn.motion.ticksLeft      = msg.motion.ticksLeft;
-         pawn.motion.walkSpeedTicks = msg.motion.walkSpeedTicks;
+         pawn.motion.ticksTotal     = msg.motion.ticksTotal;
          pawn.motion.target.x       = msg.motion.target.x;
          pawn.motion.target.y       = msg.motion.target.y;
          pawn.lastUpdateWatch       = 0;
@@ -573,7 +573,7 @@ function create() {
          door.y = msg.y;
          door.state = msg.state;
          door.ticksLeft = msg.ticksLeft;
-         door.openSpeedTicks = msg.openSpeedTicks;
+         door.ticksTotal = msg.ticksTotal;
          door.dirty = true;
          door.lastUpdateWatch = 0;
       }
@@ -1064,7 +1064,7 @@ function update() {
       if(pawn.motion.state == 'walking') {
 
          var percent = getActionPercent(pawn.motion.ticksLeft, 
-                                        pawn.motion.walkSpeedTicks, 
+                                        pawn.motion.ticksTotal, 
                                         pawn.lastUpdateWatch, 
                                         updateTimeSeconds);
 
@@ -1081,7 +1081,7 @@ function update() {
       else if(pawn.motion.state == 'attacking') {
 
          var percent = getActionPercent(pawn.motion.ticksLeft, 
-                                        pawn.motion.walkSpeedTicks, 
+                                        pawn.motion.ticksTotal, 
                                         pawn.lastUpdateWatch, 
                                         updateTimeSeconds);
 
@@ -1219,7 +1219,7 @@ function update() {
          }
          else {
             var percent = getActionPercent(door.ticksLeft, 
-                                           door.openSpeedTicks, 
+                                           door.ticksTotal, 
                                            door.lastUpdateWatch, 
                                            updateTimeSeconds);
             door.spriteLight.visible = true;
