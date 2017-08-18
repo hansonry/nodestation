@@ -3,7 +3,7 @@ The intent of this project is to create an open source clone of Space Station 13
 
 This project dose not intend to clone any particular station, but intends to be a baseline from which any of the other stations could be built.
 
-This project is build off of Node, socket.io, and the Kiwi game engine. By using HTML5 this project will be cross platform.
+This project is build off of Node, socket.io, and the Phaser.io game engine. By using HTML5 this project will be cross platform.
 
 ## Installing
 
