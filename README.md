@@ -38,5 +38,7 @@ nodejs server.js
 * Drop        - 'd'   Key
 * Toggle Harm - 'h'   Key
 * Inventory   - 'i'   Key
+* Examine     - 'e'   Key
 * Cancel      - 'Esc' Key
+
 
