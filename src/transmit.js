@@ -44,6 +44,10 @@ module.exports = {
                ticksTotal: pawn.motion.ticksTotal,
                ticksLeft: pawn.motion.ticksLeft
             },
+            drag: {
+               type: pawn.drag.type,
+               id:   pawn.drag.id
+            },
             health: pawn.health,
             inventorySlots: {
                handLeft:  pawn.inventorySlots.handLeft,

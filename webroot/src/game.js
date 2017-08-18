@@ -452,6 +452,8 @@ function create() {
          pawn.y                     = msg.y;
          pawn.facing                = msg.facing;
          pawn.health                = msg.health;
+         pawn.drag.type             = msg.drag.type;
+         pawn.drag.id               = msg.drag.id;
 
          pawn.inventorySlots.handLeft  = msg.inventorySlots.handLeft;
          pawn.inventorySlots.handRight = msg.inventorySlots.handRight;
@@ -672,9 +674,10 @@ function create() {
 
 }
 
-function rawItemGrab(itemId) {
+function rawGrab(type, id) {
    var msg = {
-      itemId: itemId
+      type: type,
+      id: id
    };
    socket.emit('grab', msg);
 }
@@ -687,15 +690,16 @@ function pawnGrab() {
       var itemIndex = itemList.findByCoord(ownedPawn.x, ownedPawn.y);
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
-         rawItemGrab(item.id);
+         rawGrab('item', item.id);
       }
    }
 }
 
 
-function rawItemDrop(itemId, x, y) {
+function rawDrop(type, id, x, y) {
    var msg = {
-      itemId: itemId,
+      type: type,
+      id: id,
       x: x,
       y: y
    };
@@ -718,7 +722,7 @@ function pawnDrop() {
       if(itemIndex >= 0) {
          var item = itemList.list[itemIndex];
          if(item.inventory.id == ownedPawn.id) {
-            rawItemDrop(item.id, ownedPawn.x, ownedPawn.y);
+            rawDrop('item', item.id, ownedPawn.x, ownedPawn.y);
          }
       }
    }
@@ -884,7 +888,7 @@ function update() {
             if(itemIndex >= 0) {
                var item = itemList.list[itemIndex];
                if(uiInventoryActionResults.result == 'drop') {      
-                  rawItemDrop(item.id, ownedPawn.x, ownedPawn.y);
+                  rawDrop('item', item.id, ownedPawn.x, ownedPawn.y);
                }
                else if(uiInventoryActionResults.result == 'equip') {
                   rawInternalMove(item.id, item.pawnSlotType);
@@ -964,7 +968,7 @@ function update() {
             
             if(thingResults.heading == 'Drop') {
                var coords = menu.examine.direction.getSelectedCoord(ownedPawn.x, ownedPawn.y);
-               rawItemDrop(thingResults.result, coords.x, coords.y);
+               rawDrop('item', thingResults.result, coords.x, coords.y);
                menu.examine.direction.setVisible(false);
                menu.examine.things.setEnabled(false);
                menu.examine.things.setVisible(false); 
@@ -979,7 +983,12 @@ function update() {
                menu.examine.actions.setEnabled(true);
             }
             else if(thingResults.heading == 'People') {
-               menu.examine.actions.addItem('Drag', 'drag', 'Actions');
+               if(ownedPawn.drag.type == '') {
+                  menu.examine.actions.addItem('Drag', 'drag', 'Actions');
+               }
+               else if(ownedPawn.drag.type == 'pawn' && ownedPawn.drag.id == thingResults.result) {
+                  menu.examine.actions.addItem('Let Go', 'drop', 'Actions');
+               }
                menu.examine.actions.addItem('Strip', 'strip', 'Actions');
                menu.examine.actions.setEnabled(true);
             }
@@ -994,7 +1003,7 @@ function update() {
          
          if(actionsResults.state == 'selected') {
             if(actionsResults.result == 'pickup') {
-               rawItemGrab(thingResults.result);
+               rawGrab('item', thingResults.result);
                menu.examine.direction.setEnabled(false);
                menu.examine.direction.setVisible(false);
                menu.examine.things.setEnabled(false);
@@ -1005,6 +1014,7 @@ function update() {
 
             }
             else if(actionsResults.result == 'drag') {
+               rawGrab('pawn', thingResults.result);
                menu.examine.direction.setEnabled(false);
                menu.examine.direction.setVisible(false);
                menu.examine.things.setEnabled(false);
@@ -1022,6 +1032,16 @@ function update() {
                menu.examine.actions.setEnabled(false);
                menu.examine.actions.setVisible(false); 
                menu.examine.inMenu = false;
+            }
+            else if(actionsResults.result == 'drop') {
+               rawDrop('pawn', thingResults.result);
+               menu.examine.direction.setEnabled(false);
+               menu.examine.direction.setVisible(false);
+               menu.examine.things.setEnabled(false);
+               menu.examine.things.setVisible(false); 
+               menu.examine.actions.setEnabled(false);
+               menu.examine.actions.setVisible(false); 
+               menu.examine.inMenu = false;               
             }
          }
          else if(actionsResults.state == 'canceled') {

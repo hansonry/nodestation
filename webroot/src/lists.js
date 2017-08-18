@@ -54,6 +54,7 @@ function PawnList() {
                   mask: undefined
                }
             },
+            drag: {type: '', id: ''},
             inventorySlots: {
                handLeft:  '',
                handRight: '',

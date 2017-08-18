@@ -140,53 +140,82 @@ io.on('connection', function(socket) {
    });
    socket.on('grab', function (msg) {
       var pawn = client.controlledPawn;
-      var itemIndex = itemList.findById(msg.itemId);
-      //console.log(msg);
-      if(itemIndex >= 0) {
-         var item = itemList.list[itemIndex];
-         if(nextTo(pawn.x, pawn.y, item.x, item.y) && item.inventory.id == '') {
-            if(pawn.inventorySlots.handRight == '') {
-               item.inventory.id = pawn.id;
-               pawn.inventorySlots.handRight = item.id;
-               item.dirty = true;
-               pawn.dirty = true;
+      
+      if(msg.type == 'item') {
+         var itemIndex = itemList.findById(msg.id);
+         if(itemIndex >= 0) {
+            var item = itemList.list[itemIndex];
+            if(nextTo(pawn.x, pawn.y, item.x, item.y) && item.inventory.id == '') {
+               if(pawn.inventorySlots.handRight == '') {
+                  item.inventory.id = pawn.id;
+                  pawn.inventorySlots.handRight = item.id;
+                  item.dirty = true;
+                  pawn.dirty = true;
+               }
+               else if(pawn.inventorySlots.handLeft == '') {
+                  item.inventory.id = pawn.id;
+                  pawn.inventorySlots.handLeft = item.id;
+                  item.dirty = true;
+                  pawn.dirty = true;
+               }
             }
-            else if(pawn.inventorySlots.handLeft == '') {
-               item.inventory.id = pawn.id;
-               pawn.inventorySlots.handLeft = item.id;
-               item.dirty = true;
+         }
+      }
+      else if(msg.type == 'pawn') {
+         var targetPawnIndex = pawnList.findById(msg.id);
+         if(targetPawnIndex >= 0) {
+            var targetPawn = pawnList.list[targetPawnIndex];
+            if(nextTo(pawn.x, pawn.y, targetPawn.x, targetPawn.y) && (pawn.motion.state == 'standing' || pawn.health <= 0)) {
+               pawn.drag.type = 'pawn';
+               pawn.drag.id   = targetPawn.id;
+               targetPawn.draggedBy = pawn.id;
+               
                pawn.dirty = true;
+               targetPawn.dirty = true;
             }
          }
       }
    });
    socket.on('drop', function (msg) {
       var pawn = client.controlledPawn;
-      var itemIndex = itemList.findById(msg.itemId);
-      if(itemIndex >= 0 && nextTo(pawn.x, pawn.y, msg.x, msg.y) && 
-         !tileList.isBlocking(msg.x, msg.y) &&
-         !doorList.isBlocking(msg.x, msg.y)) {
-         var item = itemList.list[itemIndex];
-         if(item.inventory.id == pawn.id) {
-            var inLeftHand  = pawn.inventorySlots.handLeft == item.id;
-            var inRightHand = pawn.inventorySlots.handRight == item.id;
-            if(inLeftHand || inRightHand) {
-               item.inventory.id = '';
-               item.x = msg.x;
-               item.y = msg.y;
-               item.dirty = true;
-               if(inLeftHand) {
-                  pawn.inventorySlots.handLeft = '';
+      if(msg.type == 'item') {
+         var itemIndex = itemList.findById(msg.id);
+         if(itemIndex >= 0 && nextTo(pawn.x, pawn.y, msg.x, msg.y) && 
+            !tileList.isBlocking(msg.x, msg.y) &&
+            !doorList.isBlocking(msg.x, msg.y)) {
+            var item = itemList.list[itemIndex];
+            if(item.inventory.id == pawn.id) {
+               var inLeftHand  = pawn.inventorySlots.handLeft == item.id;
+               var inRightHand = pawn.inventorySlots.handRight == item.id;
+               if(inLeftHand || inRightHand) {
+                  item.inventory.id = '';
+                  item.x = msg.x;
+                  item.y = msg.y;
+                  item.dirty = true;
+                  if(inLeftHand) {
+                     pawn.inventorySlots.handLeft = '';
+                  }
+                  else if(inRightHand) {
+                     pawn.inventorySlots.handRight = '';
+                  }
+                  pawn.dirty = true;
                }
-               else if(inRightHand) {
-                  pawn.inventorySlots.handRight = '';
-               }
-               pawn.dirty = true;
-            }
 
+            }
          }
       }
-
+      else if(msg.type == 'pawn' && pawn.drag.type == 'pawn') {
+         var targetPawnIndex = pawnList.findById(pawn.drag.id);
+         
+         if(targetPawnIndex >= 0) {
+            var targetPawn = pawnList.list[targetPawnIndex];
+            targetPawn.draggedBy = '';
+            targetPawn.dirty = true;
+         }
+         pawn.drag.type = '';
+         pawn.drag.id   = '';
+         pawn.dirty = true;
+      }
    });
    socket.on('internalMove', function(msg) {
       var pawn = client.controlledPawn;
@@ -433,6 +462,30 @@ setInterval(function() {
       }
 
       //console.log("x: " + client.controlledPawn.x + ", y: " + client.controlledPawn.y);
+   }
+
+   // Pawns dragging things around
+   for(var i = 0; i < pawnList.list.length; i++) {
+      var pawn = pawnList.list[i];
+      if(pawn.motion.state == 'walking') {
+         if(pawn.drag.type == 'pawn') {            
+            var targetPawnIndex = pawnList.findById(pawn.drag.id);
+            if(targetPawnIndex < 0) {
+               pawn.drag.type = '';
+               pawn.drag.id   = '';
+            }
+            else {
+               var targetPawn = pawnList.list[targetPawnIndex];
+               targetPawn.motion.state = pawn.motion.state;
+               targetPawn.motion.target.x = pawn.x;
+               targetPawn.motion.target.y = pawn.y;
+               targetPawn.motion.ticksTotal = pawn.motion.ticksTotal;
+               targetPawn.motion.ticksLeft = pawn.motion.ticksLeft;
+               targetPawn.dirty = true;
+
+            }
+         }
+      }
    }
    
    // Update Doors
