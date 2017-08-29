@@ -1,7 +1,7 @@
 {
   "name": "nodestation",
   "version": "1.0.0",
-  "description": "A SS13 remake in javascript",
+  "description": "A multiplayer dungeon",
   "main": "server.js",
   "dependencies": {
     "express": "^4.15.3",
