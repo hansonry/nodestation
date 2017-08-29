@@ -1,3 +1,4 @@
 node_modules
+master
 *.swp
 package-lock.json
