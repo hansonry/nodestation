@@ -359,26 +359,3 @@ function TileList() {
    };
 }
 
-<<<<<<< HEAD
-=======
-module.exports = {
-   createClientList: function() {
-      return new ClientList();
-   },
-   createPawnList: function() {
-      return new PawnList();
-   },
-   createTileList: function() {
-      return new TileList();
-   },
-   createItemList: function(typeSet) {
-      return new ItemList(typeSet);
-   },
-   createDoorList: function() {
-      return new DoorList();
-   }
-   
-};
-
-
->>>>>>> origin/package-json-desc-2.0
