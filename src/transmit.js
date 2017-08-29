@@ -4,8 +4,6 @@ module.exports = {
       add: function(socket, pawn) {
          socket.emit('addPawn', {
             id:     pawn.id,
-            first_name: pawn.first_name,
-            last_name: pawn.last_name,
             x:      pawn.x,
             y:      pawn.y,
             health: pawn.health,
@@ -150,10 +148,9 @@ module.exports = {
    },
 
    chat: {
-      send: function(socket, message, pawn) {
-		 var newmessage = pawn.first_name + " " + pawn.last_name + " says, " + message;
+      send: function(socket, message) {
          socket.emit('chat', {
-            message: newmessage
+            message: message
          });
       }
    }
