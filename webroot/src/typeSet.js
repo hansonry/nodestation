@@ -6,18 +6,6 @@ function TypeSet() {
 
    this.items = [];
 
-   this.addItemType = function(name, createFunction, enabled) {
-      enabled = enabled || true;
-      if(enabled) {
-         var itemType = {
-            name: name,
-            createFunction: createFunction
-         }
-
-         self.items.push(itemType);
-      }
-   }
-
    function findItemTypeByName(name) {
       var itemTypeIndex = -1;
       for(var i = 0; i < self.items.length; i++) {
@@ -30,9 +18,16 @@ function TypeSet() {
       return itemTypeIndex;
    }
 
-   this.hasItemType = function(name) {
-      var itemTypeIndex = findItemTypeByName(name);
-      return itemTypeIndex >= 0;
+   this.addItemType = function(name, createFunction, enabled) {
+      enabled = enabled || true;
+      if(enabled) {
+         var itemType = {
+            name: name,
+            createFunction: createFunction
+         }
+
+         self.items.push(itemType);
+      }
    }
 
    this.initItem = function(item, name) {
@@ -42,15 +37,12 @@ function TypeSet() {
          item.type = name;
          item.pawnSlotType = '';
          item.pawnVisible = false;
+         item.name = name;
          itemType.createFunction(item);
       }
    }
+
+
    return this;
 }
 
-
-module.exports = {
-   createTypeSet: function() {
-      return new TypeSet();
-   }
-};
