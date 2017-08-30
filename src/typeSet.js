@@ -30,9 +30,25 @@ function TypeSet() {
       return itemTypeIndex;
    }
 
+   function findItemTypeByValue(item) {
+      var itemIndex = -1;
+      for(var i = 0; i < self.items.length; i++) {
+         if(self.items[i] == item) {
+            itemIndex = i;
+            break;
+         }
+      }
+      return itemIndex;
+   }
+
    this.hasItemType = function(name) {
       var itemTypeIndex = findItemTypeByName(name);
       return itemTypeIndex >= 0;
+   }
+
+   this.hasItem = function(item) {
+     var itemIndex = findItemByValue(item);
+     return itemIndex >= 0;
    }
 
    this.initItem = function(item, name) {
@@ -54,4 +70,3 @@ module.exports = {
       return new TypeSet();
    }
 };
-
