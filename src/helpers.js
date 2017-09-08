@@ -11,7 +11,7 @@ module.exports = {
    },
 
    lists: {
-     first_names = ["John", "Joe", "Greg"],
-     last_names = ["Doe", "McRobust", "Greytide"]
+     first_names: ["John", "Joe", "Greg"],
+     last_names: ["Doe", "McRobust", "Greytide"]
    }
 };
