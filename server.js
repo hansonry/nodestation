@@ -16,20 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var helpers = require('./src/helpers');
 
-var express        = require('express');
+function require_nodestation(module_name) {
+  var object = require(module_name);
+  object["helpers"] = helpers;
+  return object
+}
+
+var express        = require_nodestation('express');
 var app            = express();
-var http           = require('http').Server(app);
-var io             = require('socket.io')(http);
-var shortid        = require('shortid');
-var lists          = require('./src/lists');
-var tx             = require('./src/transmit');
-var tiledMapLoader = require('./src/tiledMapLoader');
-var typeSetReq     = require('./src/typeSet');
+var http           = require_nodestation('http').Server(app);
+var io             = require_nodestation('socket.io')(http);
+var shortid        = require_nodestation('shortid');
+var lists          = require_nodestation('./src/lists');
+var tx             = require_nodestation('./src/transmit');
+var tiledMapLoader = require_nodestation('./src/tiledMapLoader');
+var typeSetReq     = require_nodestation('./src/typeSet');
 
-var rawMap         = require('./map/stationMap');
-var rawTypes       = require('./webroot/src/types');
-
+var rawMap         = require_nodestation('./map/stationMap');
+var rawTypes       = require_nodestation('./webroot/src/types');
 
 var typeSet    = typeSetReq.createTypeSet();
 var clientList = lists.createClientList();
@@ -71,7 +77,7 @@ function createItem(type) {
 io.on('connection', function(socket) {
    console.log('a user connected');
    var client = clientList.add(socket);
-   
+
    // Setup and Dress Pawn
    client.controlledPawn = pawnList.add(shortid.generate());
 
@@ -90,7 +96,7 @@ io.on('connection', function(socket) {
    }
 
    // Add all items for this client
-   for(var i = 0; i < itemList.list.length; i++) {      
+   for(var i = 0; i < itemList.list.length; i++) {
       tx.item.add(client.socket, itemList.list[i]);
    }
 
@@ -100,13 +106,13 @@ io.on('connection', function(socket) {
       var tile = tileList.list[i];
       tx.tile.update(client.socket, tile);
    }
-   
+
    // Add all the doors to the client
    for(var i = 0; i < doorList.list.length; i++) {
       var door = doorList.list[i];
       tx.door.add(client.socket, door);
    }
-   
+
    {
       var pawn = client.controlledPawn;
       var itemUniform = createItem('uniformCaptian');
@@ -116,11 +122,11 @@ io.on('connection', function(socket) {
       var itemHead = createItem('hatCaptian');
       itemHead.inventory.id = pawn.id;
       pawn.inventorySlots.head = itemHead.id;
-      
+
       var itemFeet = createItem('feetCaptian');
       itemFeet.inventory.id = pawn.id;
       pawn.inventorySlots.feet = itemFeet.id;
-      
+
       var itemCard = createItem('idCard');
       itemCard.inventory.id = pawn.id;
       pawn.inventorySlots.card = itemCard.id;
@@ -140,7 +146,7 @@ io.on('connection', function(socket) {
    });
    socket.on('grab', function (msg) {
       var pawn = client.controlledPawn;
-      
+
       if(msg.type == 'item') {
          var itemIndex = itemList.findById(msg.id);
          if(itemIndex >= 0) {
@@ -169,7 +175,7 @@ io.on('connection', function(socket) {
                pawn.drag.type = 'pawn';
                pawn.drag.id   = targetPawn.id;
                targetPawn.draggedBy = pawn.id;
-               
+
                pawn.dirty = true;
                targetPawn.dirty = true;
             }
@@ -180,7 +186,7 @@ io.on('connection', function(socket) {
       var pawn = client.controlledPawn;
       if(msg.type == 'item') {
          var itemIndex = itemList.findById(msg.id);
-         if(itemIndex >= 0 && nextTo(pawn.x, pawn.y, msg.x, msg.y) && 
+         if(itemIndex >= 0 && nextTo(pawn.x, pawn.y, msg.x, msg.y) &&
             !tileList.isBlocking(msg.x, msg.y) &&
             !doorList.isBlocking(msg.x, msg.y)) {
             var item = itemList.list[itemIndex];
@@ -206,7 +212,7 @@ io.on('connection', function(socket) {
       }
       else if(msg.type == 'pawn' && pawn.drag.type == 'pawn') {
          var targetPawnIndex = pawnList.findById(pawn.drag.id);
-         
+
          if(targetPawnIndex >= 0) {
             var targetPawn = pawnList.list[targetPawnIndex];
             targetPawn.draggedBy = '';
@@ -234,8 +240,8 @@ io.on('connection', function(socket) {
                   pawn.inventorySlots.handRight = '';
                }
                pawn.inventorySlots[msg.destSlot] = item.id;
-               pawn.dirty = true;               
-               
+               pawn.dirty = true;
+
 
             }
             else if(msg.destSlot == 'handLeft' || msg.destSlot == 'handRight') {
@@ -250,11 +256,11 @@ io.on('connection', function(socket) {
             }
          }
       }
-     
+
    });
    socket.on('strip', function(msg) {
       var pawn = client.controlledPawn;
-      var targetPawnIndex = pawnList.findById(msg.targetPawnId); 
+      var targetPawnIndex = pawnList.findById(msg.targetPawnId);
       if(targetPawnIndex >= 0) {
          var targetPawn = pawnList.list[targetPawnIndex];
          if(nextTo(pawn.x, pawn.y, targetPawn.x, targetPawn.y)) {
@@ -307,10 +313,10 @@ io.on('connection', function(socket) {
    socket.on('chat', function(msg) {
       //console.log("message: " + msg.message);
       for(var i = 0; i < clientList.list.length; i++) {
-         tx.chat.send(clientList.list[i].socket, msg.message);
+         tx.chat.send(clientList.list[i].socket, client.controlledPawn, msg.message);
       }
    });
-   
+
 });
 
 
@@ -330,7 +336,7 @@ setInterval(function() {
 
       if(pawn.motion.state == 'walking' || pawn.motion.state == 'attacking') {
          pawn.motion.ticksLeft --;
-         
+
          pawn.dirty = true;
       }
       if(pawn.motion.state == 'walking' && pawn.motion.ticksLeft <= 0) {
@@ -385,8 +391,8 @@ setInterval(function() {
 
       var new_x = pawn.x + dx;
       var new_y = pawn.y + dy;
-      
-      
+
+
       if(dx != 0 || dy != 0) {
          var doorIndex = doorList.findByCoord(new_x, new_y);
          if(doorIndex >= 0) {
@@ -403,11 +409,11 @@ setInterval(function() {
          pawn.facing = newFacing;
          pawn.dirty = true;
       }
-      
+
 
       // Update motion
-      if((dx != 0 || dy != 0) && 
-         pawn.motion.state == 'standing' &&          
+      if((dx != 0 || dy != 0) &&
+         pawn.motion.state == 'standing' &&
          !tileList.isBlocking(new_x, new_y) &&
          !doorList.isBlocking(new_x, new_y)) {
 
@@ -468,7 +474,7 @@ setInterval(function() {
    for(var i = 0; i < pawnList.list.length; i++) {
       var pawn = pawnList.list[i];
       if(pawn.motion.state == 'walking') {
-         if(pawn.drag.type == 'pawn') {            
+         if(pawn.drag.type == 'pawn') {
             var targetPawnIndex = pawnList.findById(pawn.drag.id);
             if(targetPawnIndex < 0) {
                pawn.drag.type = '';
@@ -487,12 +493,12 @@ setInterval(function() {
          }
       }
    }
-   
+
    // Update Doors
    for(var i = 0; i < doorList.list.length; i++) {
       var door = doorList.list[i];
 
-      if(door.state == 'opening' || door.state == 'closing' || 
+      if(door.state == 'opening' || door.state == 'closing' ||
          door.state == 'nope') {
          door.ticksLeft --;
          door.dirty = true;
@@ -564,7 +570,7 @@ setInterval(function() {
          item.dirty = false;
       }
    }
-   
+
    // Send Door updates if nessary
    for(var i = 0; i < doorList.list.length; i++) {
       var door = doorList.list[i];
@@ -586,7 +592,5 @@ setInterval(function() {
          targetClient.dirtyPawn = false;
       }
    }
-   
+
 }, updateTimeSeconds * 1000); // milliseconds
-
-

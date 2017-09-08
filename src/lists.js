@@ -3,8 +3,8 @@ function ClientList() {
    var self = this;
    this.list = [];
    this.add = function(socket) {
-      var obj = { 
-         socket: socket, 
+      var obj = {
+         socket: socket,
          keys: {
             up: false,
             down: false,
@@ -56,12 +56,16 @@ function PawnList() {
             }
       }
       return pawnIndex;
-      
+
    };
    this.add = function(id) {
+      var firstnames = ["John", "Joe", "Greg"];
+      var lastnames = ["Doe", "McRobust", "Greytide"];
+
       var obj = {
          id: id,
-         x: self.init.x, 
+         last_name: this.helpers.arrays.pick(lastnames),
+         x: self.init.x,
          y: self.init.y,
          facing: 'south',
          motion: {
@@ -140,7 +144,7 @@ function ItemList(typeSet) {
       }
       return itemIndex;
    }
-   
+
    this.findAllByInventoryId = function(inventoryId, list) {
       for(var i = 0; i < self.list.length; i++) {
          var item = self.list[i];
@@ -152,7 +156,7 @@ function ItemList(typeSet) {
    this.add = function(id, type) {
       var obj = {
          id: id,
-         x: 0, 
+         x: 0,
          y: 0,
          inventory: {
             id: ''
@@ -188,7 +192,7 @@ function ItemList(typeSet) {
 function DoorList() {
    var self = this;
    this.list = [];
-   
+
    this.findByCoord = function(x, y) {
       var doorIndex = -1;
       for(var i = 0; i < self.list.length; i++) {
@@ -203,7 +207,7 @@ function DoorList() {
    this.add = function(x, y, type) {
       var obj = {
          state: 'close',
-         x: x, 
+         x: x,
          y: y,
          type: type,
          ticksLeft: 0,
@@ -220,7 +224,7 @@ function DoorList() {
       var doorIndex = self.findByCoord(x, y);
       if(doorIndex >= 0) {
          self.list.splice(doorIndex, 1);
-      }      
+      }
    };
    this.isBlocking = function(x, y) {
       var doorIndex = self.findByCoord(x, y);
@@ -264,7 +268,7 @@ function TileList() {
    this.resize = function(width, height) {
       self.width = width;
       self.height = height;
-      
+
    };
 
    this.setup = function(width, height, data) {
@@ -284,7 +288,7 @@ function TileList() {
       var obj;
       if(tileIndex < 0) {
          obj = {
-            x: x, 
+            x: x,
             y: y,
             layers: {}
          };
@@ -314,7 +318,7 @@ function TileList() {
       var blocking = false;
       for(var i = 0; i < self.list.length; i ++) {
          var tile = self.list[i];
-         if(tile.x == x && tile.y == y && tile.layers.wall != undefined) {            
+         if(tile.x == x && tile.y == y && tile.layers.wall != undefined) {
             blocking = true;
             break;
          }
@@ -326,21 +330,29 @@ function TileList() {
 
 module.exports = {
    createClientList: function() {
-      return new ClientList();
+      var ret = new ClientList();
+      ret.helpers = this.helpers;
+      return ret;
    },
    createPawnList: function() {
-      return new PawnList();
+     var ret = new PawnList();
+     ret.helpers = this.helpers;
+     return ret;
    },
    createTileList: function() {
-      return new TileList();
+     var ret = new TileList();
+     ret.helpers = this.helpers;
+     return ret;
    },
    createItemList: function(typeSet) {
-      return new ItemList(typeSet);
+     var ret = new ItemList(typeSet);
+     ret.helpers = this.helpers;
+     return ret;
    },
    createDoorList: function() {
-      return new DoorList();
+     var ret = new DoorList();
+     ret.helpers = this.helpers;
+     return ret;
    }
-   
+
 };
-
-

@@ -148,11 +148,11 @@ module.exports = {
    },
 
    chat: {
-      send: function(socket, message) {
+      send: function(socket, sender, msg) {
+         var message = sender.first_name.concat(" ").concat(sender.last_name).concat(" says, ").concat(msg);
          socket.emit('chat', {
             message: message
          });
       }
    }
 };
-
