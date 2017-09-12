@@ -62,8 +62,8 @@ function PawnList() {
 
       var obj = {
          id: id,
-         first_name: this.helpers.arrays.pick(this.helpers.lists.first_names),
-         last_name: this.helpers.arrays.pick(this.helpers.lists.last_names),
+         first_name: this.helpers.arrays.pick("first_names"),
+         last_name: this.helpers.arrays.pick("last_names"),
          x: self.init.x,
          y: self.init.y,
          facing: 'south',
