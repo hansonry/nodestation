@@ -1,3 +1,4 @@
+var names = require('./names.js');
 
 function ClientList() {
    var self = this;
@@ -62,8 +63,8 @@ function PawnList() {
 
       var obj = {
          id: id,
-         first_name: this.helpers.arrays.pick("first_names"),
-         last_name: this.helpers.arrays.pick("last_names"),
+         first_name: names.getRandomFirstName(),
+         last_name: names.getRandomLastName(),
          x: self.init.x,
          y: self.init.y,
          facing: 'south',
@@ -104,6 +105,7 @@ function PawnList() {
             return slot;
          }
       };
+
       self.list.push(obj);
       return obj;
    };

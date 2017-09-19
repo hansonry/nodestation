@@ -16,26 +16,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var helpers = require('./src/helpers');
 
-function require_nodestation(module_name) {
-  var object = require(module_name);
-  object["helpers"] = helpers;
-  return object
-}
-
-var express        = require_nodestation('express');
+var express        = require('express');
 var app            = express();
-var http           = require_nodestation('http').Server(app);
-var io             = require_nodestation('socket.io')(http);
-var shortid        = require_nodestation('shortid');
-var lists          = require_nodestation('./src/lists');
-var tx             = require_nodestation('./src/transmit');
-var tiledMapLoader = require_nodestation('./src/tiledMapLoader');
-var typeSetReq     = require_nodestation('./src/typeSet');
+var http           = require('http').Server(app);
+var io             = require('socket.io')(http);
+var shortid        = require('shortid');
+var lists          = require('./src/lists');
+var tx             = require('./src/transmit');
+var tiledMapLoader = require('./src/tiledMapLoader');
+var typeSetReq     = require('./src/typeSet');
 
-var rawMap         = require_nodestation('./map/stationMap');
-var rawTypes       = require_nodestation('./webroot/src/types');
+var rawMap         = require('./map/stationMap');
+var rawTypes       = require('./webroot/src/types');
+
 
 var typeSet    = typeSetReq.createTypeSet();
 var clientList = lists.createClientList();
